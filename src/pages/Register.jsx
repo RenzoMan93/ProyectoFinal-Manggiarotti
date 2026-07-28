@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { authErrorMessage } from '../data/authErrors';
 
 const Register = () => {
   const { register } = useAuth();
@@ -23,7 +24,7 @@ const Register = () => {
       await register(email, password, name);
       navigate('/');
     } catch (err) {
-      setError('No pudimos crear la cuenta. ¿Ya existe ese email?');
+      setError(authErrorMessage(err));
     } finally {
       setSubmitting(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { authErrorMessage } from '../data/authErrors';
 
 const Login = () => {
   const { login } = useAuth();
@@ -18,7 +19,7 @@ const Login = () => {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError('No pudimos iniciar sesión. Revisá tu email y contraseña.');
+      setError(authErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
