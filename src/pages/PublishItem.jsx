@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { crearPublicacion } from '../services/listings';
-import { subirImagen } from '../services/storage';
+import { comprimirImagen } from '../services/storage';
 import { BARRIOS_MONTEVIDEO, CATEGORIAS, CONDICIONES, DEPARTAMENTOS, ubicacionAproximada } from '../utils/uruguay';
 
 const MAX_FOTOS = 3;
@@ -46,9 +46,7 @@ export default function PublishItem() {
 
     setPublicando(true);
     try {
-      const urlsFotos = await Promise.all(
-        fotos.map((f, i) => subirImagen(f, `publicaciones/${user.uid}/${Date.now()}_${i}`)),
-      );
+      const urlsFotos = await Promise.all(fotos.map((f) => comprimirImagen(f)));
 
       const ubicacion = coords ? ubicacionAproximada(coords.lat, coords.lon) : null;
 

@@ -20,7 +20,7 @@ export default function FirebaseSetupNeeded() {
           </a>
           .
         </li>
-        <li>Habilitá Authentication (Email/Password), Firestore y Storage.</li>
+        <li>Habilitá Authentication (Email/Password) y Firestore.</li>
         <li>
           Copiá <code className="rounded bg-gray-100 px-1">.env.example</code> a{' '}
           <code className="rounded bg-gray-100 px-1">.env</code> y completá las credenciales de tu app web.

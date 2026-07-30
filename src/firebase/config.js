@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,10 +14,9 @@ const firebaseConfig = {
 export const firebaseConfigurado = Boolean(firebaseConfig.apiKey);
 
 // Evitamos inicializar los servicios de Firebase si falta configuración:
-// getAuth/getFirestore/getStorage pueden lanzar de forma síncrona (p. ej.
+// getAuth/getFirestore pueden lanzar de forma síncrona (p. ej.
 // auth/invalid-api-key) al momento de importar el módulo, lo que tumbaría
 // toda la app antes de poder mostrar la pantalla de "falta configurar".
 export const app = firebaseConfigurado ? initializeApp(firebaseConfig) : null;
 export const auth = firebaseConfigurado ? getAuth(app) : null;
 export const db = firebaseConfigurado ? getFirestore(app) : null;
-export const storage = firebaseConfigurado ? getStorage(app) : null;

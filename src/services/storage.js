@@ -1,8 +1,8 @@
-import { getDownloadURL, ref, uploadString } from 'firebase/storage';
-import { storage } from '../firebase/config';
-
-/** Redimensiona y comprime una imagen en el navegador antes de subirla. */
-export function comprimirImagen(file, maxSize = 1000, calidad = 0.75) {
+/** Redimensiona y comprime una imagen en el navegador y devuelve un data URL base64.
+ *  Se guarda directo en Firestore (sin Firebase Storage), por eso el tamaño
+ *  y la calidad se mantienen bajos para no superar el límite de 1MB por documento.
+ */
+export function comprimirImagen(file, maxSize = 800, calidad = 0.6) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -22,11 +22,4 @@ export function comprimirImagen(file, maxSize = 1000, calidad = 0.75) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-}
-
-export async function subirImagen(file, ruta) {
-  const dataUrl = await comprimirImagen(file);
-  const storageRef = ref(storage, ruta);
-  await uploadString(storageRef, dataUrl, 'data_url');
-  return getDownloadURL(storageRef);
 }
