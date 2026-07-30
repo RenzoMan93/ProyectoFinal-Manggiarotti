@@ -7,15 +7,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function esDueño(uid) {
+    function esDueno(uid) {
       return estaAutenticado() && request.auth.uid == uid;
     }
 
     match /usuarios/{uid} {
       allow read: if true;
-      allow create: if esDueño(uid);
-      allow update: if esDueño(uid) ||
-        // permitir que la transacción de rating actualice solo el promedio/contador
+      allow create: if esDueno(uid);
+      allow update: if esDueno(uid) ||
+        // permitir que la transaccion de rating actualice solo el promedio/contador
         (estaAutenticado() &&
           request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['ratingPromedio', 'cantidadRatings']));
