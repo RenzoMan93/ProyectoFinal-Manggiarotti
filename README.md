@@ -3,8 +3,13 @@
 Marketplace C2C de artículos de segunda mano para Uruguay. Next.js (App Router) + Tailwind CSS
 + Supabase (Postgres + Auth + Storage). Ver el brief original para el alcance completo por fases.
 
-**Fase actual: Fase 1 — base (Supabase + Next.js + Auth).** El feed, la búsqueda, la IA, el
-checkout con MercadoPago y el chat llegan en fases siguientes.
+**Esta versión no cobra comisión ni integra pasarela de pago.** El pago se coordina directo
+entre comprador y vendedor (efectivo o transferencia); ReUsalo da la confianza (identidad
+verificada, moderación por IA, calificaciones), no la billetera. Integrar MercadoPago queda
+para una fase futura, cuando haya tracción real.
+
+**Fase actual: Fase 1 — base (Supabase + Next.js + Auth).** El feed, la búsqueda, la IA y el
+chat llegan en fases siguientes.
 
 ## Puesta en marcha
 
@@ -23,14 +28,14 @@ npm install
    proyecto.
 3. Esperá a que termine de aprovisionarse (1-2 minutos).
 
-### 3. Ejecutar la migración SQL
+### 3. Ejecutar las migraciones SQL
 
 1. En el menú izquierdo del proyecto, andá a **SQL Editor**.
-2. Abrí el archivo [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) de
-   este repo, copiá **todo** el contenido, y pegalo en el editor.
-3. Hacé clic en **Run**. Esto crea todas las tablas, los tipos enum, las políticas de RLS, el
-   trigger que crea el perfil al registrarse, y los buckets de Storage (`product-photos` público,
-   `kyc-documents` privado).
+2. Corré, en orden, cada archivo de [`supabase/migrations/`](./supabase/migrations/) (copiá todo
+   el contenido de `0001_init.sql`, pegalo, **Run**; después lo mismo con `0002_...sql`, y así con
+   los que se vayan agregando). Esto crea todas las tablas, los tipos enum, las políticas de RLS,
+   el trigger que crea el perfil al registrarse, y los buckets de Storage (`product-photos`
+   público, `kyc-documents` privado).
 
 ### 4. Revisar la config de Authentication
 
@@ -55,8 +60,8 @@ más cómodo desactivarlo:
 cp .env.example .env.local
 ```
 
-Completá los tres valores de Supabase. Las variables de `ANTHROPIC_API_KEY` y
-`MERCADOPAGO_ACCESS_TOKEN` se usan recién en fases siguientes, se pueden dejar vacías por ahora.
+Completá los tres valores de Supabase. `ANTHROPIC_API_KEY` se usa recién en la Fase 3, se puede
+dejar vacía por ahora.
 
 ### 7. Correr en desarrollo
 
@@ -84,6 +89,6 @@ mostrar una pantalla explicando qué falta en vez de romper.
 
 - **Frontend:** Next.js (App Router) + React + Tailwind CSS
 - **Backend / DB / Auth / Storage:** Supabase
-- **Pagos (Fase 4):** MercadoPago (Split de Pagos + captura diferida)
+- **Pagos:** ninguno en esta versión — coordinación directa entre comprador y vendedor
 - **IA (Fase 3):** API de Anthropic (Claude), llamada solo desde el backend
 - **Hosting:** Vercel
