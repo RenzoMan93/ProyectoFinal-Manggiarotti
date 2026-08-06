@@ -27,6 +27,18 @@ export default async function Header() {
         <nav className="flex items-center gap-2">
           {user ? (
             <>
+              <Link
+                href="/favoritos"
+                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
+              >
+                Favoritos
+              </Link>
+              <Link
+                href="/publicar"
+                className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+              >
+                Publicar
+              </Link>
               <span className="hidden text-sm text-gray-600 sm:inline">
                 Hola, {profile?.name?.split(" ")[0] || "vos"}
               </span>
