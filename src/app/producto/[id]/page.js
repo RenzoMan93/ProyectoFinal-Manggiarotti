@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { categoryById, formatPrice, timeAgo } from "@/lib/format";
+import { waLink } from "@/lib/whatsapp";
 import FavoriteButton from "@/components/FavoriteButton";
+import ProductStatusToggle from "@/components/ProductStatusToggle";
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
@@ -16,7 +19,7 @@ export default async function ProductDetailPage({ params }) {
 
   const { data: seller } = await supabase
     .from("profiles")
-    .select("name, id_verified")
+    .select("name, phone, id_verified")
     .eq("id", product.seller_id)
     .single();
 
@@ -35,6 +38,8 @@ export default async function ProductDetailPage({ params }) {
   }
 
   const cat = categoryById(product.category);
+  const isOwner = user?.id === product.seller_id;
+  const canBuy = user && !isOwner && product.status === "disponible";
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -43,6 +48,11 @@ export default async function ProductDetailPage({ params }) {
         <div className="absolute right-3 top-3">
           <FavoriteButton productId={product.id} initialFavorite={isFavorite} loggedIn={Boolean(user)} variant="detail" />
         </div>
+        {product.status === "vendido" && (
+          <div className="absolute left-3 top-3 rounded-full bg-gray-900/80 px-3 py-1 text-xs font-bold text-white">
+            VENDIDO
+          </div>
+        )}
       </div>
 
       <span
@@ -73,9 +83,42 @@ export default async function ProductDetailPage({ params }) {
             </span>
           )}
         </div>
-        <div className="mt-1.5 text-xs text-gray-400">
+        <div className="mb-3 mt-1.5 text-xs text-gray-400">
           {ratingAvg != null ? `★ ${ratingAvg.toFixed(1)} (${reviews.length})` : "Sin calificaciones aún"}
         </div>
+
+        {isOwner ? (
+          <ProductStatusToggle productId={product.id} status={product.status} />
+        ) : (
+          <div className="flex flex-col gap-2">
+            {canBuy && (
+              <Link
+                href={`/comprar/${product.id}`}
+                className="block w-full rounded-lg bg-brand py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-dark"
+              >
+                Comprar
+              </Link>
+            )}
+            {!user && (
+              <Link
+                href="/ingresar"
+                className="block w-full rounded-lg bg-brand py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-dark"
+              >
+                Ingresá para comprar
+              </Link>
+            )}
+            {seller?.phone && (
+              <a
+                href={waLink(seller.phone, product.title)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full rounded-lg border border-[#25D366] py-2.5 text-center text-sm font-semibold text-[#1B9E51] hover:bg-green-50"
+              >
+                Consultar por WhatsApp
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

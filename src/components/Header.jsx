@@ -28,6 +28,12 @@ export default async function Header() {
           {user ? (
             <>
               <Link
+                href="/pedidos"
+                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
+              >
+                Pedidos
+              </Link>
+              <Link
                 href="/favoritos"
                 className="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
               >
