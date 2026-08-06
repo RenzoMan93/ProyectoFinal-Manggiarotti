@@ -10,13 +10,13 @@ export default async function Header() {
 
   let profile = null;
   if (user) {
-    const { data } = await supabase.from("profiles").select("name").eq("id", user.id).single();
+    const { data } = await supabase.from("profiles").select("name, id_verified").eq("id", user.id).single();
     profile = data;
   }
 
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3">
         <Link href="/" className="flex items-center gap-2 text-lg font-extrabold text-brand">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-sm text-white">
             ♻
@@ -24,18 +24,24 @@ export default async function Header() {
           ReUsalo
         </Link>
 
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1.5">
           {user ? (
             <>
               <Link
+                href="/mensajes"
+                className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
+              >
+                Mensajes
+              </Link>
+              <Link
                 href="/pedidos"
-                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
+                className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
               >
                 Pedidos
               </Link>
               <Link
                 href="/favoritos"
-                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
+                className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:inline"
               >
                 Favoritos
               </Link>
@@ -45,9 +51,13 @@ export default async function Header() {
               >
                 Publicar
               </Link>
-              <span className="hidden text-sm text-gray-600 sm:inline">
+              <Link
+                href="/verificar"
+                className="hidden text-sm text-gray-600 hover:underline sm:inline"
+              >
                 Hola, {profile?.name?.split(" ")[0] || "vos"}
-              </span>
+                {profile?.id_verified && " ✓"}
+              </Link>
               <LogoutButton />
             </>
           ) : (

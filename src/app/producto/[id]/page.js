@@ -5,6 +5,8 @@ import { categoryById, formatPrice, timeAgo } from "@/lib/format";
 import { waLink } from "@/lib/whatsapp";
 import FavoriteButton from "@/components/FavoriteButton";
 import ProductStatusToggle from "@/components/ProductStatusToggle";
+import ChatButton from "@/components/ChatButton";
+import ReportButton from "@/components/ReportButton";
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
@@ -107,6 +109,7 @@ export default async function ProductDetailPage({ params }) {
                 Ingresá para comprar
               </Link>
             )}
+            {user && <ChatButton productId={product.id} sellerId={product.seller_id} />}
             {seller?.phone && (
               <a
                 href={waLink(seller.phone, product.title)}
@@ -120,6 +123,12 @@ export default async function ProductDetailPage({ params }) {
           </div>
         )}
       </div>
+
+      {user && !isOwner && (
+        <div className="mt-3">
+          <ReportButton type="product" targetId={product.id} label="Reportar esta publicación" />
+        </div>
+      )}
     </div>
   );
 }

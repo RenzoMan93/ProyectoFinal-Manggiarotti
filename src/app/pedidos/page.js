@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, timeAgo } from "@/lib/format";
 import OrderActions from "@/components/OrderActions";
+import ReviewForm from "@/components/ReviewForm";
 
 const STATUS_LABEL = {
   coordinando: "Coordinando",
@@ -37,6 +38,13 @@ export default async function OrdersPage() {
     .eq("seller_id", user.id)
     .order("created_at", { ascending: false });
 
+  const confirmedIds = (purchases || []).filter((o) => o.status === "confirmado").map((o) => o.id);
+  let reviewedOrderIds = new Set();
+  if (confirmedIds.length > 0) {
+    const { data: myReviews } = await supabase.from("reviews").select("order_id").in("order_id", confirmedIds);
+    reviewedOrderIds = new Set((myReviews || []).map((r) => r.order_id));
+  }
+
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-6 text-2xl font-bold text-gray-900">Mis pedidos</h1>
@@ -47,7 +55,14 @@ export default async function OrdersPage() {
       ) : (
         <div className="mb-8 space-y-3">
           {purchases.map((order) => (
-            <OrderRow key={order.id} order={order} counterpart={order.seller} role="buyer" />
+            <OrderRow
+              key={order.id}
+              order={order}
+              counterpart={order.seller}
+              role="buyer"
+              alreadyReviewed={reviewedOrderIds.has(order.id)}
+              buyerId={user.id}
+            />
           ))}
         </div>
       )}
@@ -66,7 +81,7 @@ export default async function OrdersPage() {
   );
 }
 
-function OrderRow({ order, counterpart, role }) {
+function OrderRow({ order, counterpart, role, alreadyReviewed, buyerId }) {
   const product = order.products;
   return (
     <div className="flex gap-3 rounded-xl border border-gray-200 bg-white p-3">
@@ -90,6 +105,13 @@ function OrderRow({ order, counterpart, role }) {
         </div>
         {order.note && <div className="mt-1 text-xs italic text-gray-500">&ldquo;{order.note}&rdquo;</div>}
         <OrderActions orderId={order.id} status={order.status} role={role} />
+        {role === "buyer" && order.status === "confirmado" && (
+          alreadyReviewed ? (
+            <p className="mt-2 text-xs text-brand-dark">Ya calificaste esta compra.</p>
+          ) : (
+            <ReviewForm orderId={order.id} sellerId={order.seller_id} buyerId={buyerId} />
+          )
+        )}
       </div>
     </div>
   );
