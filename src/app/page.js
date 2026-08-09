@@ -2,11 +2,14 @@ import Link from "next/link";
 import { CATEGORIES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
 import ProductCard from "@/components/ProductCard";
+import SearchBar from "@/components/SearchBar";
 
 export default async function Home({ searchParams }) {
   const params = await searchParams;
   const q = (params.q || "").trim();
   const categoria = params.categoria || "";
+  const minPrice = params.min ? Number(params.min) : null;
+  const maxPrice = params.max ? Number(params.max) : null;
 
   const supabase = await createClient();
 
@@ -25,6 +28,8 @@ export default async function Home({ searchParams }) {
     const safeQ = q.replace(/[,()%*]/g, " ").trim();
     if (safeQ) query = query.or(`title.ilike.%${safeQ}%,description.ilike.%${safeQ}%`);
   }
+  if (minPrice !== null && !Number.isNaN(minPrice)) query = query.gte("price", minPrice);
+  if (maxPrice !== null && !Number.isNaN(maxPrice)) query = query.lte("price", maxPrice);
 
   const { data: products } = await query;
 
@@ -34,7 +39,7 @@ export default async function Home({ searchParams }) {
     favoriteIds = new Set((favs || []).map((f) => f.product_id));
   }
 
-  const hasFilters = Boolean(q || categoria);
+  const hasFilters = Boolean(q || categoria || minPrice || maxPrice);
 
   return (
     <>
@@ -54,38 +59,34 @@ export default async function Home({ searchParams }) {
         </Link>
       </div>
 
-      <form action="/" method="get" className="mb-4 flex gap-2">
-        {categoria && <input type="hidden" name="categoria" value={categoria} />}
-        <input
-          type="search"
-          name="q"
-          defaultValue={q}
-          placeholder="Buscar bicicletas, muebles, ropa..."
-          className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm focus:border-brand focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
-        >
-          Buscar
-        </button>
-      </form>
+      <SearchBar q={q} categoria={categoria} minPrice={minPrice} maxPrice={maxPrice} />
 
       <h3 className="mb-3 text-sm font-bold text-ink">Categorías</h3>
       <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
-        <Link
-          href={q ? `/?q=${encodeURIComponent(q)}` : "/"}
-          className={`flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-medium ${
-            !categoria ? "border-brand bg-brand-light text-brand-dark" : "border-line bg-paper text-ink"
-          }`}
-        >
-          Todas
-        </Link>
+        {(() => {
+          const basePersisted = new URLSearchParams();
+          if (q) basePersisted.set("q", q);
+          if (minPrice !== null) basePersisted.set("min", String(minPrice));
+          if (maxPrice !== null) basePersisted.set("max", String(maxPrice));
+          const persisted = basePersisted.toString();
+          return (
+            <Link
+              href={persisted ? `/?${persisted}` : "/"}
+              className={`flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-medium ${
+                !categoria ? "border-brand bg-brand-light text-brand-dark" : "border-line bg-paper text-ink"
+              }`}
+            >
+              Todas
+            </Link>
+          );
+        })()}
         {CATEGORIES.map((c) => {
           const params = new URLSearchParams();
           if (categoria !== c.id) params.set("categoria", c.id);
           if (q) params.set("q", q);
-          const href = categoria === c.id ? (q ? `/?q=${encodeURIComponent(q)}` : "/") : `/?${params.toString()}`;
+          if (minPrice !== null) params.set("min", String(minPrice));
+          if (maxPrice !== null) params.set("max", String(maxPrice));
+          const href = params.toString() ? `/?${params.toString()}` : "/";
           return (
             <Link
               key={c.id}
