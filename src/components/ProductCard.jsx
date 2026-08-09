@@ -21,6 +21,11 @@ export default function ProductCard({ product, isFavorite, loggedIn }) {
             VENDIDO
           </div>
         )}
+        {product.status === "pausado" && (
+          <div className="absolute left-2 top-2 rounded-full bg-muted/85 px-2 py-0.5 text-[10px] font-bold text-white">
+            OCULTO
+          </div>
+        )}
       </div>
       <div className="px-3 py-2.5">
         <div className="mb-1 font-mono text-[15px] font-semibold text-brand-dark">{formatPrice(product.price)}</div>

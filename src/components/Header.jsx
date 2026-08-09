@@ -57,6 +57,12 @@ export default async function Header() {
                 )}
               </Link>
               <Link
+                href="/mis-productos"
+                className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-ink hover:bg-brand-light sm:inline"
+              >
+                Mis publicaciones
+              </Link>
+              <Link
                 href="/pedidos"
                 className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-ink hover:bg-brand-light sm:inline"
               >
