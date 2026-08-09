@@ -23,7 +23,27 @@ export async function updateSession(request) {
 
   // Refresca la sesión si el access token expiró; necesario para que
   // los Server Components siempre lean el usuario autenticado vigente.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+
+  if (user && pathname !== "/verificar") {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("must_verify, id_verified")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.must_verify && !profile.id_verified) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/verificar";
+      const redirectResponse = NextResponse.redirect(url);
+      response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+      return redirectResponse;
+    }
+  }
 
   return response;
 }

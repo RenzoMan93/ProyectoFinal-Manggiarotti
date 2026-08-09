@@ -193,7 +193,14 @@ export default function VerifyForm({ initialName }) {
             </svg>
           </div>
           <h2 className="mb-2 font-serif text-xl font-semibold text-ink">¡Cuenta verificada!</h2>
-          <p className="mb-2 text-sm text-muted">Ya tenés la insignia de verificado en tu perfil y tus publicaciones.</p>
+          <p className="mb-4 text-sm text-muted">Ya tenés la insignia de verificado en tu perfil y tus publicaciones.</p>
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
+          >
+            Ir a ReUsalo
+          </button>
         </div>
       )}
 
