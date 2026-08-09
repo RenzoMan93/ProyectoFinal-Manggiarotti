@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function ChatThread({ conversationId, initialMessages, currentUserId, isBuyer }) {
+export default function ChatThread({ conversationId, initialMessages, currentUserId }) {
   const router = useRouter();
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
@@ -40,16 +40,13 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
   }, [conversationId, supabase]);
 
   useEffect(() => {
-    const field = isBuyer ? "buyer_last_read_at" : "seller_last_read_at";
     supabase
-      .from("conversations")
-      .update({ [field]: new Date().toISOString() })
-      .eq("id", conversationId)
+      .rpc("mark_conversation_read", { p_conversation_id: conversationId })
       .then(({ error }) => {
         if (error) console.error(error);
         else router.refresh();
       });
-  }, [conversationId, isBuyer, supabase, router]);
+  }, [conversationId, supabase, router]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

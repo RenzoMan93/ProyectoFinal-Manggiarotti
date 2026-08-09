@@ -48,7 +48,7 @@ export default async function ChatThreadPage({ params }) {
         </div>
       </div>
 
-      <ChatThread conversationId={id} initialMessages={messages || []} currentUserId={user.id} isBuyer={isBuyer} />
+      <ChatThread conversationId={id} initialMessages={messages || []} currentUserId={user.id} />
     </div>
   );
 }
