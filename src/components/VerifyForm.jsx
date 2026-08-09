@@ -5,14 +5,29 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { resizeImageToBlob } from "@/lib/image";
 
-export default function VerifyForm() {
+const STEP_LABELS = ["Datos", "Documento", "Listo"];
+
+export default function VerifyForm({ initialName }) {
   const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [data, setData] = useState({
+    nombre: initialName || "",
+    documento: "",
+    fechaNacimiento: "",
+    ciudad: "",
+    codigoPostal: "",
+  });
   const [frente, setFrente] = useState(null);
   const [dorso, setDorso] = useState(null);
   const [previewFrente, setPreviewFrente] = useState(null);
   const [previewDorso, setPreviewDorso] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const update = (field) => (e) => setData((d) => ({ ...d, [field]: e.target.value }));
+
+  const step1Valid = Object.values(data).every((v) => v.trim().length > 0);
+  const step2Valid = Boolean(frente && dorso);
 
   const handleFile = (side) => (e) => {
     const file = e.target.files?.[0];
@@ -27,15 +42,18 @@ export default function VerifyForm() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const goNext = () => {
+    if (step === 1 && !step1Valid) return;
     setError("");
-    if (!frente || !dorso) {
-      setError("Subí las dos fotos (frente y dorso).");
-      return;
-    }
+    setStep((s) => s + 1);
+  };
+  const goBack = () => setStep((s) => Math.max(1, s - 1));
 
+  const handleFinish = async () => {
+    if (!step2Valid) return;
+    setError("");
     setBusy(true);
+
     const supabase = createClient();
     const {
       data: { user },
@@ -67,50 +85,185 @@ export default function VerifyForm() {
 
       const { error: e4 } = await supabase
         .from("profiles")
-        .update({ id_verified: true, id_verified_at: new Date().toISOString() })
+        .update({
+          name: data.nombre.trim(),
+          document_number: data.documento.trim(),
+          birth_date: data.fechaNacimiento,
+          city: data.ciudad.trim(),
+          postal_code: data.codigoPostal.trim(),
+          id_verified: true,
+          id_verified_at: new Date().toISOString(),
+        })
         .eq("id", user.id);
       if (e4) throw e4;
 
-      router.push("/");
+      setStep(3);
       router.refresh();
     } catch (err) {
       console.error(err);
       setError("No pudimos completar la verificación. Intentá de nuevo.");
+    } finally {
       setBusy(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PhotoField label="Frente de la cédula" preview={previewFrente} onChange={handleFile("frente")} inputId="frente" />
-      <PhotoField label="Dorso de la cédula" preview={previewDorso} onChange={handleFile("dorso")} inputId="dorso" />
+    <div>
+      <div className="mb-6 flex items-center gap-1.5">
+        {STEP_LABELS.map((label, i) => {
+          const n = i + 1;
+          const state = n < step ? "done" : n === step ? "active" : "";
+          return (
+            <div key={label} className="flex flex-1 items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`flex h-6 w-6 items-center justify-center rounded-full border text-[11px] font-bold ${
+                    state === "done"
+                      ? "border-ok bg-ok text-white"
+                      : state === "active"
+                        ? "border-ochre bg-ochre text-brand-dark"
+                        : "border-line bg-cream text-muted"
+                  }`}
+                >
+                  {state === "done" ? "✓" : n}
+                </div>
+                <span className="text-[8.5px] font-semibold text-muted">{label}</span>
+              </div>
+              {n < 3 && <div className={`h-0.5 flex-1 ${n < step ? "bg-ok" : "bg-line"}`} />}
+            </div>
+          );
+        })}
+      </div>
 
-      {error && <p className="text-sm text-coral">{error}</p>}
+      {step === 1 && (
+        <div>
+          <h2 className="mb-1 font-serif text-xl font-semibold text-ink">Tus datos</h2>
+          <p className="mb-5 text-sm text-muted">
+            Los necesitamos para verificar tu identidad como comprador y vendedor en ReUsalo.
+          </p>
+          <div className="space-y-3.5">
+            <Field label="Nombre completo">
+              <input value={data.nombre} onChange={update("nombre")} className={inputClass} />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Documento (cédula)">
+                <input value={data.documento} onChange={update("documento")} className={inputClass} />
+              </Field>
+              <Field label="Fecha de nacimiento">
+                <input type="date" value={data.fechaNacimiento} onChange={update("fechaNacimiento")} className={inputClass} />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Ciudad">
+                <input
+                  value={data.ciudad}
+                  onChange={update("ciudad")}
+                  placeholder="Ej: Punta del Este"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Código postal">
+                <input value={data.codigoPostal} onChange={update("codigoPostal")} className={inputClass} />
+              </Field>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <button
-        type="submit"
-        disabled={busy}
-        className="w-full rounded-lg bg-brand py-2.5 font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
-      >
-        {busy ? "Subiendo..." : "Verificar mi identidad"}
-      </button>
-    </form>
+      {step === 2 && (
+        <div>
+          <h2 className="mb-1 font-serif text-xl font-semibold text-ink">Foto de tu documento</h2>
+          <p className="mb-5 text-sm text-muted">Subí una foto del frente y del dorso de tu cédula.</p>
+
+          <DocCard label="Frente del documento" preview={previewFrente} onChange={handleFile("frente")} inputId="frente" />
+          <DocCard label="Dorso del documento" preview={previewDorso} onChange={handleFile("dorso")} inputId="dorso" />
+
+          <div className="mt-2 flex gap-2 rounded-xl border border-dashed border-ochre bg-[#EFE7D2] p-3 text-xs leading-relaxed text-[#5c5537]">
+            <span>🔒</span>
+            <span>Tu documento se guarda en un almacenamiento privado, separado del resto de tu perfil.</span>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col items-center pt-4 text-center">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-ok">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <h2 className="mb-2 font-serif text-xl font-semibold text-ink">¡Cuenta verificada!</h2>
+          <p className="mb-2 text-sm text-muted">Ya tenés la insignia de verificado en tu perfil y tus publicaciones.</p>
+        </div>
+      )}
+
+      {error && <p className="mt-3 text-sm text-coral">{error}</p>}
+
+      {step < 3 && (
+        <div className="mt-6 flex gap-2.5">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={goBack}
+              className="flex-1 rounded-lg border border-line py-2.5 text-sm font-semibold text-ink hover:bg-cream"
+            >
+              Atrás
+            </button>
+          )}
+          {step === 1 && (
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={!step1Valid}
+              className="flex-[2] rounded-lg bg-brand py-2.5 text-sm font-semibold text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+            >
+              Continuar
+            </button>
+          )}
+          {step === 2 && (
+            <button
+              type="button"
+              onClick={handleFinish}
+              disabled={!step2Valid || busy}
+              className="flex-[2] rounded-lg bg-brand py-2.5 text-sm font-semibold text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+            >
+              {busy ? "Enviando..." : "Finalizar"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
-function PhotoField({ label, preview, onChange, inputId }) {
+const inputClass = "w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm focus:border-brand focus:outline-none";
+
+function Field({ label, children }) {
   return (
-    <div>
-      <span className="mb-1 block text-sm font-medium text-ink">{label}</span>
+    <label className="block">
+      <span className="mb-1 block text-xs font-bold text-ink">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function DocCard({ label, preview, onChange, inputId }) {
+  return (
+    <div className="mb-3 flex items-center gap-3 rounded-2xl border border-dashed border-line bg-paper p-3.5">
+      <div className="h-11 w-16 flex-none overflow-hidden rounded-lg bg-cream">
+        {preview && <img src={preview} alt={label} className="h-full w-full object-cover" />}
+      </div>
+      <div className="flex-1">
+        <div className="text-[13px] font-bold text-ink">{label}</div>
+        <div className={`text-[11px] ${preview ? "font-semibold text-ok" : "text-muted"}`}>
+          {preview ? "✓ Cargada" : "Sin cargar"}
+        </div>
+      </div>
       <label
         htmlFor={inputId}
-        className="flex h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-line bg-cream text-muted"
+        className="flex-none cursor-pointer rounded-lg bg-brand px-3 py-2 text-[11.5px] font-bold text-white"
       >
-        {preview ? (
-          <img src={preview} alt={label} className="h-full w-full rounded-xl object-cover" />
-        ) : (
-          <span className="text-sm font-semibold">Subir foto</span>
-        )}
+        {preview ? "Cambiar" : "Subir foto"}
       </label>
       <input id={inputId} type="file" accept="image/*" onChange={onChange} className="hidden" />
     </div>

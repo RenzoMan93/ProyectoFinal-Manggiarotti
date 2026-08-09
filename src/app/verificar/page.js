@@ -9,24 +9,22 @@ export default async function VerifyPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/ingresar");
 
-  const { data: profile } = await supabase.from("profiles").select("id_verified").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("name, id_verified").eq("id", user.id).single();
 
-  return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-2 font-serif text-2xl font-semibold text-ink">Verificar identidad</h1>
-      {profile?.id_verified ? (
+  if (profile?.id_verified) {
+    return (
+      <div className="mx-auto max-w-md">
+        <h1 className="mb-2 font-serif text-2xl font-semibold text-ink">Verificar identidad</h1>
         <p className="rounded-lg bg-brand-light px-4 py-3 text-sm text-brand-dark">
           Tu cuenta ya está verificada. ✓
         </p>
-      ) : (
-        <>
-          <p className="mb-6 text-sm text-muted">
-            Subí una foto del frente y del dorso de tu cédula. Esta versión no hace una validación
-            automática: al subir ambas fotos tu cuenta queda marcada como verificada.
-          </p>
-          <VerifyForm />
-        </>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-md">
+      <VerifyForm initialName={profile?.name || ""} />
     </div>
   );
 }
