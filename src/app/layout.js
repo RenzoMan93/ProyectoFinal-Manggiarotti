@@ -1,6 +1,7 @@
 import { Fraunces, IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import MessageNotifier from "@/components/MessageNotifier";
 import SupabaseSetupNeeded from "@/components/SupabaseSetupNeeded";
 import { supabaseConfigured } from "@/lib/supabase/config";
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col">
         {supabaseConfigured ? (
           <>
+            <MessageNotifier />
             <Header />
             <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
             <footer className="border-t border-line py-5 text-center text-xs text-muted">

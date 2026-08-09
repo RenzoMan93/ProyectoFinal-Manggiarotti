@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ChatThread({ conversationId, initialMessages, currentUserId, isBuyer }) {
+  const router = useRouter();
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -45,8 +47,9 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
       .eq("id", conversationId)
       .then(({ error }) => {
         if (error) console.error(error);
+        else router.refresh();
       });
-  }, [conversationId, isBuyer, supabase]);
+  }, [conversationId, isBuyer, supabase, router]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
