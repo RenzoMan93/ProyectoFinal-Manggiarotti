@@ -36,6 +36,8 @@ export default function RootLayout({ children }) {
             <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
             <footer className="border-t border-line py-5 text-center text-xs text-muted">
               ReUsalo · Compra y venta de segunda mano en Uruguay
+              <br />
+              © {new Date().getFullYear()} Renzo Manggiarotti. Todos los derechos reservados.
             </footer>
           </>
         ) : (
