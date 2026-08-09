@@ -91,7 +91,7 @@ export default async function Header() {
               </Link>
               {profile?.is_admin && (
                 <Link
-                  href="/admin/verificaciones"
+                  href="/admin"
                   className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-ochre hover:bg-brand-light sm:inline"
                 >
                   Panel admin

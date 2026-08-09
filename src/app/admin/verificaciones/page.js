@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/admin";
 import VerificationReviewCard from "@/components/VerificationReviewCard";
 
 export default async function AdminVerificationsPage() {
@@ -8,9 +9,7 @@ export default async function AdminVerificationsPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/ingresar");
-
-  const { data: me } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-  if (!me?.is_admin) notFound();
+  if (!(await isAdmin(supabase, user))) notFound();
 
   const { data: pending } = await supabase
     .from("profiles")
