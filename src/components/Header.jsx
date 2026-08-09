@@ -17,7 +17,9 @@ export default async function Header() {
     const { data: conversations } = await supabase
       .from("conversations")
       .select("buyer_id, seller_id, buyer_last_read_at, seller_last_read_at, messages(sender_id, created_at)")
-      .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+      .or(
+        `and(buyer_id.eq.${user.id},deleted_by_buyer.eq.false),and(seller_id.eq.${user.id},deleted_by_seller.eq.false)`,
+      )
       .order("created_at", { foreignTable: "messages", ascending: false })
       .limit(1, { foreignTable: "messages" });
 
