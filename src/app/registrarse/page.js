@@ -9,8 +9,10 @@ export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", acceptedTerms: false });
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [resendMsg, setResendMsg] = useState("");
 
   const update = (field) => (e) => {
     const value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
@@ -20,7 +22,6 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setInfo("");
 
     const phoneDigits = form.phone.replace(/\D/g, "");
     if (!form.name.trim()) return setError("Ingresá tu nombre.");
@@ -54,82 +55,142 @@ export default function RegisterPage() {
       return;
     }
 
-    setInfo("¡Listo! Revisá tu email para confirmar la cuenta antes de ingresar.");
+    setPendingEmail(form.email.trim());
   };
 
-  return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Creá tu cuenta</h1>
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!code.trim()) return setError("Ingresá el código que te llegó por email.");
 
-      {info ? (
-        <p className="rounded-lg bg-brand-light px-4 py-3 text-sm text-brand-dark">{info}</p>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Field label="Nombre">
-            <input
-              required
-              value={form.name}
-              onChange={update("name")}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
-            />
-          </Field>
-          <Field label="Teléfono (con WhatsApp)">
-            <input
-              required
-              type="tel"
-              value={form.phone}
-              onChange={update("phone")}
-              placeholder="09X XXX XXX"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
-            />
-          </Field>
-          <Field label="Email">
-            <input
-              required
-              type="email"
-              value={form.email}
-              onChange={update("email")}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
-            />
-          </Field>
-          <Field label="Contraseña">
-            <input
-              required
-              type="password"
-              minLength={6}
-              value={form.password}
-              onChange={update("password")}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
-            />
-          </Field>
+    setBusy(true);
+    const supabase = createClient();
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email: pendingEmail,
+      token: code.trim(),
+      type: "signup",
+    });
+    setBusy(false);
 
-          <label className="flex items-start gap-2 text-sm text-gray-600">
-            <input
-              type="checkbox"
-              checked={form.acceptedTerms}
-              onChange={update("acceptedTerms")}
-              className="mt-0.5"
-            />
-            <span>
-              Acepto los{" "}
-              <Link href="/terminos" target="_blank" className="font-medium text-brand hover:underline">
-                Términos y Condiciones
-              </Link>
-              .
-            </span>
-          </label>
+    if (verifyError) {
+      setError("Código incorrecto o vencido. Probá de nuevo o reenvialo.");
+      return;
+    }
 
+    router.push("/");
+    router.refresh();
+  };
+
+  const handleResend = async () => {
+    setResendMsg("");
+    const supabase = createClient();
+    const { error: resendError } = await supabase.auth.resend({ type: "signup", email: pendingEmail });
+    setResendMsg(resendError ? "No pudimos reenviar el código." : "Te reenviamos el código.");
+  };
+
+  if (pendingEmail) {
+    return (
+      <div className="mx-auto max-w-md">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900">Confirmá tu email</h1>
+        <p className="mb-6 text-sm text-gray-500">
+          Te mandamos un código de 6 dígitos a <strong>{pendingEmail}</strong>. Ingresalo acá abajo.
+        </p>
+        <form onSubmit={handleVerify} className="space-y-4">
+          <input
+            required
+            inputMode="numeric"
+            maxLength={6}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="000000"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-center text-lg tracking-[0.3em] focus:border-brand focus:outline-none"
+          />
           {error && <p className="text-sm text-red-600">{error}</p>}
-
           <button
             type="submit"
             disabled={busy}
             className="w-full rounded-lg bg-brand py-2.5 font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
           >
-            {busy ? "Creando cuenta..." : "Crear cuenta"}
+            {busy ? "Confirmando..." : "Confirmar código"}
           </button>
         </form>
-      )}
+        <button onClick={handleResend} className="mt-4 text-sm font-medium text-brand hover:underline">
+          Reenviar código
+        </button>
+        {resendMsg && <p className="mt-2 text-xs text-gray-500">{resendMsg}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-md">
+      <h1 className="mb-6 text-2xl font-bold text-gray-900">Creá tu cuenta</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Field label="Nombre">
+          <input
+            required
+            value={form.name}
+            onChange={update("name")}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+          />
+        </Field>
+        <Field label="Teléfono (con WhatsApp)">
+          <input
+            required
+            type="tel"
+            value={form.phone}
+            onChange={update("phone")}
+            placeholder="09X XXX XXX"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+          />
+        </Field>
+        <Field label="Email">
+          <input
+            required
+            type="email"
+            value={form.email}
+            onChange={update("email")}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+          />
+        </Field>
+        <Field label="Contraseña">
+          <input
+            required
+            type="password"
+            minLength={6}
+            value={form.password}
+            onChange={update("password")}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+          />
+        </Field>
+
+        <label className="flex items-start gap-2 text-sm text-gray-600">
+          <input
+            type="checkbox"
+            checked={form.acceptedTerms}
+            onChange={update("acceptedTerms")}
+            className="mt-0.5"
+          />
+          <span>
+            Acepto los{" "}
+            <Link href="/terminos" target="_blank" className="font-medium text-brand hover:underline">
+              Términos y Condiciones
+            </Link>
+            .
+          </span>
+        </label>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={busy}
+          className="w-full rounded-lg bg-brand py-2.5 font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
+        >
+          {busy ? "Creando cuenta..." : "Crear cuenta"}
+        </button>
+      </form>
 
       <p className="mt-4 text-sm text-gray-500">
         ¿Ya tenés cuenta?{" "}
