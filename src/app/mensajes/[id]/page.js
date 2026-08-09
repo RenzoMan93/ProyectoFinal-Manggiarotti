@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ChatThread from "@/components/ChatThread";
 import ReportButton from "@/components/ReportButton";
+import HideConversationButton from "@/components/HideConversationButton";
 
 export default async function ChatThreadPage({ params }) {
   const { id } = await params;
@@ -41,7 +42,10 @@ export default async function ChatThreadPage({ params }) {
           </Link>
           <div className="text-xs text-muted">con {counterpart?.name || "Usuario"}</div>
         </div>
-        <ReportButton type="user" targetId={counterpart?.id} label="Reportar" />
+        <div className="flex items-center gap-3">
+          <ReportButton type="user" targetId={counterpart?.id} label="Reportar" />
+          <HideConversationButton conversationId={conversation.id} isBuyer={isBuyer} redirectTo="/mensajes" compact={false} />
+        </div>
       </div>
 
       <ChatThread conversationId={id} initialMessages={messages || []} currentUserId={user.id} />
