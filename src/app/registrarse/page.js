@@ -91,8 +91,8 @@ export default function RegisterPage() {
   if (pendingEmail) {
     return (
       <div className="mx-auto max-w-md">
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">Confirmá tu email</h1>
-        <p className="mb-6 text-sm text-gray-500">
+        <h1 className="mb-2 font-serif text-2xl font-semibold text-ink">Confirmá tu email</h1>
+        <p className="mb-6 text-sm text-muted">
           Te mandamos un código de 6 dígitos a <strong>{pendingEmail}</strong>. Ingresalo acá abajo.
         </p>
         <form onSubmit={handleVerify} className="space-y-4">
@@ -103,9 +103,9 @@ export default function RegisterPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="000000"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-center text-lg tracking-[0.3em] focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-center text-lg tracking-[0.3em] focus:border-brand focus:outline-none"
           />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-coral">{error}</p>}
           <button
             type="submit"
             disabled={busy}
@@ -117,14 +117,14 @@ export default function RegisterPage() {
         <button onClick={handleResend} className="mt-4 text-sm font-medium text-brand hover:underline">
           Reenviar código
         </button>
-        {resendMsg && <p className="mt-2 text-xs text-gray-500">{resendMsg}</p>}
+        {resendMsg && <p className="mt-2 text-xs text-muted">{resendMsg}</p>}
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Creá tu cuenta</h1>
+      <h1 className="mb-6 font-serif text-2xl font-semibold text-ink">Creá tu cuenta</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Field label="Nombre">
@@ -132,7 +132,7 @@ export default function RegisterPage() {
             required
             value={form.name}
             onChange={update("name")}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
           />
         </Field>
         <Field label="Teléfono (con WhatsApp)">
@@ -142,7 +142,7 @@ export default function RegisterPage() {
             value={form.phone}
             onChange={update("phone")}
             placeholder="09X XXX XXX"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
           />
         </Field>
         <Field label="Email">
@@ -151,7 +151,7 @@ export default function RegisterPage() {
             type="email"
             value={form.email}
             onChange={update("email")}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
           />
         </Field>
         <Field label="Contraseña">
@@ -161,11 +161,11 @@ export default function RegisterPage() {
             minLength={6}
             value={form.password}
             onChange={update("password")}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
           />
         </Field>
 
-        <label className="flex items-start gap-2 text-sm text-gray-600">
+        <label className="flex items-start gap-2 text-sm text-ink">
           <input
             type="checkbox"
             checked={form.acceptedTerms}
@@ -181,7 +181,7 @@ export default function RegisterPage() {
           </span>
         </label>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-coral">{error}</p>}
 
         <button
           type="submit"
@@ -192,7 +192,7 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-gray-500">
+      <p className="mt-4 text-sm text-muted">
         ¿Ya tenés cuenta?{" "}
         <Link href="/ingresar" className="font-medium text-brand hover:underline">
           Ingresá
@@ -205,7 +205,7 @@ export default function RegisterPage() {
 function Field({ label, children }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-gray-700">{label}</span>
+      <span className="mb-1 block text-sm font-medium text-ink">{label}</span>
       {children}
     </label>
   );

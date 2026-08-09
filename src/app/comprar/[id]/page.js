@@ -22,9 +22,9 @@ export default async function CheckoutPage({ params }) {
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-1 text-2xl font-bold text-gray-900">Coordinar compra</h1>
-      <p className="mb-5 text-sm text-gray-500">
-        {product.title} · <span className="font-semibold text-brand">{formatPrice(product.price)}</span>
+      <h1 className="mb-1 font-serif text-2xl font-semibold text-ink">Coordinar compra</h1>
+      <p className="mb-5 text-sm text-muted">
+        {product.title} · <span className="font-mono font-semibold text-brand-dark">{formatPrice(product.price)}</span>
       </p>
       <CheckoutForm product={product} seller={seller} />
     </div>

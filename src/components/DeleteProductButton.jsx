@@ -28,13 +28,13 @@ export default function DeleteProductButton({ productId }) {
         <button
           onClick={handleDelete}
           disabled={pending}
-          className="flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+          className="flex-1 rounded-lg bg-coral py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Borrando..." : "Sí, borrar"}
         </button>
         <button
           onClick={() => setConfirming(false)}
-          className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          className="flex-1 rounded-lg border border-line py-2.5 text-sm font-semibold text-ink hover:bg-cream"
         >
           Cancelar
         </button>
@@ -45,7 +45,7 @@ export default function DeleteProductButton({ productId }) {
   return (
     <button
       onClick={handleDelete}
-      className="w-full rounded-lg border border-red-200 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50"
+      className="w-full rounded-lg border border-coral/30 py-2.5 text-sm font-semibold text-coral hover:bg-coral/10"
     >
       Borrar publicación
     </button>

@@ -4,25 +4,31 @@ import FavoriteButton from "@/components/FavoriteButton";
 
 export default function ProductCard({ product, isFavorite, loggedIn }) {
   const cat = categoryById(product.category);
+  const cover = product.photo_urls?.[0];
 
   return (
     <Link
       href={`/producto/${product.id}`}
-      className="block overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:shadow-md"
+      className="reusalo-card block overflow-hidden rounded-2xl border border-line bg-paper transition"
     >
-      <div className="relative flex h-32 items-center justify-center overflow-hidden bg-gray-50">
-        <img src={product.photo_url} alt={product.title} className="h-full w-full object-cover" />
+      <div className="relative flex h-32 items-center justify-center overflow-hidden bg-cream">
+        {cover && <img src={cover} alt={product.title} className="h-full w-full object-cover" />}
         <div className="absolute right-2 top-2">
           <FavoriteButton productId={product.id} initialFavorite={isFavorite} loggedIn={loggedIn} />
         </div>
+        {product.status === "vendido" && (
+          <div className="absolute left-2 top-2 rounded-full bg-ink/75 px-2 py-0.5 text-[10px] font-bold text-white">
+            VENDIDO
+          </div>
+        )}
       </div>
       <div className="px-3 py-2.5">
-        <div className="mb-1 text-[15px] font-bold text-gray-900">{formatPrice(product.price)}</div>
-        <div className="mb-1.5 truncate text-sm text-gray-700">
+        <div className="mb-1 font-mono text-[15px] font-semibold text-brand-dark">{formatPrice(product.price)}</div>
+        <div className="mb-1.5 truncate text-sm text-ink">
           {product.title}
           {product.color ? ` · ${product.color}` : ""}
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-400">
+        <div className="flex items-center gap-1 text-xs text-muted">
           <span>{cat.label}</span>
           <span>·</span>
           <span>{product.location}</span>

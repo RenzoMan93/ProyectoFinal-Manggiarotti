@@ -24,7 +24,7 @@ export default function ProductStatusToggle({ productId, status }) {
     <button
       onClick={toggle}
       disabled={pending}
-      className="w-full rounded-lg border border-gray-300 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+      className="w-full rounded-lg border border-line py-2.5 text-sm font-semibold text-ink hover:bg-cream disabled:opacity-60"
     >
       {isSold ? "Reactivar publicación" : "Marcar como vendido"}
     </button>

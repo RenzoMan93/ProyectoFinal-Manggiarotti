@@ -12,11 +12,11 @@ const STATUS_LABEL = {
   en_disputa: "En disputa",
 };
 
-const STATUS_COLOR = {
-  coordinando: "bg-amber-100 text-amber-800",
-  enviado: "bg-blue-100 text-blue-800",
-  confirmado: "bg-green-100 text-green-800",
-  en_disputa: "bg-red-100 text-red-800",
+const STATUS_STYLE = {
+  coordinando: "bg-[#EFE7D2] text-[#8a6a1f]",
+  enviado: "bg-brand-light text-brand-dark",
+  confirmado: "bg-[#E1F3E9] text-[#1f7a45]",
+  en_disputa: "bg-[#F7E6E1] text-coral",
 };
 
 export default async function OrdersPage() {
@@ -28,13 +28,13 @@ export default async function OrdersPage() {
 
   const { data: purchases } = await supabase
     .from("orders")
-    .select("*, products(id, title, photo_url), seller:profiles!orders_seller_id_fkey(name, phone)")
+    .select("*, products(id, title, photo_urls), seller:profiles!orders_seller_id_fkey(name, phone)")
     .eq("buyer_id", user.id)
     .order("created_at", { ascending: false });
 
   const { data: sales } = await supabase
     .from("orders")
-    .select("*, products(id, title, photo_url), buyer:profiles!orders_buyer_id_fkey(name, phone)")
+    .select("*, products(id, title, photo_urls), buyer:profiles!orders_buyer_id_fkey(name, phone)")
     .eq("seller_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -47,11 +47,11 @@ export default async function OrdersPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Mis pedidos</h1>
+      <h1 className="mb-6 font-serif text-2xl font-semibold text-ink">Mis pedidos</h1>
 
-      <h2 className="mb-3 text-sm font-bold text-gray-700">Mis compras</h2>
+      <h2 className="mb-3 text-sm font-bold text-ink">Mis compras</h2>
       {!purchases || purchases.length === 0 ? (
-        <p className="mb-8 text-sm text-gray-400">Todavía no compraste nada.</p>
+        <p className="mb-8 text-sm text-muted">Todavía no compraste nada.</p>
       ) : (
         <div className="mb-8 space-y-3">
           {purchases.map((order) => (
@@ -67,9 +67,9 @@ export default async function OrdersPage() {
         </div>
       )}
 
-      <h2 className="mb-3 text-sm font-bold text-gray-700">Mis ventas</h2>
+      <h2 className="mb-3 text-sm font-bold text-ink">Mis ventas</h2>
       {!sales || sales.length === 0 ? (
-        <p className="text-sm text-gray-400">Todavía no vendiste nada.</p>
+        <p className="text-sm text-muted">Todavía no vendiste nada.</p>
       ) : (
         <div className="space-y-3">
           {sales.map((order) => (
@@ -83,27 +83,28 @@ export default async function OrdersPage() {
 
 function OrderRow({ order, counterpart, role, alreadyReviewed, buyerId }) {
   const product = order.products;
+  const cover = product?.photo_urls?.[0];
   return (
-    <div className="flex gap-3 rounded-xl border border-gray-200 bg-white p-3">
-      <Link href={product ? `/producto/${product.id}` : "#"} className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-        {product?.photo_url && <img src={product.photo_url} alt={product.title} className="h-full w-full object-cover" />}
+    <div className="flex gap-3 rounded-xl border border-line bg-paper p-3">
+      <Link href={product ? `/producto/${product.id}` : "#"} className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-cream">
+        {cover && <img src={cover} alt={product.title} className="h-full w-full object-cover" />}
       </Link>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-gray-900">{product?.title || "Artículo eliminado"}</div>
-            <div className="text-xs text-gray-500">
+            <div className="truncate text-sm font-semibold text-ink">{product?.title || "Artículo eliminado"}</div>
+            <div className="text-xs text-muted">
               {role === "buyer" ? "Vendedor" : "Comprador"}: {counterpart?.name || "Usuario"}
             </div>
           </div>
-          <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_COLOR[order.status]}`}>
+          <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLE[order.status]}`}>
             {STATUS_LABEL[order.status]}
           </span>
         </div>
-        <div className="mt-1 text-xs text-gray-400">
+        <div className="mt-1 font-mono text-xs text-muted">
           {formatPrice(order.amount)} · {order.method} · {timeAgo(order.created_at)}
         </div>
-        {order.note && <div className="mt-1 text-xs italic text-gray-500">&ldquo;{order.note}&rdquo;</div>}
+        {order.note && <div className="mt-1 text-xs italic text-muted">&ldquo;{order.note}&rdquo;</div>}
         <OrderActions orderId={order.id} status={order.status} role={role} />
         {role === "buyer" && order.status === "confirmado" && (
           alreadyReviewed ? (

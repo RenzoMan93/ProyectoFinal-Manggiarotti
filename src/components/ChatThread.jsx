@@ -50,7 +50,7 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex-1 space-y-2 overflow-y-auto py-2">
         {messages.length === 0 && (
-          <p className="py-10 text-center text-sm text-gray-400">Empezá la conversación.</p>
+          <p className="py-10 text-center text-sm text-muted">Empezá la conversación.</p>
         )}
         {messages.map((m) => {
           const mine = m.sender_id === currentUserId;
@@ -58,7 +58,7 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm ${
-                  mine ? "bg-brand text-white" : "bg-gray-100 text-gray-900"
+                  mine ? "bg-brand text-white" : "border border-line bg-paper text-ink"
                 }`}
               >
                 {m.text}
@@ -69,12 +69,12 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={handleSend} className="flex gap-2 border-t border-gray-200 pt-3">
+      <form onSubmit={handleSend} className="flex gap-2 border-t border-line pt-3">
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Escribí un mensaje..."
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+          className="flex-1 rounded-lg border border-line bg-paper px-3 py-2 text-sm focus:border-brand focus:outline-none"
         />
         <button
           type="submit"

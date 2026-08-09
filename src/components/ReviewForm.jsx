@@ -41,11 +41,11 @@ export default function ReviewForm({ orderId, sellerId, buyerId }) {
   }
 
   return (
-    <div className="mt-2 rounded-lg border border-gray-200 p-3">
+    <div className="mt-2 rounded-lg border border-line p-3">
       <div className="mb-2 flex gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
           <button key={n} type="button" onClick={() => setRating(n)} aria-label={`Calificar con ${n} estrellas`}>
-            <span className={n <= rating ? "text-amber-400" : "text-gray-300"} style={{ fontSize: 20 }}>
+            <span className={n <= rating ? "text-ochre" : "text-line"} style={{ fontSize: 20 }}>
               ★
             </span>
           </button>
@@ -56,7 +56,7 @@ export default function ReviewForm({ orderId, sellerId, buyerId }) {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="Comentario (opcional)"
-        className="mb-2 w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs focus:border-brand focus:outline-none"
+        className="mb-2 w-full rounded-lg border border-line bg-paper px-2.5 py-1.5 text-xs focus:border-brand focus:outline-none"
       />
       <button
         onClick={submit}

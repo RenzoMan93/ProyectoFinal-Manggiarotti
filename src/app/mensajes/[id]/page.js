@@ -15,7 +15,7 @@ export default async function ChatThreadPage({ params }) {
   const { data: conversation } = await supabase
     .from("conversations")
     .select(
-      "id, product_id, buyer_id, seller_id, products(title, photo_url), buyer:profiles!conversations_buyer_id_fkey(id, name), seller:profiles!conversations_seller_id_fkey(id, name)",
+      "id, product_id, buyer_id, seller_id, products(title), buyer:profiles!conversations_buyer_id_fkey(id, name), seller:profiles!conversations_seller_id_fkey(id, name)",
     )
     .eq("id", id)
     .single();
@@ -34,12 +34,12 @@ export default async function ChatThreadPage({ params }) {
 
   return (
     <div className="mx-auto flex h-[calc(100vh-140px)] max-w-2xl flex-col">
-      <div className="mb-3 flex items-center justify-between border-b border-gray-200 pb-3">
+      <div className="mb-3 flex items-center justify-between border-b border-line pb-3">
         <div>
-          <Link href={`/producto/${conversation.product_id}`} className="text-sm font-semibold text-gray-900 hover:underline">
+          <Link href={`/producto/${conversation.product_id}`} className="text-sm font-semibold text-ink hover:underline">
             {conversation.products?.title}
           </Link>
-          <div className="text-xs text-gray-500">con {counterpart?.name || "Usuario"}</div>
+          <div className="text-xs text-muted">con {counterpart?.name || "Usuario"}</div>
         </div>
         <ReportButton type="user" targetId={counterpart?.id} label="Reportar" />
       </div>

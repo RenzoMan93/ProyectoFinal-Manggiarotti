@@ -85,7 +85,7 @@ export default function VerifyForm() {
       <PhotoField label="Frente de la cédula" preview={previewFrente} onChange={handleFile("frente")} inputId="frente" />
       <PhotoField label="Dorso de la cédula" preview={previewDorso} onChange={handleFile("dorso")} inputId="dorso" />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-coral">{error}</p>}
 
       <button
         type="submit"
@@ -101,10 +101,10 @@ export default function VerifyForm() {
 function PhotoField({ label, preview, onChange, inputId }) {
   return (
     <div>
-      <span className="mb-1 block text-sm font-medium text-gray-700">{label}</span>
+      <span className="mb-1 block text-sm font-medium text-ink">{label}</span>
       <label
         htmlFor={inputId}
-        className="flex h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500"
+        className="flex h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-line bg-cream text-muted"
       >
         {preview ? (
           <img src={preview} alt={label} className="h-full w-full rounded-xl object-cover" />

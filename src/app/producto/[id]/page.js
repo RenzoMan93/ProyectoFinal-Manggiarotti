@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { categoryById, formatPrice, timeAgo } from "@/lib/format";
 import { waLink } from "@/lib/whatsapp";
 import FavoriteButton from "@/components/FavoriteButton";
+import ProductGallery from "@/components/ProductGallery";
 import ProductStatusToggle from "@/components/ProductStatusToggle";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import ChatButton from "@/components/ChatButton";
@@ -43,16 +44,17 @@ export default async function ProductDetailPage({ params }) {
   const cat = categoryById(product.category);
   const isOwner = user?.id === product.seller_id;
   const canBuy = user && !isOwner && product.status === "disponible";
+  const photos = product.photo_urls || [];
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="relative mb-5 h-64 overflow-hidden rounded-2xl bg-gray-100 sm:h-80">
-        <img src={product.photo_url} alt={product.title} className="h-full w-full object-cover" />
+      <div className="relative">
+        <ProductGallery photos={photos} alt={product.title} />
         <div className="absolute right-3 top-3">
           <FavoriteButton productId={product.id} initialFavorite={isFavorite} loggedIn={Boolean(user)} variant="detail" />
         </div>
         {product.status === "vendido" && (
-          <div className="absolute left-3 top-3 rounded-full bg-gray-900/80 px-3 py-1 text-xs font-bold text-white">
+          <div className="absolute left-3 top-3 rounded-full bg-ink/80 px-3 py-1 text-xs font-bold text-white">
             VENDIDO
           </div>
         )}
@@ -66,27 +68,27 @@ export default async function ProductDetailPage({ params }) {
         {product.color ? ` · ${product.color}` : ""}
       </span>
 
-      <h1 className="mb-1.5 mt-2 text-2xl font-extrabold text-gray-900">{product.title}</h1>
-      <div className="mb-3 text-2xl font-extrabold text-brand">{formatPrice(product.price)}</div>
+      <h1 className="mb-1.5 mt-2 font-serif text-2xl font-semibold text-ink">{product.title}</h1>
+      <div className="mb-3 font-mono text-2xl font-semibold text-brand-dark">{formatPrice(product.price)}</div>
 
-      <div className="mb-4 flex flex-wrap gap-3 text-sm text-gray-500">
+      <div className="mb-4 flex flex-wrap gap-3 text-sm text-muted">
         <span>📍 {product.location}</span>
         <span>{product.condition}</span>
         <span>Publicado {timeAgo(product.created_at)}</span>
       </div>
 
-      <p className="mb-6 whitespace-pre-wrap text-[15px] leading-relaxed text-gray-800">{product.description}</p>
+      <p className="mb-6 whitespace-pre-wrap text-[15px] leading-relaxed text-ink">{product.description}</p>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4">
-        <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
-          Publicado por <strong className="text-gray-900">{seller?.name || "Usuario"}</strong>
+      <div className="rounded-2xl border border-line bg-paper p-4">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-ink">
+          Publicado por <strong className="text-ink">{seller?.name || "Usuario"}</strong>
           {seller?.id_verified && (
             <span className="rounded-full bg-brand-light px-2 py-0.5 text-[10px] font-bold text-brand-dark">
               VERIFICADO
             </span>
           )}
         </div>
-        <div className="mb-3 mt-1.5 text-xs text-gray-400">
+        <div className="mb-3 mt-1.5 text-xs text-muted">
           {ratingAvg != null ? `★ ${ratingAvg.toFixed(1)} (${reviews.length})` : "Sin calificaciones aún"}
         </div>
 

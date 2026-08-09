@@ -13,14 +13,14 @@ export default async function VerifyPage() {
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">Verificar identidad</h1>
+      <h1 className="mb-2 font-serif text-2xl font-semibold text-ink">Verificar identidad</h1>
       {profile?.id_verified ? (
         <p className="rounded-lg bg-brand-light px-4 py-3 text-sm text-brand-dark">
           Tu cuenta ya está verificada. ✓
         </p>
       ) : (
         <>
-          <p className="mb-6 text-sm text-gray-500">
+          <p className="mb-6 text-sm text-muted">
             Subí una foto del frente y del dorso de tu cédula. Esta versión no hace una validación
             automática: al subir ambas fotos tu cuenta queda marcada como verificada.
           </p>

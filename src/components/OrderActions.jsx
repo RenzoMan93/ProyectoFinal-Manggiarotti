@@ -46,7 +46,7 @@ export default function OrderActions({ orderId, status, role }) {
         <button
           onClick={() => updateStatus("en_disputa")}
           disabled={pending}
-          className="rounded-lg border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
+          className="rounded-lg border border-coral/40 px-2.5 py-1 text-xs font-semibold text-coral hover:bg-coral/10 disabled:opacity-60"
         >
           Reportar problema
         </button>

@@ -10,7 +10,7 @@ export default function ReportButton({ type, targetId, label }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
+        className="flex items-center gap-1 text-xs text-muted hover:text-ink"
       >
         🚩 {label}
       </button>

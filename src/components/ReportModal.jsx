@@ -32,14 +32,14 @@ export default function ReportModal({ type, targetId, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/45 sm:items-center" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-t-2xl bg-white p-5 sm:rounded-2xl"
+        className="w-full max-w-sm rounded-t-2xl bg-paper p-5 sm:rounded-2xl"
       >
         {done ? (
           <>
-            <p className="mb-4 text-sm font-semibold text-gray-900">Gracias, vamos a revisar tu reporte.</p>
+            <p className="mb-4 text-sm font-semibold text-ink">Gracias, vamos a revisar tu reporte.</p>
             <button
               onClick={onClose}
               className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
@@ -50,20 +50,20 @@ export default function ReportModal({ type, targetId, onClose }) {
         ) : (
           <>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-bold text-gray-900">
+              <h3 className="font-serif text-base font-semibold text-ink">
                 {type === "product" ? "Reportar publicación" : "Reportar usuario"}
               </h3>
-              <button onClick={onClose} aria-label="Cerrar" className="text-gray-500">
+              <button onClick={onClose} aria-label="Cerrar" className="text-muted">
                 ✕
               </button>
             </div>
 
             <label className="mb-3 block">
-              <span className="mb-1 block text-sm font-medium text-gray-700">Motivo</span>
+              <span className="mb-1 block text-sm font-medium text-ink">Motivo</span>
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+                className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm focus:border-brand focus:outline-none"
               >
                 {REASONS.map((r) => (
                   <option key={r} value={r}>
@@ -74,19 +74,19 @@ export default function ReportModal({ type, targetId, onClose }) {
             </label>
 
             <label className="mb-4 block">
-              <span className="mb-1 block text-sm font-medium text-gray-700">Contanos qué pasó (opcional)</span>
+              <span className="mb-1 block text-sm font-medium text-ink">Contanos qué pasó (opcional)</span>
               <textarea
                 rows={3}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+                className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm focus:border-brand focus:outline-none"
               />
             </label>
 
             <button
               onClick={submit}
               disabled={busy}
-              className="w-full rounded-lg bg-red-50 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+              className="w-full rounded-lg bg-coral/10 py-2.5 text-sm font-semibold text-coral hover:bg-coral/20 disabled:opacity-60"
             >
               {busy ? "Enviando..." : "Enviar reporte"}
             </button>

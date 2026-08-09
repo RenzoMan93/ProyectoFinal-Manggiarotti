@@ -12,7 +12,7 @@ export default async function PublishPage() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Publicar un artículo</h1>
+      <h1 className="mb-6 font-serif text-2xl font-semibold text-ink">Publicar un artículo</h1>
       <PublishForm />
     </div>
   );

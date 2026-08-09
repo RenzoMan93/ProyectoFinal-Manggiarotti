@@ -35,31 +35,31 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Ingresá a tu cuenta</h1>
+      <h1 className="mb-6 font-serif text-2xl font-semibold text-ink">Ingresá a tu cuenta</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Email</span>
+          <span className="mb-1 block text-sm font-medium text-ink">Email</span>
           <input
             required
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Contraseña</span>
+          <span className="mb-1 block text-sm font-medium text-ink">Contraseña</span>
           <input
             required
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
           />
         </label>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-coral">{error}</p>}
 
         <button
           type="submit"
@@ -70,7 +70,7 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-gray-500">
+      <p className="mt-4 text-sm text-muted">
         ¿No tenés cuenta?{" "}
         <Link href="/registrarse" className="font-medium text-brand hover:underline">
           Creá una

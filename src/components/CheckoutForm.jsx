@@ -60,9 +60,9 @@ export default function CheckoutForm({ product, seller }) {
 
   if (done) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 text-center">
-        <p className="mb-4 text-[15px] font-semibold text-gray-900">¡Compra registrada!</p>
-        <p className="mb-4 text-sm text-gray-600">
+      <div className="rounded-2xl border border-line bg-paper p-5 text-center">
+        <p className="mb-4 text-[15px] font-semibold text-ink">¡Compra registrada!</p>
+        <p className="mb-4 text-sm text-muted">
           Coordiná la entrega directo con {seller?.name || "el vendedor"} por WhatsApp.
         </p>
         {seller?.phone && (
@@ -91,33 +91,33 @@ export default function CheckoutForm({ product, seller }) {
             type="button"
             onClick={() => setMethod(m.id)}
             className={`w-full rounded-xl border p-3.5 text-left ${
-              method === m.id ? "border-brand bg-brand-light" : "border-gray-200 bg-white"
+              method === m.id ? "border-brand bg-brand-light" : "border-line bg-paper"
             }`}
           >
-            <div className="text-sm font-semibold text-gray-900">{m.label}</div>
-            <div className="mt-0.5 text-xs text-gray-500">{m.desc}</div>
+            <div className="text-sm font-semibold text-ink">{m.label}</div>
+            <div className="mt-0.5 text-xs text-muted">{m.desc}</div>
           </button>
         ))}
       </div>
 
       {method && (
-        <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+        <p className="mb-4 rounded-lg border border-dashed border-ochre bg-[#EFE7D2] px-3 py-2.5 text-xs text-[#5c5537]">
           {METHODS.find((m) => m.id === method).note}
         </p>
       )}
 
       <label className="mb-4 block">
-        <span className="mb-1 block text-sm font-medium text-gray-700">Nota para el vendedor (opcional)</span>
+        <span className="mb-1 block text-sm font-medium text-ink">Nota para el vendedor (opcional)</span>
         <textarea
           rows={2}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Ej: puedo pasar a buscarlo el sábado"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+          className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm focus:border-brand focus:outline-none"
         />
       </label>
 
-      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mb-3 text-sm text-coral">{error}</p>}
 
       <button
         onClick={handleConfirm}
