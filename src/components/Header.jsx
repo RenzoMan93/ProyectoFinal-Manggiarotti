@@ -9,9 +9,25 @@ export default async function Header() {
   } = await supabase.auth.getUser();
 
   let profile = null;
+  let unreadCount = 0;
   if (user) {
     const { data } = await supabase.from("profiles").select("name, id_verified").eq("id", user.id).single();
     profile = data;
+
+    const { data: conversations } = await supabase
+      .from("conversations")
+      .select("buyer_id, seller_id, buyer_last_read_at, seller_last_read_at, messages(sender_id, created_at)")
+      .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+      .order("created_at", { foreignTable: "messages", ascending: false })
+      .limit(1, { foreignTable: "messages" });
+
+    unreadCount = (conversations || []).filter((c) => {
+      const lastMessage = c.messages?.[0];
+      if (!lastMessage || lastMessage.sender_id === user.id) return false;
+      const isBuyer = c.buyer_id === user.id;
+      const lastRead = isBuyer ? c.buyer_last_read_at : c.seller_last_read_at;
+      return !lastRead || new Date(lastMessage.created_at) > new Date(lastRead);
+    }).length;
   }
 
   return (
@@ -29,9 +45,14 @@ export default async function Header() {
             <>
               <Link
                 href="/mensajes"
-                className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-ink hover:bg-brand-light sm:inline"
+                className="relative hidden rounded-lg px-2.5 py-2 text-sm font-medium text-ink hover:bg-brand-light sm:inline"
               >
                 Mensajes
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-coral px-1 text-[10px] font-bold text-white">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
               <Link
                 href="/pedidos"

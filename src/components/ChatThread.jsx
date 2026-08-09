@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function ChatThread({ conversationId, initialMessages, currentUserId }) {
+export default function ChatThread({ conversationId, initialMessages, currentUserId, isBuyer }) {
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -36,6 +36,17 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
       supabase.removeChannel(channel);
     };
   }, [conversationId, supabase]);
+
+  useEffect(() => {
+    const field = isBuyer ? "buyer_last_read_at" : "seller_last_read_at";
+    supabase
+      .from("conversations")
+      .update({ [field]: new Date().toISOString() })
+      .eq("id", conversationId)
+      .then(({ error }) => {
+        if (error) console.error(error);
+      });
+  }, [conversationId, isBuyer, supabase]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
