@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function ChatThread({ conversationId, initialMessages, currentUserId }) {
+export default function ChatThread({
+  conversationId,
+  initialMessages,
+  currentUserId,
+  counterpartId,
+  counterpartName,
+}) {
   const router = useRouter();
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
@@ -12,12 +18,17 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [counterpartOnline, setCounterpartOnline] = useState(false);
+  const [counterpartTyping, setCounterpartTyping] = useState(false);
   const bottomRef = useRef(null);
+  const channelRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const lastTypingSentRef = useRef(0);
   const [supabase] = useState(() => createClient());
 
   useEffect(() => {
     const channel = supabase
-      .channel(`messages-${conversationId}`)
+      .channel(`messages-${conversationId}`, { config: { presence: { key: currentUserId } } })
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
@@ -32,12 +43,27 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
           setMessages((prev) => prev.map((m) => (m.id === payload.new.id ? payload.new : m)));
         },
       )
-      .subscribe();
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        setCounterpartOnline(Boolean(counterpartId && state[counterpartId]?.length));
+      })
+      .on("broadcast", { event: "typing" }, ({ payload }) => {
+        if (payload.userId === currentUserId) return;
+        setCounterpartTyping(true);
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => setCounterpartTyping(false), 3000);
+      })
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") channel.track({ online_at: new Date().toISOString() });
+      });
+
+    channelRef.current = channel;
 
     return () => {
+      clearTimeout(typingTimeoutRef.current);
       supabase.removeChannel(channel);
     };
-  }, [conversationId, supabase]);
+  }, [conversationId, currentUserId, counterpartId, supabase]);
 
   useEffect(() => {
     supabase
@@ -51,6 +77,13 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const notifyTyping = () => {
+    const now = Date.now();
+    if (now - lastTypingSentRef.current < 1500) return;
+    lastTypingSentRef.current = now;
+    channelRef.current?.send({ type: "broadcast", event: "typing", payload: { userId: currentUserId } });
+  };
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -101,6 +134,16 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="mb-2 flex items-center gap-1.5 text-xs">
+        {counterpartTyping ? (
+          <span className="italic text-brand">{counterpartName} está escribiendo…</span>
+        ) : (
+          <>
+            <span className={`h-2 w-2 rounded-full ${counterpartOnline ? "bg-ok" : "bg-line"}`} />
+            <span className="text-muted">{counterpartOnline ? "En línea" : "Desconectado"}</span>
+          </>
+        )}
+      </div>
       <div className="flex-1 space-y-2 overflow-y-auto py-2">
         {messages.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">Empezá la conversación.</p>
@@ -199,7 +242,10 @@ export default function ChatThread({ conversationId, initialMessages, currentUse
       <form onSubmit={handleSend} className="flex gap-2 border-t border-line pt-3">
         <input
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            notifyTyping();
+          }}
           placeholder="Escribí un mensaje..."
           className="flex-1 rounded-lg border border-line bg-paper px-3 py-2 text-sm focus:border-brand focus:outline-none"
         />

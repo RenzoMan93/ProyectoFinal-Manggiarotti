@@ -9,6 +9,7 @@ import ProductStatusToggle from "@/components/ProductStatusToggle";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import ChatButton from "@/components/ChatButton";
 import ReportButton from "@/components/ReportButton";
+import ViewCounter from "@/components/ViewCounter";
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
@@ -48,6 +49,7 @@ export default async function ProductDetailPage({ params }) {
 
   return (
     <div className="mx-auto max-w-2xl">
+      <ViewCounter productId={product.id} skip={isOwner} />
       <div className="relative">
         <ProductGallery photos={photos} alt={product.title} />
         <div className="absolute right-3 top-3">
@@ -75,6 +77,7 @@ export default async function ProductDetailPage({ params }) {
         <span>📍 {product.location}</span>
         <span>{product.condition}</span>
         <span>Publicado {timeAgo(product.created_at)}</span>
+        <span>👁 {product.views} {product.views === 1 ? "vista" : "vistas"}</span>
       </div>
 
       <p className="mb-6 whitespace-pre-wrap text-[15px] leading-relaxed text-ink">{product.description}</p>
