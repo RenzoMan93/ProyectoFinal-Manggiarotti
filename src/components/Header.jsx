@@ -11,7 +11,11 @@ export default async function Header() {
   let profile = null;
   let unreadCount = 0;
   if (user) {
-    const { data } = await supabase.from("profiles").select("name, id_verified").eq("id", user.id).single();
+    const { data } = await supabase
+      .from("profiles")
+      .select("name, verification_status, is_admin")
+      .eq("id", user.id)
+      .single();
     profile = data;
 
     const { data: conversations } = await supabase
@@ -82,8 +86,17 @@ export default async function Header() {
               </Link>
               <Link href="/verificar" className="hidden text-sm text-muted hover:underline sm:inline">
                 Hola, {profile?.name?.split(" ")[0] || "vos"}
-                {profile?.id_verified && " ✓"}
+                {profile?.verification_status === "approved" && " ✓"}
+                {profile?.verification_status === "pending" && " ⏳"}
               </Link>
+              {profile?.is_admin && (
+                <Link
+                  href="/admin/verificaciones"
+                  className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-ochre hover:bg-brand-light sm:inline"
+                >
+                  Panel admin
+                </Link>
+              )}
               <LogoutButton />
             </>
           ) : (

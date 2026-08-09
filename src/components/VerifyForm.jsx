@@ -7,15 +7,15 @@ import { resizeImageToBlob } from "@/lib/image";
 
 const STEP_LABELS = ["Datos", "Documento", "Listo"];
 
-export default function VerifyForm({ initialName }) {
+export default function VerifyForm({ initialName, initialData }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [data, setData] = useState({
     nombre: initialName || "",
-    documento: "",
-    fechaNacimiento: "",
-    ciudad: "",
-    codigoPostal: "",
+    documento: initialData?.documento || "",
+    fechaNacimiento: initialData?.fechaNacimiento || "",
+    ciudad: initialData?.ciudad || "",
+    codigoPostal: initialData?.codigoPostal || "",
   });
   const [frente, setFrente] = useState(null);
   const [dorso, setDorso] = useState(null);
@@ -91,8 +91,8 @@ export default function VerifyForm({ initialName }) {
           birth_date: data.fechaNacimiento,
           city: data.ciudad.trim(),
           postal_code: data.codigoPostal.trim(),
-          id_verified: true,
-          id_verified_at: new Date().toISOString(),
+          verification_status: "pending",
+          rejection_reason: null,
         })
         .eq("id", user.id);
       if (e4) throw e4;
@@ -187,13 +187,14 @@ export default function VerifyForm({ initialName }) {
 
       {step === 3 && (
         <div className="flex flex-col items-center pt-4 text-center">
-          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-ok">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-ochre">
+            <span className="text-2xl">⏳</span>
           </div>
-          <h2 className="mb-2 font-serif text-xl font-semibold text-ink">¡Cuenta verificada!</h2>
-          <p className="mb-4 text-sm text-muted">Ya tenés la insignia de verificado en tu perfil y tus publicaciones.</p>
+          <h2 className="mb-2 font-serif text-xl font-semibold text-ink">¡Listo, lo enviamos!</h2>
+          <p className="mb-4 text-sm text-muted">
+            Un administrador va a revisar tu cédula y te va a llegar la insignia de verificado apenas quede
+            aprobada. Mientras tanto ya podés usar ReUsalo con normalidad.
+          </p>
           <button
             type="button"
             onClick={() => router.push("/")}
