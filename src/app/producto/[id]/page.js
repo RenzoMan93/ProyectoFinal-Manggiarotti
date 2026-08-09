@@ -5,6 +5,7 @@ import { categoryById, formatPrice, timeAgo } from "@/lib/format";
 import { waLink } from "@/lib/whatsapp";
 import FavoriteButton from "@/components/FavoriteButton";
 import ProductStatusToggle from "@/components/ProductStatusToggle";
+import DeleteProductButton from "@/components/DeleteProductButton";
 import ChatButton from "@/components/ChatButton";
 import ReportButton from "@/components/ReportButton";
 
@@ -90,7 +91,10 @@ export default async function ProductDetailPage({ params }) {
         </div>
 
         {isOwner ? (
-          <ProductStatusToggle productId={product.id} status={product.status} />
+          <div className="space-y-2">
+            <ProductStatusToggle productId={product.id} status={product.status} />
+            <DeleteProductButton productId={product.id} />
+          </div>
         ) : (
           <div className="flex flex-col gap-2">
             {canBuy && (
