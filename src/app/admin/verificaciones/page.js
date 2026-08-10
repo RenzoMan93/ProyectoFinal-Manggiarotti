@@ -11,25 +11,38 @@ export default async function AdminVerificationsPage() {
   if (!user) redirect("/ingresar");
   if (!(await isAdmin(supabase, user))) notFound();
 
-  const { data: pending } = await supabase
+  const { data: pending, error: pendingError } = await supabase
     .from("profiles")
-    .select(
-      "id, name, phone, document_number, birth_date, city, postal_code, kyc_documents(front_photo_path, back_photo_path, created_at)",
-    )
-    .eq("verification_status", "pending")
-    .order("created_at", { foreignTable: "kyc_documents", ascending: false })
-    .limit(1, { foreignTable: "kyc_documents" });
+    .select("id, name, phone, document_number, birth_date, city, postal_code")
+    .eq("verification_status", "pending");
+  if (pendingError) console.error("admin/verificaciones profiles:", pendingError);
 
   const requests = pending || [];
 
-  const paths = requests.flatMap((p) => {
-    const doc = p.kyc_documents?.[0];
-    return doc ? [doc.front_photo_path, doc.back_photo_path] : [];
-  });
+  const docsByUser = {};
+  if (requests.length > 0) {
+    const { data: docs, error: docsError } = await supabase
+      .from("kyc_documents")
+      .select("user_id, front_photo_path, back_photo_path, created_at")
+      .in(
+        "user_id",
+        requests.map((p) => p.id),
+      )
+      .order("created_at", { ascending: false });
+    if (docsError) console.error("admin/verificaciones kyc_documents:", docsError);
+    (docs || []).forEach((d) => {
+      if (!docsByUser[d.user_id]) docsByUser[d.user_id] = d;
+    });
+  }
+
+  const paths = Object.values(docsByUser).flatMap((d) => [d.front_photo_path, d.back_photo_path]);
 
   const urlByPath = {};
   if (paths.length > 0) {
-    const { data: signed } = await supabase.storage.from("kyc-documents").createSignedUrls(paths, 300);
+    const { data: signed, error: signedError } = await supabase.storage
+      .from("kyc-documents")
+      .createSignedUrls(paths, 300);
+    if (signedError) console.error("admin/verificaciones signed urls:", signedError);
     (signed || []).forEach((s) => {
       if (s.path && s.signedUrl) urlByPath[s.path] = s.signedUrl;
     });
@@ -45,7 +58,7 @@ export default async function AdminVerificationsPage() {
       ) : (
         <div className="space-y-4">
           {requests.map((p) => {
-            const doc = p.kyc_documents?.[0];
+            const doc = docsByUser[p.id];
             return (
               <VerificationReviewCard
                 key={p.id}
