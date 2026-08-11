@@ -45,11 +45,11 @@ export default function SearchBar({ q, categoria, minPrice, maxPrice }) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Contame qué buscás: 'bici que salga menos de $3000'"
-          className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm focus:border-brand focus:outline-none"
+          className="w-full rounded-full border-2 border-line bg-paper px-4 py-2.5 text-sm focus:border-brand focus:outline-none"
         />
         <button
           type="submit"
-          className="flex-none rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+          className="flex-none rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-dark"
         >
           Buscar
         </button>

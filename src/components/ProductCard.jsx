@@ -9,7 +9,7 @@ export default function ProductCard({ product, isFavorite, loggedIn }) {
   return (
     <Link
       href={`/producto/${product.id}`}
-      className="reusalo-card block overflow-hidden rounded-2xl border border-line bg-paper transition"
+      className="reusalo-card block overflow-hidden rounded-2xl bg-paper transition"
     >
       <div className="relative flex h-32 items-center justify-center overflow-hidden bg-cream">
         {cover && <img src={cover} alt={product.title} className="h-full w-full object-cover" />}

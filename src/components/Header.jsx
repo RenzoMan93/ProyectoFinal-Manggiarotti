@@ -39,8 +39,8 @@ export default async function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-paper">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-serif text-lg font-semibold text-brand-dark">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-sm text-white">
+        <Link href="/" className="flex items-center gap-2 text-lg font-extrabold text-brand">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand text-base text-white">
             ♻
           </span>
           ReUsalo
@@ -80,7 +80,7 @@ export default async function Header() {
               </Link>
               <Link
                 href="/publicar"
-                className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+                className="rounded-xl bg-coral px-4 py-2 text-sm font-bold text-white hover:opacity-90"
               >
                 Publicar
               </Link>
@@ -109,7 +109,7 @@ export default async function Header() {
               </Link>
               <Link
                 href="/registrarse"
-                className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+                className="rounded-xl bg-coral px-4 py-2 text-sm font-bold text-white hover:opacity-90"
               >
                 Crear cuenta
               </Link>

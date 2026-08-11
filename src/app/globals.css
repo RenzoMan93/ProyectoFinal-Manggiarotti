@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f0e4;
-  --foreground: #1e241f;
+  --background: #f6f7f5;
+  --foreground: #10231c;
 
-  --brand: #1b4b43;
-  --brand-dark: #123430;
-  --brand-light: #eff6f3;
+  --brand: #0b6e4f;
+  --brand-dark: #085239;
+  --brand-light: #e3f3ec;
 
-  --cream: #f4f0e4;
-  --ink: #1e241f;
-  --ochre: #d9a22c;
-  --coral: #c4593b;
+  --cream: #eef1ed;
+  --ink: #10231c;
+  --ochre: #f0a93a;
+  --coral: #ff6a3d;
   --paper: #ffffff;
-  --line: #dcd5c2;
-  --muted: #7a7568;
+  --line: #e4e7e2;
+  --muted: #6b7770;
   --ok: #3ea26c;
 }
 
@@ -35,7 +35,7 @@
   --color-ok: var(--ok);
 
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif: var(--font-fraunces), Georgia, serif;
+  --font-serif: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
@@ -46,9 +46,10 @@ body {
 }
 
 .reusalo-card {
+  box-shadow: 0 10px 24px rgba(11, 110, 79, 0.1);
   transition: box-shadow 0.15s, transform 0.15s;
 }
 .reusalo-card:hover {
-  box-shadow: 0 8px 24px rgba(18, 52, 48, 0.14);
+  box-shadow: 0 14px 30px rgba(11, 110, 79, 0.18);
   transform: translateY(-2px);
 }
