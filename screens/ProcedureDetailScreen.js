@@ -4,6 +4,7 @@ import EmptyState from '../components/EmptyState';
 import Sello from '../components/Sello';
 import { useChecklistItems } from '../hooks/useChecklistItems';
 import { useEmpezarChecklist } from '../hooks/useEmpezarChecklist';
+import { useGuardarParaDespues } from '../hooks/useGuardarParaDespues';
 import { useSession } from '../hooks/useSession';
 import { useTramite } from '../hooks/useTramite';
 import { useUsuarioTramite } from '../hooks/useUsuarioTramite';
@@ -18,6 +19,7 @@ export default function ProcedureDetailScreen({ navigation, route }) {
   const { data: requisitos = [] } = useChecklistItems(procedureId);
   const { data: usuarioTramite } = useUsuarioTramite(usuario?.id, procedureId);
   const empezarChecklist = useEmpezarChecklist();
+  const guardarParaDespues = useGuardarParaDespues();
 
   if (isLoading) {
     return (
@@ -47,13 +49,21 @@ export default function ProcedureDetailScreen({ navigation, route }) {
 
   const handleEmpezar = () => {
     if (!usuario?.id) {
-      Alert.alert('Iniciá sesión', 'Necesitás una cuenta para guardar tu progreso en este trámite.');
+      navigation.navigate('Auth');
       return;
     }
     empezarChecklist.mutate(
       { usuarioId: usuario.id, tramiteId: procedureId },
       { onSuccess: () => navigation.navigate('Checklist', { procedureId }) }
     );
+  };
+
+  const handleGuardar = () => {
+    if (!usuario?.id) {
+      navigation.navigate('Auth');
+      return;
+    }
+    guardarParaDespues.mutate({ usuarioId: usuario.id, tramiteId: procedureId });
   };
 
   const handleSelloPress = () => {
@@ -135,15 +145,28 @@ export default function ProcedureDetailScreen({ navigation, route }) {
       </ScrollView>
 
       <View style={styles.ctaBar}>
-        <Pressable
-          style={[styles.ctaBtn, empezarChecklist.isPending && styles.ctaBtnDisabled]}
-          onPress={handleEmpezar}
-          disabled={empezarChecklist.isPending}
-        >
-          <Text style={styles.ctaBtnText}>
-            {empezarChecklist.isPending ? 'Cargando…' : ctaLabel}
-          </Text>
-        </Pressable>
+        <View style={styles.ctaRow}>
+          {!usuarioTramite ? (
+            <Pressable
+              style={[styles.guardarBtn, guardarParaDespues.isPending && styles.ctaBtnDisabled]}
+              onPress={handleGuardar}
+              disabled={guardarParaDespues.isPending}
+            >
+              <Text style={styles.guardarBtnText}>
+                {guardarParaDespues.isPending ? 'Guardando…' : 'Guardar'}
+              </Text>
+            </Pressable>
+          ) : null}
+          <Pressable
+            style={[styles.ctaBtn, empezarChecklist.isPending && styles.ctaBtnDisabled]}
+            onPress={handleEmpezar}
+            disabled={empezarChecklist.isPending}
+          >
+            <Text style={styles.ctaBtnText}>
+              {empezarChecklist.isPending ? 'Cargando…' : ctaLabel}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -315,7 +338,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.line,
   },
+  ctaRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
   ctaBtn: {
+    flex: 1,
     backgroundColor: COLORS.ink,
     borderRadius: 12,
     paddingVertical: 14,
@@ -328,5 +356,19 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.bodySemiBold,
     fontSize: 14,
     color: COLORS.paper,
+  },
+  guardarBtn: {
+    flex: 1,
+    backgroundColor: COLORS.paper,
+    borderWidth: 1,
+    borderColor: COLORS.ink,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  guardarBtnText: {
+    fontFamily: FONTS.bodySemiBold,
+    fontSize: 14,
+    color: COLORS.ink,
   },
 });

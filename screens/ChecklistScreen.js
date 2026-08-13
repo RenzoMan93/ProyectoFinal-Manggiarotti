@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '../components/EmptyState';
+import RequireAuth from '../components/RequireAuth';
 import { useChecklistItems } from '../hooks/useChecklistItems';
 import { useEmpezarChecklist } from '../hooks/useEmpezarChecklist';
 import { useSession } from '../hooks/useSession';
@@ -13,8 +14,16 @@ import { formatMesAnio } from '../lib/format';
 import { COLORS, FONTS } from '../lib/theme';
 
 export default function ChecklistScreen({ navigation, route }) {
+  return (
+    <RequireAuth>
+      <ChecklistContenido navigation={navigation} route={route} />
+    </RequireAuth>
+  );
+}
+
+function ChecklistContenido({ navigation, route }) {
   const { procedureId } = route.params ?? {};
-  const { usuario, cargando: cargandoSesion } = useSession();
+  const { usuario } = useSession();
 
   const { data: tramite } = useTramite(procedureId);
   const { data: items = [] } = useChecklistItems(procedureId);
@@ -35,19 +44,10 @@ export default function ChecklistScreen({ navigation, route }) {
   // por "Empezar checklist" en la ficha, lo creamos acá para que la pantalla
   // funcione igual.
   useEffect(() => {
-    if (!cargandoSesion && usuario?.id && !cargandoProgreso && !usuarioTramite) {
+    if (usuario?.id && !cargandoProgreso && !usuarioTramite) {
       empezarChecklist.mutate({ usuarioId: usuario.id, tramiteId: procedureId });
     }
-  }, [cargandoSesion, usuario?.id, cargandoProgreso, usuarioTramite]);
-
-  if (!cargandoSesion && !usuario?.id) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <BackRow onPress={() => navigation.goBack()} />
-        <EmptyState title="Iniciá sesión" description="Necesitás una cuenta para ver y guardar tu progreso." />
-      </SafeAreaView>
-    );
-  }
+  }, [usuario?.id, cargandoProgreso, usuarioTramite]);
 
   if (cargandoProgreso || !usuarioTramite) {
     return (

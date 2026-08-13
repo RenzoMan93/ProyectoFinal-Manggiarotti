@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { obtenerOCrearUsuarioTramite } from '../lib/usuarioTramite';
 
-export function useEmpezarChecklist() {
+export function useGuardarParaDespues() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -10,14 +10,12 @@ export function useEmpezarChecklist() {
         usuarioId,
         tramiteId,
         valoresIniciales: {
-          estado: 'en_curso',
-          fecha_inicio: new Date().toISOString(),
+          estado: 'guardado',
           items_completados: [],
         },
       }),
     onSuccess: (data) => {
       queryClient.setQueryData(['usuario-tramite', data.usuario_id, data.tramite_id], data);
-      queryClient.invalidateQueries({ queryKey: ['usuario-tramite', 'en-curso', data.usuario_id] });
       queryClient.invalidateQueries({ queryKey: ['usuario-tramite', 'mios', data.usuario_id] });
     },
   });

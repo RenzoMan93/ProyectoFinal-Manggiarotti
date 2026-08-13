@@ -1,12 +1,18 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONTS } from '../lib/theme';
 
+const TONOS = {
+  stamp: COLORS.stamp,
+  muted: COLORS.inkSoft,
+  ok: COLORS.ok,
+};
+
 // El "sello" es la marca de contenido verificado del sistema visual: un
 // círculo rotado con un anillo punteado adentro, como un sello de goma.
-export default function Sello({ label = 'OK', size = 'default', muted = false, style }) {
+export default function Sello({ label = 'OK', size = 'default', tone = 'stamp', style }) {
   const chico = size === 'sm';
   const dimension = chico ? 28 : 52;
-  const color = muted ? COLORS.inkSoft : COLORS.stamp;
+  const color = TONOS[tone] ?? TONOS.stamp;
 
   return (
     <View
@@ -16,7 +22,7 @@ export default function Sello({ label = 'OK', size = 'default', muted = false, s
           width: dimension,
           height: dimension,
           borderColor: color,
-          opacity: muted ? 0.55 : 1,
+          opacity: tone === 'muted' ? 0.55 : 1,
         },
         style,
       ]}

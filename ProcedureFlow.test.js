@@ -129,35 +129,35 @@ beforeEach(() => {
 test('Ficha -> Empezar checklist -> tildar todos los items completa el trámite', async () => {
   const view = await render(<App />);
 
-  fireEvent.press(await view.findByText('Transferencia de automotor'));
+  await fireEvent.press(await view.findByText('Transferencia de automotor'));
   expect(await view.findByText('Vehículos · IMM / DNTMV')).toBeTruthy();
 
-  fireEvent.press(await view.findByText('Empezar checklist'));
+  await fireEvent.press(await view.findByText('Empezar checklist'));
 
   expect(await view.findByText('0 / 2')).toBeTruthy();
   expect(view.getByText('Verificar padrón libre de deuda')).toBeTruthy();
   expect(view.getByText('DARI · online')).toBeTruthy();
 
-  fireEvent.press(view.getByText('Verificar padrón libre de deuda'));
+  await fireEvent.press(view.getByText('Verificar padrón libre de deuda'));
   expect(await view.findByText('1 / 2')).toBeTruthy();
 
-  fireEvent.press(view.getByText('Completar formulario de transferencia'));
+  await fireEvent.press(view.getByText('Completar formulario de transferencia'));
   expect(await view.findByText('2 / 2')).toBeTruthy();
   expect(await view.findByText(/Trámite completado/)).toBeTruthy();
 
   // Destildar un ítem saca el trámite de "completado" otra vez.
-  fireEvent.press(view.getByText('Completar formulario de transferencia'));
+  await fireEvent.press(view.getByText('Completar formulario de transferencia'));
   expect(await view.findByText('1 / 2')).toBeTruthy();
 });
 
 test('El toggle de recordatorio guarda el valor', async () => {
   const view = await render(<App />);
 
-  fireEvent.press(await view.findByText('Transferencia de automotor'));
-  fireEvent.press(await view.findByText('Empezar checklist'));
+  await fireEvent.press(await view.findByText('Transferencia de automotor'));
+  await fireEvent.press(await view.findByText('Empezar checklist'));
 
   expect(await view.findByText('Recordatorio activo')).toBeTruthy();
-  fireEvent.press(view.getByText('Recordatorio activo'));
+  await fireEvent.press(view.getByText('Recordatorio activo'));
   // No debería tirar error ni desmontar la pantalla; el checklist sigue visible.
   expect(await view.findByText('Verificar padrón libre de deuda')).toBeTruthy();
 });

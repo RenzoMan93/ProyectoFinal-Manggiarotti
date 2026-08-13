@@ -83,16 +83,16 @@ test('Inicio trae categorías y trámites reales, y navega a la ficha real al to
   expect(await view.findByText('BPS')).toBeTruthy();
 
   const card = await view.findByText('Cédula de identidad');
-  fireEvent.press(card);
+  await fireEvent.press(card);
 
   expect(await view.findByText('Identidad · DNIC')).toBeTruthy();
   expect(view.getByText('Documento nacional de identidad.')).toBeTruthy();
   expect(view.getByText('Sacar turno en gub.uy')).toBeTruthy();
   expect(view.getByText('GUÍA N° AR-00214 · verificada 07/2026')).toBeTruthy();
 
-  fireEvent.press(view.getByText('Empezar checklist'));
-  expect(Alert.alert).toHaveBeenCalledWith('Iniciá sesión', expect.any(String));
-  expect(view.getByText('Empezar checklist')).toBeTruthy();
+  expect(view.getByText('Guardar')).toBeTruthy();
+  await fireEvent.press(view.getByText('Empezar checklist'));
+  expect(await view.findByText('Iniciá sesión')).toBeTruthy();
 
   Alert.alert.mockRestore();
 });
@@ -100,15 +100,15 @@ test('Inicio trae categorías y trámites reales, y navega a la ficha real al to
 test('Búsqueda: estado vacío de recientes, resultados al escribir y guarda la búsqueda', async () => {
   const view = await render(<App />);
 
-  fireEvent.press(view.getByLabelText(/Buscar, tab/));
+  await fireEvent.press(view.getByLabelText(/Buscar, tab/));
   expect(await view.findByText('Todavía no buscaste nada')).toBeTruthy();
 
   const input = view.getByPlaceholderText('Buscar: cédula, RUT, patente…');
-  fireEvent.changeText(input, 'cedula');
+  await fireEvent.changeText(input, 'cedula');
 
   expect(await view.findByText('1 resultado para "cedula"')).toBeTruthy();
   expect(view.getByText('Cédula de identidad')).toBeTruthy();
 
-  fireEvent.changeText(input, '');
+  await fireEvent.changeText(input, '');
   expect(await view.findByText('cedula')).toBeTruthy();
 });

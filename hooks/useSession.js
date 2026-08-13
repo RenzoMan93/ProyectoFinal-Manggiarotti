@@ -1,7 +1,15 @@
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
-export function useSession() {
+// La sesión vive en un único Context (una sola suscripción a Supabase) en
+// vez de que cada componente que llama useSession() haga su propio
+// getSession()/onAuthStateChange: si no, un componente recién montado (por
+// ejemplo justo después de un login, cuando RequireAuth deja pasar a su
+// contenido) arranca con usuario=null hasta que su propio efecto resuelve,
+// aunque el resto de la app ya sepa que hay sesión.
+const SessionContext = createContext({ session: null, usuario: null, cargando: true });
+
+export function SessionProvider({ children }) {
   const [session, setSession] = useState(null);
   const [cargando, setCargando] = useState(true);
 
@@ -16,6 +24,7 @@ export function useSession() {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
+      setCargando(false);
     });
 
     return () => {
@@ -24,5 +33,11 @@ export function useSession() {
     };
   }, []);
 
-  return { session, usuario: session?.user ?? null, cargando };
+  const value = { session, usuario: session?.user ?? null, cargando };
+
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+}
+
+export function useSession() {
+  return useContext(SessionContext);
 }

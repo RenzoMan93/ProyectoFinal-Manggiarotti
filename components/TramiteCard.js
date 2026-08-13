@@ -1,28 +1,40 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONTS } from '../lib/theme';
 import { getMonogram } from '../lib/monogram';
+import Sello from './Sello';
 
-export default function TramiteCard({ nombre, subtitulo, onPress }) {
+export default function TramiteCard({ nombre, subtitulo, onPress, progreso, completado = false }) {
   return (
-    <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-      onPress={onPress}
-    >
-      <View style={styles.glyph}>
-        <Text style={styles.glyphText}>{getMonogram(nombre)}</Text>
-      </View>
-      <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>
-          {nombre}
-        </Text>
-        {subtitulo ? (
-          <Text style={styles.subtitle} numberOfLines={1}>
-            {subtitulo}
+    <View>
+      <Pressable
+        style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+        onPress={onPress}
+      >
+        {completado ? (
+          <Sello label="✓" size="sm" tone="ok" />
+        ) : (
+          <View style={styles.glyph}>
+            <Text style={styles.glyphText}>{getMonogram(nombre)}</Text>
+          </View>
+        )}
+        <View style={styles.info}>
+          <Text style={styles.title} numberOfLines={1}>
+            {nombre}
           </Text>
-        ) : null}
-      </View>
-      <Text style={styles.arrow}>›</Text>
-    </Pressable>
+          {subtitulo ? (
+            <Text style={styles.subtitle} numberOfLines={1}>
+              {subtitulo}
+            </Text>
+          ) : null}
+        </View>
+        {!completado ? <Text style={styles.arrow}>›</Text> : null}
+      </Pressable>
+      {typeof progreso === 'number' ? (
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: `${Math.round(progreso * 100)}%` }]} />
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -72,5 +84,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: COLORS.line,
     marginLeft: 4,
+  },
+  progressTrack: {
+    height: 4,
+    backgroundColor: COLORS.line,
+    borderRadius: 999,
+    overflow: 'hidden',
+    marginTop: 6,
+    marginHorizontal: 4,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: COLORS.stamp,
+    borderRadius: 999,
   },
 });

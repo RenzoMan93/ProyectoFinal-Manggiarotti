@@ -15,6 +15,7 @@ import Inter_600SemiBold from '@expo-google-fonts/inter/600SemiBold/Inter_600Sem
 import IBMPlexMono_500Medium from '@expo-google-fonts/ibm-plex-mono/500Medium/IBMPlexMono_500Medium.ttf';
 import { queryClient } from './lib/queryClient';
 import { COLORS } from './lib/theme';
+import { SessionProvider } from './hooks/useSession';
 import RootNavigator from './navigation/RootNavigator';
 
 export default function App() {
@@ -33,12 +34,14 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-        <StatusBar style="auto" />
-      </SafeAreaProvider>
+      <SessionProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+          <StatusBar style="auto" />
+        </SafeAreaProvider>
+      </SessionProvider>
     </QueryClientProvider>
   );
 }

@@ -5,7 +5,7 @@ import Sello from './Sello';
 export default function EmptyState({ title, description, glyph = '?' }) {
   return (
     <View style={styles.container}>
-      <Sello label={glyph} muted />
+      <Sello label={glyph} tone="muted" />
       <Text style={styles.title}>{title}</Text>
       {description ? <Text style={styles.description}>{description}</Text> : null}
     </View>
