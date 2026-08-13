@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 import App from './App';
 
@@ -13,17 +14,47 @@ jest.mock('./lib/supabase', () => {
       organismo: 'DNIC',
       modalidad: 'presencial',
       categoria_id: 'cat-identidad',
+      categoria: { id: 'cat-identidad', nombre: 'Identidad' },
+      descripcion: 'Documento nacional de identidad.',
+      costo_aprox: '$ 490',
+      duracion_estimada: '~30 min',
+      numero_guia: 'AR-00214',
+      fecha_verificacion: '2026-07-01',
+      link_oficial: null,
+      activo: true,
     },
+  ];
+  const mockChecklistItems = [
+    { id: 'item-1', tramite_id: 'tramite-cedula', texto: 'Sacar turno en gub.uy', subtexto: null, orden: 1 },
   ];
 
   function createQueryBuilder(result) {
+    let single = false;
+    let maybeSingle = false;
     const builder = {
       select: () => builder,
       eq: () => builder,
       order: () => builder,
       limit: () => builder,
       or: () => builder,
-      then: (resolve) => resolve(result),
+      single: () => {
+        single = true;
+        return builder;
+      },
+      maybeSingle: () => {
+        maybeSingle = true;
+        return builder;
+      },
+      then: (resolve) => {
+        if (single) {
+          const row = result.data?.[0] ?? null;
+          resolve({ data: row, error: row ? null : { message: 'not found' } });
+        } else if (maybeSingle) {
+          resolve({ data: result.data?.[0] ?? null, error: null });
+        } else {
+          resolve(result);
+        }
+      },
     };
     return builder;
   }
@@ -33,6 +64,7 @@ jest.mock('./lib/supabase', () => {
       from: (table) => {
         if (table === 'categoria') return createQueryBuilder({ data: mockCategorias, error: null });
         if (table === 'tramite') return createQueryBuilder({ data: mockTramites, error: null });
+        if (table === 'checklist_item') return createQueryBuilder({ data: mockChecklistItems, error: null });
         return createQueryBuilder({ data: [], error: null });
       },
       auth: {
@@ -43,7 +75,8 @@ jest.mock('./lib/supabase', () => {
   };
 });
 
-test('Inicio trae categorías y trámites reales, y navega a la ficha al tocar una card', async () => {
+test('Inicio trae categorías y trámites reales, y navega a la ficha real al tocar una card', async () => {
+  jest.spyOn(Alert, 'alert').mockImplementation(() => {});
   const view = await render(<App />);
 
   expect(await view.findByText('¿Qué trámite necesitás resolver?')).toBeTruthy();
@@ -52,8 +85,16 @@ test('Inicio trae categorías y trámites reales, y navega a la ficha al tocar u
   const card = await view.findByText('Cédula de identidad');
   fireEvent.press(card);
 
-  expect(await view.findByText('Detalle del trámite')).toBeTruthy();
-  expect(view.getByText('ID: tramite-cedula')).toBeTruthy();
+  expect(await view.findByText('Identidad · DNIC')).toBeTruthy();
+  expect(view.getByText('Documento nacional de identidad.')).toBeTruthy();
+  expect(view.getByText('Sacar turno en gub.uy')).toBeTruthy();
+  expect(view.getByText('GUÍA N° AR-00214 · verificada 07/2026')).toBeTruthy();
+
+  fireEvent.press(view.getByText('Empezar checklist'));
+  expect(Alert.alert).toHaveBeenCalledWith('Iniciá sesión', expect.any(String));
+  expect(view.getByText('Empezar checklist')).toBeTruthy();
+
+  Alert.alert.mockRestore();
 });
 
 test('Búsqueda: estado vacío de recientes, resultados al escribir y guarda la búsqueda', async () => {

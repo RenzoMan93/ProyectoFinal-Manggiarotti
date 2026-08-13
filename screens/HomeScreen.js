@@ -68,7 +68,7 @@ export default function HomeScreen({ navigation }) {
                     key={item.id}
                     nombre={item.tramite?.nombre ?? 'Trámite'}
                     subtitulo={total > 0 ? `${completados} de ${total} pasos completados` : 'En curso'}
-                    onPress={() => irAFicha(item.tramite?.id)}
+                    onPress={() => navigation.navigate('Checklist', { procedureId: item.tramite?.id })}
                   />
                 );
               })}
