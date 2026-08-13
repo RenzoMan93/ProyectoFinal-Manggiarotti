@@ -1,17 +1,19 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import ItemListContainer from './ItemListContaineromponents/';
-import ItemDetailContainer from './ItemDetailContaineromponents';
+import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/queryClient';
+import RootNavigator from './navigation/RootNavigator';
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<ItemListContainer />} />
-        <Route path="/product/:id" element={<ItemDetailContainer />} />
-      </Routes>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+        <StatusBar style="auto" />
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }
-
-export default App;
