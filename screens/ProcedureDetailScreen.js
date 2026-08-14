@@ -141,6 +141,13 @@ export default function ProcedureDetailScreen({ navigation, route }) {
               <Text style={styles.linkValue}>{getHostname(tramite.link_oficial)} →</Text>
             </Pressable>
           ) : null}
+
+          <Pressable
+            style={styles.reportRow}
+            onPress={() => navigation.navigate('ReportarCambio', { procedureId })}
+          >
+            <Text style={styles.reportText}>¿Viste algo desactualizado? Reportalo →</Text>
+          </Pressable>
         </View>
       </ScrollView>
 
@@ -327,6 +334,15 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.mono,
     fontSize: 12,
     color: COLORS.stamp,
+  },
+  reportRow: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  reportText: {
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    color: COLORS.inkSoft,
   },
   ctaBar: {
     position: 'absolute',

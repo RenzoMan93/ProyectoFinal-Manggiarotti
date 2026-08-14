@@ -3,6 +3,7 @@ import TabNavigator from './TabNavigator';
 import ProcedureDetailScreen from '../screens/ProcedureDetailScreen';
 import ChecklistScreen from '../screens/ChecklistScreen';
 import AuthScreen from '../screens/AuthScreen';
+import ReportarCambioScreen from '../screens/ReportarCambioScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,6 +14,11 @@ export default function RootNavigator() {
       <Stack.Screen name="ProcedureDetail" component={ProcedureDetailScreen} />
       <Stack.Screen name="Checklist" component={ChecklistScreen} />
       <Stack.Screen name="Auth" component={AuthScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen
+        name="ReportarCambio"
+        component={ReportarCambioScreen}
+        options={{ presentation: 'modal' }}
+      />
     </Stack.Navigator>
   );
 }
