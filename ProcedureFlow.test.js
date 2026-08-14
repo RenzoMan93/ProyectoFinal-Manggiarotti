@@ -1,5 +1,7 @@
-import { fireEvent, render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import * as Notifications from 'expo-notifications';
 import App from './App';
+import { formatFechaLarga } from './lib/format';
 
 jest.mock('./lib/supabase', () => {
   const db = {
@@ -124,6 +126,7 @@ jest.mock('./lib/supabase', () => {
 
 beforeEach(() => {
   require('./lib/supabase').supabase.__resetUsuarioTramite();
+  jest.clearAllMocks();
 });
 
 test('Ficha -> Empezar checklist -> tildar todos los items completa el trámite', async () => {
@@ -150,14 +153,51 @@ test('Ficha -> Empezar checklist -> tildar todos los items completa el trámite'
   expect(await view.findByText('1 / 2')).toBeTruthy();
 });
 
-test('El toggle de recordatorio guarda el valor', async () => {
+test('activar el recordatorio programa una notificación real y se puede desactivar', async () => {
   const view = await render(<App />);
 
   await fireEvent.press(await view.findByText('Transferencia de automotor'));
   await fireEvent.press(await view.findByText('Empezar checklist'));
 
-  expect(await view.findByText('Recordatorio activo')).toBeTruthy();
+  await fireEvent.press(await view.findByText('Recordatorio activo'));
+  await fireEvent.press(await view.findByText('En 3 días'));
+
+  const fechaEsperada = new Date();
+  fechaEsperada.setDate(fechaEsperada.getDate() + 3);
+
+  expect(
+    await view.findByText(`Te avisamos el ${formatFechaLarga(fechaEsperada.toISOString())}`)
+  ).toBeTruthy();
+  expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledWith(
+    expect.objectContaining({
+      content: expect.objectContaining({ body: expect.stringContaining('Transferencia de automotor') }),
+      trigger: expect.objectContaining({ type: 'date' }),
+    })
+  );
+
   await fireEvent.press(view.getByText('Recordatorio activo'));
-  // No debería tirar error ni desmontar la pantalla; el checklist sigue visible.
-  expect(await view.findByText('Verificar padrón libre de deuda')).toBeTruthy();
+  expect(await view.findByText('Te avisamos si vence un paso')).toBeTruthy();
+  expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith('mock-notification-id');
+});
+
+test('si no hay permiso de notificaciones, avisa y no activa el recordatorio', async () => {
+  Notifications.getPermissionsAsync.mockResolvedValueOnce({ granted: false });
+  Notifications.requestPermissionsAsync.mockResolvedValueOnce({ granted: false });
+  const alertSpy = jest.spyOn(require('react-native').Alert, 'alert').mockImplementation(() => {});
+
+  const view = await render(<App />);
+
+  await fireEvent.press(await view.findByText('Transferencia de automotor'));
+  await fireEvent.press(await view.findByText('Empezar checklist'));
+
+  await fireEvent.press(await view.findByText('Recordatorio activo'));
+  await fireEvent.press(await view.findByText('Mañana'));
+
+  await waitFor(() =>
+    expect(alertSpy).toHaveBeenCalledWith('Sin permiso para notificar', expect.any(String))
+  );
+  expect(view.getByText('Te avisamos si vence un paso')).toBeTruthy();
+  expect(Notifications.scheduleNotificationAsync).not.toHaveBeenCalled();
+
+  alertSpy.mockRestore();
 });

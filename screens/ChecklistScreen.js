@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '../components/EmptyState';
 import RequireAuth from '../components/RequireAuth';
@@ -10,8 +10,16 @@ import { useTramite } from '../hooks/useTramite';
 import { useToggleChecklistItem } from '../hooks/useToggleChecklistItem';
 import { useToggleRecordatorio } from '../hooks/useToggleRecordatorio';
 import { useUsuarioTramite } from '../hooks/useUsuarioTramite';
-import { formatMesAnio } from '../lib/format';
+import { formatFechaLarga, formatMesAnio } from '../lib/format';
+import { cancelarRecordatorio, pedirPermisoNotificaciones, programarRecordatorio } from '../lib/notifications';
+import { borrarNotificacionId, guardarNotificacionId, obtenerNotificacionId } from '../lib/recordatorioStorage';
 import { COLORS, FONTS } from '../lib/theme';
+
+const OPCIONES_RECORDATORIO = [
+  { dias: 1, label: 'Mañana' },
+  { dias: 3, label: 'En 3 días' },
+  { dias: 7, label: 'En 1 semana' },
+];
 
 export default function ChecklistScreen({ navigation, route }) {
   return (
@@ -39,6 +47,9 @@ function ChecklistContenido({ navigation, route }) {
     totalCount: items.length,
   });
   const toggleRecordatorio = useToggleRecordatorio({ usuarioId: usuario?.id, tramiteId: procedureId });
+
+  const [mostrandoOpciones, setMostrandoOpciones] = useState(false);
+  const [guardandoRecordatorio, setGuardandoRecordatorio] = useState(false);
 
   // Si se entra directo al checklist (deep link, refresh) sin haber pasado
   // por "Empezar checklist" en la ficha, lo creamos acá para que la pantalla
@@ -69,11 +80,51 @@ function ChecklistContenido({ navigation, route }) {
     toggleItem.mutate({ usuarioTramiteId: usuarioTramite.id, itemId, currentItems: completados });
   };
 
-  const handleToggleRecordatorio = () => {
-    toggleRecordatorio.mutate({
-      usuarioTramiteId: usuarioTramite.id,
-      nextValue: !usuarioTramite.recordatorio_activo,
+  const handleReminderRowPress = () => {
+    if (usuarioTramite.recordatorio_activo) {
+      handleDesactivarRecordatorio();
+    } else {
+      setMostrandoOpciones((valor) => !valor);
+    }
+  };
+
+  const handleDesactivarRecordatorio = async () => {
+    const idNotificacion = await obtenerNotificacionId(usuarioTramite.id);
+    await cancelarRecordatorio(idNotificacion);
+    await borrarNotificacionId(usuarioTramite.id);
+    toggleRecordatorio.mutate({ usuarioTramiteId: usuarioTramite.id, nextValue: false });
+  };
+
+  const handleElegirFecha = async (dias) => {
+    setGuardandoRecordatorio(true);
+    const permitido = await pedirPermisoNotificaciones();
+    if (!permitido) {
+      setGuardandoRecordatorio(false);
+      Alert.alert(
+        'Sin permiso para notificar',
+        'Activá las notificaciones para Ahora Resuelvo en los ajustes del teléfono para poder recordarte.'
+      );
+      return;
+    }
+
+    const fecha = new Date();
+    fecha.setDate(fecha.getDate() + dias);
+
+    const idNotificacion = await programarRecordatorio({
+      tramiteNombre: tramite?.nombre ?? 'tu trámite',
+      fecha,
     });
+    await guardarNotificacionId(usuarioTramite.id, idNotificacion);
+
+    toggleRecordatorio.mutate(
+      {
+        usuarioTramiteId: usuarioTramite.id,
+        nextValue: true,
+        fechaRecordatorio: fecha.toISOString(),
+      },
+      { onSettled: () => setGuardandoRecordatorio(false) }
+    );
+    setMostrandoOpciones(false);
   };
 
   return (
@@ -109,13 +160,36 @@ function ChecklistContenido({ navigation, route }) {
 
         {estaCompleto && <CompletionBanner />}
 
-        <Pressable style={styles.reminderRow} onPress={handleToggleRecordatorio}>
-          <View>
-            <Text style={styles.reminderTitle}>Recordatorio activo</Text>
-            <Text style={styles.reminderSubtitle}>Te avisamos si vence un paso</Text>
-          </View>
-          <Toggle activo={Boolean(usuarioTramite.recordatorio_activo)} />
-        </Pressable>
+        <View style={styles.reminderWrap}>
+          <Pressable style={styles.reminderRow} onPress={handleReminderRowPress}>
+            <View style={styles.reminderInfo}>
+              <Text style={styles.reminderTitle}>Recordatorio activo</Text>
+              <Text style={styles.reminderSubtitle}>
+                {usuarioTramite.recordatorio_activo && usuarioTramite.fecha_recordatorio
+                  ? `Te avisamos el ${formatFechaLarga(usuarioTramite.fecha_recordatorio)}`
+                  : 'Te avisamos si vence un paso'}
+              </Text>
+            </View>
+            <Toggle activo={Boolean(usuarioTramite.recordatorio_activo)} />
+          </Pressable>
+
+          {mostrandoOpciones && !usuarioTramite.recordatorio_activo ? (
+            <View style={styles.reminderOpciones}>
+              {OPCIONES_RECORDATORIO.map((opcion) => (
+                <Pressable
+                  key={opcion.dias}
+                  style={styles.reminderChip}
+                  onPress={() => handleElegirFecha(opcion.dias)}
+                  disabled={guardandoRecordatorio}
+                >
+                  <Text style={styles.reminderChipText}>
+                    {guardandoRecordatorio ? 'Guardando…' : opcion.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+        </View>
 
         <View style={styles.checklist}>
           {total > 0 ? (
@@ -293,9 +367,11 @@ const styles = StyleSheet.create({
     color: COLORS.ok,
     lineHeight: 17,
   },
-  reminderRow: {
+  reminderWrap: {
     marginHorizontal: 18,
     marginTop: 14,
+  },
+  reminderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -306,6 +382,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
   },
+  reminderInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
   reminderTitle: {
     fontFamily: FONTS.bodySemiBold,
     fontSize: 13,
@@ -313,6 +393,26 @@ const styles = StyleSheet.create({
   },
   reminderSubtitle: {
     fontFamily: FONTS.body,
+    fontSize: 11,
+    color: COLORS.inkSoft,
+    marginTop: 2,
+  },
+  reminderOpciones: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  reminderChip: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 9,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: COLORS.line,
+    backgroundColor: COLORS.paperRaised,
+  },
+  reminderChipText: {
+    fontFamily: FONTS.mono,
     fontSize: 11,
     color: COLORS.inkSoft,
   },

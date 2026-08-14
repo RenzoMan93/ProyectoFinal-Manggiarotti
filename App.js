@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -16,6 +17,7 @@ import IBMPlexMono_500Medium from '@expo-google-fonts/ibm-plex-mono/500Medium/IB
 import { queryClient } from './lib/queryClient';
 import { COLORS } from './lib/theme';
 import { SessionProvider } from './hooks/useSession';
+import { prepararCanalAndroid } from './lib/notifications';
 import RootNavigator from './navigation/RootNavigator';
 
 export default function App() {
@@ -27,6 +29,10 @@ export default function App() {
     Inter_600SemiBold,
     IBMPlexMono_500Medium,
   });
+
+  useEffect(() => {
+    prepararCanalAndroid();
+  }, []);
 
   if (!fontsLoaded) {
     return <View style={{ flex: 1, backgroundColor: COLORS.paper }} />;
