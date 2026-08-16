@@ -86,7 +86,8 @@ export async function sendMessage(conversationId, senderId, text) {
 export function buildAutoReply(product, question) {
   const q = question.toLowerCase();
   if (q.includes('estado') || q.includes('funciona') || q.includes('roto') || q.includes('daño')) {
-    return `Según la publicación, el estado es "${product.condition}". ${
+    const estado = product.conditionType === 'Nuevo' ? 'nuevo' : `usado, ${product.conditionStars}/5 estrellas`;
+    return `Según la publicación, el producto está ${estado}. ${
       product.aiSummary?.condition || 'El vendedor no agregó más detalles sobre el funcionamiento.'
     }`;
   }

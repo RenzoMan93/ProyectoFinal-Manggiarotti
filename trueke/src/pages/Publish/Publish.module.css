@@ -208,6 +208,12 @@
   color: var(--forest-dark);
 }
 
+.starHint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
 textarea {
   width: 100%;
   border: 1.5px solid var(--line);

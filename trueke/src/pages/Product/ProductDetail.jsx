@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { subscribeToProduct } from '../../services/productsService';
 import { buildAutoReply, getOrCreateConversation, sendMessage, subscribeToMessages } from '../../services/chatService';
 import { formatUSD } from '../../utils/format';
+import { fullConditionLabel } from '../../utils/condition';
 import styles from './ProductDetail.module.css';
 
 const QUICK_QUESTIONS = [
@@ -51,7 +52,7 @@ export default function ProductDetail() {
 
   return (
     <>
-      <Gallery photos={photos} condition={product.condition} index={galIndex} setIndex={setGalIndex} onBack={() => navigate(-1)} />
+      <Gallery photos={photos} condition={fullConditionLabel(product)} index={galIndex} setIndex={setGalIndex} onBack={() => navigate(-1)} />
 
       <div className={styles.bodyScroll}>
         <div className={styles.panel}>
@@ -73,26 +74,25 @@ export default function ProductDetail() {
             </div>
             <div>
               <div className={styles.specLabel}>Estado</div>
-              <div className={styles.specVal}>{product.condition}</div>
-            </div>
-            <div>
-              <div className={styles.specLabel}>Material</div>
-              <div className={styles.specVal}>{product.material || '—'}</div>
+              <div className={styles.specVal}>{fullConditionLabel(product)}</div>
             </div>
             <div>
               <div className={styles.specLabel}>Categoría</div>
               <div className={styles.specVal}>{product.category || '—'}</div>
             </div>
+            {product.material && (
+              <div>
+                <div className={styles.specLabel}>Material</div>
+                <div className={styles.specVal}>{product.material}</div>
+              </div>
+            )}
+            {product.color && (
+              <div>
+                <div className={styles.specLabel}>Color</div>
+                <div className={styles.specVal}>{product.color}</div>
+              </div>
+            )}
           </div>
-
-          {product.conditionDetails && (
-            <div className={styles.conditionNote}>
-              <span>⚠️</span>
-              <span>
-                <b>Detalles del estado:</b> {product.conditionDetails}
-              </span>
-            </div>
-          )}
 
           <AiSummary product={product} showOriginal={showOriginal} setShowOriginal={setShowOriginal} />
 

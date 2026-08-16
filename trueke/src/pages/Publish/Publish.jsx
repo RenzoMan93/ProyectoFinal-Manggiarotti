@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { createProduct } from '../../services/productsService';
 import { checkImageQuality, uploadImage } from '../../services/storageService';
-import { CATEGORIES, COLORS, CONDITIONS, MATERIALS } from '../../utils/constants';
+import { CATEGORIES, MATERIALS } from '../../utils/constants';
+import StarPicker from '../../components/StarPicker.jsx';
 import styles from './Publish.module.css';
 
 const REQUIRED_PHOTOS = 3;
@@ -18,10 +19,10 @@ export default function Publish() {
   const [titulo, setTitulo] = useState('');
   const [categoria, setCategoria] = useState(null);
   const [marca, setMarca] = useState('');
-  const [estado, setEstado] = useState(null);
-  const [detalleEstado, setDetalleEstado] = useState('');
+  const [conditionType, setConditionType] = useState(null); // 'Nuevo' | 'Usado'
+  const [conditionStars, setConditionStars] = useState(null); // 1-5, forced to 5 when Nuevo
   const [material, setMaterial] = useState(null);
-  const [color, setColor] = useState(null);
+  const [color, setColor] = useState('');
   const [precio, setPrecio] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [offersShipping, setOffersShipping] = useState(false);
@@ -56,6 +57,11 @@ export default function Publish() {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   }
 
+  function selectConditionType(type) {
+    setConditionType(type);
+    setConditionStars(type === 'Nuevo' ? 5 : null);
+  }
+
   const approvedPhotos = photos.filter((p) => p.status === 'approved');
 
   const checks = {
@@ -64,10 +70,7 @@ export default function Publish() {
     titulo: titulo.trim().length > 0,
     categoria: !!categoria,
     marca: marca.trim().length > 0,
-    estado: !!estado,
-    detalleEstado: estado !== 'Con detalles' || detalleEstado.trim().length > 0,
-    material: !!material,
-    color: !!color,
+    condicion: !!conditionType && !!conditionStars,
     precio: String(precio).trim().length > 0 && Number(precio) > 0,
     ubicacion: ubicacion.trim().length > 0,
   };
@@ -80,10 +83,7 @@ export default function Publish() {
     titulo: 'título',
     categoria: 'categoría',
     marca: 'marca',
-    estado: 'estado',
-    detalleEstado: 'detalle del estado ("con detalles")',
-    material: 'material',
-    color: 'color',
+    condicion: 'estado',
     precio: 'precio',
     ubicacion: 'ubicación',
   };
@@ -101,10 +101,10 @@ export default function Publish() {
         title: titulo.trim(),
         category: categoria,
         brand: marca.trim(),
-        condition: estado,
-        conditionDetails: estado === 'Con detalles' ? detalleEstado.trim() : null,
-        material,
-        color,
+        conditionType,
+        conditionStars,
+        material: material || null,
+        color: color.trim() || null,
         price: Number(precio),
         city: ubicacion.trim(),
         offersShipping,
@@ -200,49 +200,38 @@ export default function Publish() {
             <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Ej: Trek" />
           </Field>
 
-          <Field label="Estado" done={checks.estado}>
+          <Field label="Estado" done={checks.condicion}>
             <div className="pill-grid">
-              {CONDITIONS.map((c) => (
-                <div key={c} className={`pill ${estado === c ? 'sel' : ''}`} onClick={() => setEstado(c)}>
-                  {c}
-                </div>
-              ))}
+              <div className={`pill ${conditionType === 'Nuevo' ? 'sel' : ''}`} onClick={() => selectConditionType('Nuevo')}>
+                Nuevo
+              </div>
+              <div className={`pill ${conditionType === 'Usado' ? 'sel' : ''}`} onClick={() => selectConditionType('Usado')}>
+                Usado
+              </div>
             </div>
+            {conditionType === 'Nuevo' && (
+              <div className={styles.starHint}>★★★★★ — se publica como nuevo, sin uso</div>
+            )}
+            {conditionType === 'Usado' && (
+              <>
+                <StarPicker value={conditionStars} onChange={setConditionStars} />
+                <div className={styles.starHint}>5 = como nueva &nbsp;·&nbsp; 1 = muy usada</div>
+              </>
+            )}
           </Field>
 
-          {estado === 'Con detalles' && (
-            <Field label="¿Qué detalles tiene?" done={checks.detalleEstado}>
-              <input
-                type="text"
-                value={detalleEstado}
-                onChange={(e) => setDetalleEstado(e.target.value)}
-                placeholder="Ej: rayón en la base, le falta un tornillo, mancha en la manga..."
-              />
-            </Field>
-          )}
-
-          <Field label="Material" done={checks.material}>
+          <Field label="Material (opcional)" done>
             <div className="pill-grid">
               {MATERIALS.map((m) => (
-                <div key={m} className={`pill ${material === m ? 'sel' : ''}`} onClick={() => setMaterial(m)}>
+                <div key={m} className={`pill ${material === m ? 'sel' : ''}`} onClick={() => setMaterial(material === m ? null : m)}>
                   {m}
                 </div>
               ))}
             </div>
           </Field>
 
-          <Field label="Color" done={checks.color}>
-            <div className="swatches">
-              {COLORS.map((c) => (
-                <div
-                  key={c.value}
-                  className={`swatch ${color === c.value ? 'sel' : ''}`}
-                  style={{ background: c.value, borderColor: c.value === '#f4f0e4' ? 'var(--line)' : 'transparent' }}
-                  onClick={() => setColor(c.value)}
-                  title={c.label}
-                />
-              ))}
-            </div>
+          <Field label="Color (opcional)" done>
+            <input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Ej: Verde oliva, negro mate..." />
           </Field>
 
           <Field label="Precio (USD)" done={checks.precio}>

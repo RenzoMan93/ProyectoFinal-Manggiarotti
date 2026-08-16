@@ -1,19 +1,28 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../../components/BottomNav.jsx';
+import StarPicker from '../../components/StarPicker.jsx';
 import { subscribeToActiveProducts } from '../../services/productsService';
 import { formatUSD } from '../../utils/format';
-import { CATEGORIES, COLORS, CONDITIONS, MATERIALS } from '../../utils/constants';
+import { shortConditionLabel } from '../../utils/condition';
+import { CATEGORIES, MATERIALS } from '../../utils/constants';
 import styles from './Feed.module.css';
 
 const QUICK_CHIPS = [
   { key: 'nuevo', label: 'Nuevo' },
-  { key: 'como-nuevo', label: 'Como nuevo' },
   { key: 'envio', label: 'Con envío' },
   { key: 'verificado', label: 'Vendedor verificado' },
 ];
 
-const emptyFilters = { maxPrice: 2000, categoria: null, estado: null, material: null, color: null, marca: '' };
+const emptyFilters = {
+  maxPrice: 2000,
+  categoria: null,
+  conditionType: null,
+  minStars: null,
+  material: null,
+  color: '',
+  marca: '',
+};
 
 export default function Feed() {
   const navigate = useNavigate();
@@ -44,15 +53,15 @@ export default function Feed() {
   const filtered = useMemo(() => {
     return products.filter((p) => {
       if (search.trim() && !p.title?.toLowerCase().includes(search.trim().toLowerCase())) return false;
-      if (activeChips.has('nuevo') && p.condition !== 'Nuevo') return false;
-      if (activeChips.has('como-nuevo') && p.condition !== 'Como nuevo') return false;
+      if (activeChips.has('nuevo') && p.conditionType !== 'Nuevo') return false;
       if (activeChips.has('envio') && !p.offersShipping) return false;
       if (activeChips.has('verificado') && !p.sellerVerified) return false;
       if (p.price > filters.maxPrice) return false;
       if (filters.categoria && p.category !== filters.categoria) return false;
-      if (filters.estado && p.condition !== filters.estado) return false;
+      if (filters.conditionType && p.conditionType !== filters.conditionType) return false;
+      if (filters.minStars && (p.conditionStars || 0) < filters.minStars) return false;
       if (filters.material && p.material !== filters.material) return false;
-      if (filters.color && p.color !== filters.color) return false;
+      if (filters.color.trim() && !p.color?.toLowerCase().includes(filters.color.trim().toLowerCase())) return false;
       if (filters.marca.trim() && !p.brand?.toLowerCase().includes(filters.marca.trim().toLowerCase())) return false;
       return true;
     });
@@ -60,9 +69,10 @@ export default function Feed() {
 
   const activeFilterCount =
     (filters.categoria ? 1 : 0) +
-    (filters.estado ? 1 : 0) +
+    (filters.conditionType ? 1 : 0) +
+    (filters.minStars ? 1 : 0) +
     (filters.material ? 1 : 0) +
-    (filters.color ? 1 : 0) +
+    (filters.color.trim() ? 1 : 0) +
     (filters.marca.trim() ? 1 : 0) +
     (filters.maxPrice < 2000 ? 1 : 0);
 
@@ -144,7 +154,7 @@ export default function Feed() {
               <div key={p.id} className={styles.card} onClick={() => navigate(`/producto/${p.id}`)}>
                 <div className={styles.cardImg}>
                   <img src={p.photos?.[0]} alt={p.title} loading="lazy" />
-                  <div className={styles.badgeCond}>{p.condition}</div>
+                  <div className={styles.badgeCond}>{shortConditionLabel(p)}</div>
                 </div>
                 <div className={styles.cardBody}>
                   <div className={styles.cardTitle}>{p.title}</div>
@@ -207,11 +217,13 @@ export default function Feed() {
           <div className={styles.fsection}>
             <h4>Estado</h4>
             <div className="pill-grid">
-              {CONDITIONS.map((c) => (
+              {['Nuevo', 'Usado'].map((c) => (
                 <div
                   key={c}
-                  className={`pill ${draftFilters.estado === c ? 'sel' : ''}`}
-                  onClick={() => setDraftFilters((f) => ({ ...f, estado: f.estado === c ? null : c }))}
+                  className={`pill ${draftFilters.conditionType === c ? 'sel' : ''}`}
+                  onClick={() =>
+                    setDraftFilters((f) => ({ ...f, conditionType: f.conditionType === c ? null : c }))
+                  }
                 >
                   {c}
                 </div>
@@ -220,17 +232,30 @@ export default function Feed() {
           </div>
 
           <div className={styles.fsection}>
+            <h4>Estrellas mínimas</h4>
+            <StarPicker
+              value={draftFilters.minStars}
+              onChange={(v) => setDraftFilters((f) => ({ ...f, minStars: v }))}
+            />
+          </div>
+
+          <div className={styles.fsection}>
             <h4>Color</h4>
-            <div className="swatches">
-              {COLORS.map((c) => (
-                <div
-                  key={c.value}
-                  className={`swatch ${draftFilters.color === c.value ? 'sel' : ''}`}
-                  style={{ background: c.value, borderColor: c.value === '#f4f0e4' ? 'var(--line)' : 'transparent' }}
-                  onClick={() => setDraftFilters((f) => ({ ...f, color: f.color === c.value ? null : c.value }))}
-                />
-              ))}
-            </div>
+            <input
+              type="text"
+              value={draftFilters.color}
+              onChange={(e) => setDraftFilters((f) => ({ ...f, color: e.target.value }))}
+              placeholder="Ej: Negro, verde oliva..."
+              style={{
+                width: '100%',
+                border: '1.5px solid var(--line)',
+                borderRadius: 11,
+                padding: '11px 13px',
+                fontSize: 13,
+                outline: 'none',
+                background: 'var(--paper)',
+              }}
+            />
           </div>
 
           <div className={styles.fsection}>
