@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getConversationsWithUnread } from "@/lib/unread";
 import LogoutButton from "@/components/LogoutButton";
+import MobileMenu from "@/components/MobileMenu";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -18,22 +20,8 @@ export default async function Header() {
       .single();
     profile = data;
 
-    const { data: conversations } = await supabase
-      .from("conversations")
-      .select("buyer_id, seller_id, buyer_last_read_at, seller_last_read_at, messages(sender_id, created_at)")
-      .or(
-        `and(buyer_id.eq.${user.id},deleted_by_buyer.eq.false),and(seller_id.eq.${user.id},deleted_by_seller.eq.false)`,
-      )
-      .order("created_at", { foreignTable: "messages", ascending: false })
-      .limit(1, { foreignTable: "messages" });
-
-    unreadCount = (conversations || []).filter((c) => {
-      const lastMessage = c.messages?.[0];
-      if (!lastMessage || lastMessage.sender_id === user.id) return false;
-      const isBuyer = c.buyer_id === user.id;
-      const lastRead = isBuyer ? c.buyer_last_read_at : c.seller_last_read_at;
-      return !lastRead || new Date(lastMessage.created_at) > new Date(lastRead);
-    }).length;
+    const conversations = await getConversationsWithUnread(supabase, user.id);
+    unreadCount = conversations.filter((c) => c.unread).length;
   }
 
   return (
@@ -97,6 +85,12 @@ export default async function Header() {
                   Panel admin
                 </Link>
               )}
+              <MobileMenu
+                unreadCount={unreadCount}
+                profileName={profile?.name?.split(" ")[0]}
+                verificationStatus={profile?.verification_status}
+                isAdmin={profile?.is_admin}
+              />
               <LogoutButton />
             </>
           ) : (

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { waLink } from "@/lib/whatsapp";
 
 const METHODS = [
   {
@@ -16,7 +15,7 @@ const METHODS = [
     id: "transferencia",
     label: "Transferencia",
     desc: "Coordinás la entrega y transferís por tu banco o app financiera.",
-    note: "Pedile los datos bancarios al vendedor por WhatsApp antes de transferir, y confirmá la entrega antes de dar la compra por cerrada.",
+    note: "Pedile los datos bancarios al vendedor por el chat antes de transferir, y confirmá la entrega antes de dar la compra por cerrada.",
   },
 ];
 
@@ -63,18 +62,14 @@ export default function CheckoutForm({ product, seller }) {
       <div className="rounded-2xl border border-line bg-paper p-5 text-center">
         <p className="mb-4 text-[15px] font-semibold text-ink">¡Compra registrada!</p>
         <p className="mb-4 text-sm text-muted">
-          Coordiná la entrega directo con {seller?.name || "el vendedor"} por WhatsApp.
+          Coordiná la entrega directo con {seller?.name || "el vendedor"} por el chat de ReUsalo.
         </p>
-        {seller?.phone && (
-          <a
-            href={waLink(seller.phone, product.title)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mb-2 block w-full rounded-lg border border-[#25D366] py-2.5 text-sm font-semibold text-[#1B9E51] hover:bg-green-50"
-          >
-            Escribir por WhatsApp
-          </a>
-        )}
+        <Link
+          href="/mensajes"
+          className="mb-2 block w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
+        >
+          Ir al chat
+        </Link>
         <Link href="/pedidos" className="mt-2 block text-sm font-medium text-brand hover:underline">
           Ver mis compras
         </Link>

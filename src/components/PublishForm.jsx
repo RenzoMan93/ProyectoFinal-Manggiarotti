@@ -39,6 +39,16 @@ export default function PublishForm() {
     setPhotos((p) => p.filter((_, i) => i !== index));
   };
 
+  const movePhoto = (index, direction) => {
+    setPhotos((p) => {
+      const target = index + direction;
+      if (target < 0 || target >= p.length) return p;
+      const next = [...p];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,7 +80,7 @@ export default function PublishForm() {
     try {
       const photoUrls = [];
       for (let i = 0; i < photos.length; i++) {
-        const blob = await resizeImageToBlob(photos[i].file);
+        const blob = await resizeImageToBlob(photos[i].file, 1280, 0.82, true);
         const path = `${user.id}/${Date.now()}-${i}.jpg`;
         const { error: uploadError } = await supabase.storage
           .from("product-photos")
@@ -119,6 +129,11 @@ export default function PublishForm() {
           {photos.map((p, i) => (
             <div key={p.preview} className="relative aspect-square overflow-hidden rounded-xl border border-line">
               <img src={p.preview} alt="" className="h-full w-full object-cover" />
+              {i === 0 && (
+                <div className="absolute left-1.5 top-1.5 rounded-full bg-brand px-2 py-0.5 text-[9px] font-bold text-white">
+                  PORTADA
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => removePhoto(i)}
@@ -127,6 +142,26 @@ export default function PublishForm() {
               >
                 ✕
               </button>
+              <div className="absolute bottom-1.5 left-1.5 right-1.5 flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => movePhoto(i, -1)}
+                  disabled={i === 0}
+                  aria-label="Mover a la izquierda"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/60 text-white disabled:opacity-30"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => movePhoto(i, 1)}
+                  disabled={i === photos.length - 1}
+                  aria-label="Mover a la derecha"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-ink/60 text-white disabled:opacity-30"
+                >
+                  ›
+                </button>
+              </div>
             </div>
           ))}
           {photos.length < MAX_PHOTOS && (
@@ -140,7 +175,10 @@ export default function PublishForm() {
           )}
         </div>
         <input id="fotos" type="file" accept="image/*" multiple onChange={handlePhotos} className="hidden" />
-        <p className="mt-2 text-xs text-muted">Hasta {MAX_PHOTOS} fotos. La primera va a ser la foto de portada.</p>
+        <p className="mt-2 text-xs text-muted">
+          Hasta {MAX_PHOTOS} fotos. Se les ajusta automáticamente la luz y el color. Usá las flechitas para
+          elegir cuál va de portada.
+        </p>
       </div>
 
       <Field label="Título">

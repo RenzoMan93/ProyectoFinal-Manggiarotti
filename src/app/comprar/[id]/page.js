@@ -18,7 +18,7 @@ export default async function CheckoutPage({ params }) {
   if (product.seller_id === user.id) redirect(`/producto/${id}`);
   if (product.status !== "disponible") redirect(`/producto/${id}`);
 
-  const { data: seller } = await supabase.from("profiles").select("name, phone").eq("id", product.seller_id).single();
+  const { data: seller } = await supabase.from("profiles").select("name").eq("id", product.seller_id).single();
 
   return (
     <div className="mx-auto max-w-md">

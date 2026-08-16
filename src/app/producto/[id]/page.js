@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { categoryById, formatPrice, timeAgo } from "@/lib/format";
-import { waLink } from "@/lib/whatsapp";
 import FavoriteButton from "@/components/FavoriteButton";
 import ProductGallery from "@/components/ProductGallery";
 import ProductStatusToggle from "@/components/ProductStatusToggle";
@@ -10,6 +9,7 @@ import DeleteProductButton from "@/components/DeleteProductButton";
 import ChatButton from "@/components/ChatButton";
 import ReportButton from "@/components/ReportButton";
 import ViewCounter from "@/components/ViewCounter";
+import ShareButton from "@/components/ShareButton";
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
@@ -24,7 +24,7 @@ export default async function ProductDetailPage({ params }) {
 
   const { data: seller } = await supabase
     .from("profiles")
-    .select("name, phone, id_verified")
+    .select("name, id_verified")
     .eq("id", product.seller_id)
     .single();
 
@@ -119,18 +119,12 @@ export default async function ProductDetailPage({ params }) {
               </Link>
             )}
             {user && <ChatButton productId={product.id} sellerId={product.seller_id} />}
-            {seller?.phone && (
-              <a
-                href={waLink(seller.phone, product.title)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full rounded-lg border border-[#25D366] py-2.5 text-center text-sm font-semibold text-[#1B9E51] hover:bg-green-50"
-              >
-                Consultar por WhatsApp
-              </a>
-            )}
           </div>
         )}
+      </div>
+
+      <div className="mt-3">
+        <ShareButton title={product.title} />
       </div>
 
       {user && !isOwner && (
