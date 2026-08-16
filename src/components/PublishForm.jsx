@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES, CONDITIONS, DEPARTAMENTOS } from "@/lib/constants";
-import { resizeImageToBlob } from "@/lib/image";
+import { resizeImageToBlob, scoreImageQuality } from "@/lib/image";
 
 const MAX_PHOTOS = 5;
 
@@ -27,12 +27,33 @@ export default function PublishForm() {
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  const handlePhotos = (e) => {
+  const handlePhotos = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, MAX_PHOTOS - photos.length);
-    if (files.length === 0) return;
-    const next = files.map((file) => ({ file, preview: URL.createObjectURL(file) }));
-    setPhotos((p) => [...p, ...next].slice(0, MAX_PHOTOS));
     e.target.value = "";
+    if (files.length === 0) return;
+
+    const added = files.map((file) => ({ file, preview: URL.createObjectURL(file), score: null }));
+    setPhotos((p) => [...p, ...added].slice(0, MAX_PHOTOS));
+
+    const scores = await Promise.all(added.map((p) => scoreImageQuality(p.file)));
+
+    setPhotos((prev) => {
+      const scored = prev.map((p) => {
+        const i = added.findIndex((a) => a.preview === p.preview);
+        return i >= 0 ? { ...p, score: scores[i] } : p;
+      });
+      // Elegimos portada automáticamente: la foto más nítida y mejor
+      // expuesta pasa al frente. Se puede cambiar a mano con las flechitas.
+      let bestIndex = 0;
+      for (let i = 1; i < scored.length; i++) {
+        if ((scored[i].score ?? -Infinity) > (scored[bestIndex].score ?? -Infinity)) bestIndex = i;
+      }
+      if (bestIndex === 0) return scored;
+      const reordered = [...scored];
+      const [best] = reordered.splice(bestIndex, 1);
+      reordered.unshift(best);
+      return reordered;
+    });
   };
 
   const removePhoto = (index) => {
@@ -176,8 +197,8 @@ export default function PublishForm() {
         </div>
         <input id="fotos" type="file" accept="image/*" multiple onChange={handlePhotos} className="hidden" />
         <p className="mt-2 text-xs text-muted">
-          Hasta {MAX_PHOTOS} fotos. Se les ajusta automáticamente la luz y el color. Usá las flechitas para
-          elegir cuál va de portada.
+          Hasta {MAX_PHOTOS} fotos. Se les ajusta automáticamente la luz y el color, y elegimos la más nítida
+          como portada — la podés cambiar con las flechitas.
         </p>
       </div>
 

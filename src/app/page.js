@@ -4,6 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
 
+const PERKS = [
+  { icon: "🚫💳", text: "Sin comisiones" },
+  { icon: "🤝", text: "Comprale directo a tu vecino" },
+  { icon: "⚡", text: "Publicá en 1 minuto" },
+  { icon: "✅", text: "Identidad verificada" },
+];
+
 export default async function Home({ searchParams }) {
   const params = await searchParams;
   const q = (params.q || "").trim();
@@ -58,6 +65,18 @@ export default async function Home({ searchParams }) {
         >
           Publicar un artículo
         </Link>
+      </div>
+
+      <div className="mb-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {PERKS.map((perk) => (
+          <div
+            key={perk.text}
+            className="flex items-center gap-2.5 rounded-2xl border border-line bg-paper px-3.5 py-3"
+          >
+            <span className="text-xl leading-none">{perk.icon}</span>
+            <span className="text-xs font-bold leading-tight text-ink">{perk.text}</span>
+          </div>
+        ))}
       </div>
 
       <SearchBar q={q} categoria={categoria} minPrice={minPrice} maxPrice={maxPrice} />

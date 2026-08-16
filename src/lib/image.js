@@ -38,6 +38,73 @@ export function resizeImageToBlob(file, maxDim = 1280, quality = 0.82, enhance =
   });
 }
 
+/** Puntaje de calidad para elegir automáticamente la mejor foto de portada:
+ * combina nitidez (varianza del laplaciano, un detector de bordes clásico —
+ * a más textura/foco, más varianza) con qué tan centrada está la exposición
+ * (penaliza fotos muy oscuras, muy quemadas, o con muchos píxeles al límite).
+ * Es un cálculo matemático sobre los píxeles, no analiza qué hay en la foto
+ * — no es IA. */
+export function scoreImageQuality(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 200;
+        let { width, height } = img;
+        if (width > height && width > maxDim) {
+          height = Math.round(height * (maxDim / width));
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round(width * (maxDim / height));
+          height = maxDim;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        const { data } = ctx.getImageData(0, 0, width, height);
+
+        const gray = new Float32Array(width * height);
+        let sum = 0;
+        let clipped = 0;
+        for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+          const g = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          gray[p] = g;
+          sum += g;
+          if (g < 12 || g > 245) clipped++;
+        }
+        const mean = sum / gray.length;
+
+        let lapSum = 0;
+        let lapSumSq = 0;
+        let count = 0;
+        for (let y = 1; y < height - 1; y++) {
+          for (let x = 1; x < width - 1; x++) {
+            const idx = y * width + x;
+            const lap = gray[idx - width] + gray[idx + width] + gray[idx - 1] + gray[idx + 1] - 4 * gray[idx];
+            lapSum += lap;
+            lapSumSq += lap * lap;
+            count++;
+          }
+        }
+        const lapMean = count > 0 ? lapSum / count : 0;
+        const sharpness = count > 0 ? lapSumSq / count - lapMean * lapMean : 0;
+
+        const exposurePenalty = Math.abs(mean - 130) / 130 + (clipped / gray.length) * 2;
+        const exposureFactor = Math.max(0.15, 1 - exposurePenalty);
+
+        resolve(sharpness * exposureFactor);
+      };
+      img.onerror = () => resolve(0);
+      img.src = reader.result;
+    };
+    reader.onerror = () => resolve(0);
+    reader.readAsDataURL(file);
+  });
+}
+
 /** Estiramiento de niveles por canal (recorta 1% de outliers en cada punta)
  * más un leve boost de saturación. Es procesamiento de imagen clásico
  * (equivalente a "auto contraste"), no analiza el contenido de la foto. */
