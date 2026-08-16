@@ -290,6 +290,16 @@ input:focus {
   font-family: var(--font-mono);
 }
 
+.priceInput input::-webkit-outer-spin-button,
+.priceInput input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.priceInput input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 .publishbar {
   background: #fff;
   border-top: 1px solid var(--line);

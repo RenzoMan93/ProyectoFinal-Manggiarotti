@@ -171,18 +171,6 @@ export default function Publish() {
             <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Bicicleta Trek montaña rodado 29" />
           </Field>
 
-          <Field label="Descripción" required>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Contale a los compradores por qué lo vendés, qué incluye, y cualquier detalle sobre el estado..."
-            />
-            <div className={styles.aiHint}>
-              🤖 No te preocupes por el orden: en cuanto publiques, una IA toma este texto y arma automáticamente el
-              resumen que ven los compradores (qué incluye, motivo de venta, etc.).
-            </div>
-          </Field>
-
           <Field label="Estado" required>
             <div className="pill-grid">
               <div className={`pill ${conditionType === 'Nuevo' ? 'sel' : ''}`} onClick={() => selectConditionType('Nuevo')}>
@@ -229,6 +217,18 @@ export default function Publish() {
 
           <Field label="Color">
             <input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Ej: Verde oliva, negro mate..." />
+          </Field>
+
+          <Field label="Descripción" required>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Contale a los compradores por qué lo vendés, qué incluye, y cualquier detalle sobre el estado..."
+            />
+            <div className={styles.aiHint}>
+              🤖 No te preocupes por el orden: en cuanto publiques, una IA toma este texto y arma automáticamente el
+              resumen que ven los compradores (qué incluye, motivo de venta, etc.).
+            </div>
           </Field>
 
           <Field label="Ciudad" required>
