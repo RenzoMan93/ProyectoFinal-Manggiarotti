@@ -183,6 +183,16 @@ export default function Publish() {
             />
           </Field>
 
+          <Field label="Categoría" required>
+            <div className="pill-grid">
+              {CATEGORIES.map((c) => (
+                <div key={c} className={`pill ${categorias.includes(c) ? 'sel' : ''}`} onClick={() => toggleCategoria(c)}>
+                  {c}
+                </div>
+              ))}
+            </div>
+          </Field>
+
           <Field label="Estado" required>
             <div className="pill-grid">
               <div className={`pill ${conditionType === 'Nuevo' ? 'sel' : ''}`} onClick={() => selectConditionType('Nuevo')}>
@@ -213,16 +223,6 @@ export default function Publish() {
                 placeholder="0"
                 style={{ paddingLeft: `${19 + (CURRENCIES.find((c) => c.code === moneda)?.symbol.length || 1) * 9}px` }}
               />
-            </div>
-          </Field>
-
-          <Field label="Categoría" required>
-            <div className="pill-grid">
-              {CATEGORIES.map((c) => (
-                <div key={c} className={`pill ${categorias.includes(c) ? 'sel' : ''}`} onClick={() => toggleCategoria(c)}>
-                  {c}
-                </div>
-              ))}
             </div>
           </Field>
 
