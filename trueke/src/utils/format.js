@@ -1,10 +1,10 @@
 import { CURRENCIES } from './constants';
 
 /** Formats an amount with the symbol of the given currency code (defaults to USD).
- * No thousands separator — round prices like 1500 show as "$1500", not "$1.500". */
+ * Uses "." as the thousands separator (es-UY locale), e.g. 1200 -> "$1.200". */
 export function formatPrice(amount, currencyCode = 'USD') {
   const symbol = CURRENCIES.find((c) => c.code === currencyCode)?.symbol || '$';
-  return `${symbol}${Number(amount).toLocaleString('es-UY', { useGrouping: false })}`;
+  return `${symbol}${Number(amount).toLocaleString('es-UY')}`;
 }
 
 /**
