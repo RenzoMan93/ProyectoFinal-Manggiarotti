@@ -53,7 +53,7 @@ export default function ProductDetail() {
 
   return (
     <>
-      <Gallery photos={photos} condition={fullConditionLabel(product)} index={galIndex} setIndex={setGalIndex} onBack={() => navigate(-1)} />
+      <Gallery photos={photos} index={galIndex} setIndex={setGalIndex} onBack={() => navigate(-1)} />
 
       <div className={styles.bodyScroll}>
         <div className={styles.panel}>
@@ -203,7 +203,7 @@ function SummaryItem({ icon, label, text }) {
   );
 }
 
-function Gallery({ photos, condition, index, setIndex, onBack }) {
+function Gallery({ photos, index, setIndex, onBack }) {
   const containerRef = useRef(null);
   const trackRef = useRef(null);
   const dragState = useRef({ dragging: false, startX: 0, offset: 0 });
@@ -271,6 +271,7 @@ function Gallery({ photos, condition, index, setIndex, onBack }) {
         <>
           <button
             className={`${styles.galArrow} ${styles.galArrowLeft}`}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={() => goTo(index - 1)}
             disabled={index === 0}
             aria-label="Foto anterior"
@@ -281,6 +282,7 @@ function Gallery({ photos, condition, index, setIndex, onBack }) {
           </button>
           <button
             className={`${styles.galArrow} ${styles.galArrowRight}`}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={() => goTo(index + 1)}
             disabled={index === photos.length - 1}
             aria-label="Foto siguiente"
@@ -291,7 +293,6 @@ function Gallery({ photos, condition, index, setIndex, onBack }) {
           </button>
         </>
       )}
-      <div className={styles.badgeCondLg}>{condition}</div>
       {photos.length > 0 && <div className={styles.galCount}>{index + 1}/{photos.length}</div>}
       <div className={styles.galDots}>
         {photos.map((_, i) => (
