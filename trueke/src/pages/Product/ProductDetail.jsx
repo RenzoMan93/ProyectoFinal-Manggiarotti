@@ -99,26 +99,6 @@ export default function ProductDetail() {
 
           <AiSummary product={product} showOriginal={showOriginal} setShowOriginal={setShowOriginal} />
 
-          <div className={styles.sellerCard}>
-            <div className={styles.avatar}>
-              {initials(product.sellerName)}
-              {product.sellerVerified && (
-                <div className={styles.avatarCheck}>
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-              )}
-            </div>
-            <div className={styles.sellerInfo}>
-              <div className={styles.sellerName}>
-                {product.sellerName}
-                {product.sellerVerified && <span className={styles.verifPill}>Verificado</span>}
-              </div>
-              <div className={styles.sellerSub}>Vendedor en Trueke</div>
-            </div>
-          </div>
-
           <div className={styles.aiNote}>
             <span>🛡️</span>
             <span>
@@ -157,16 +137,6 @@ export default function ProductDetail() {
       {!isOwner && chatOpen && <ChatDrawer product={product} onClose={() => setChatOpen(false)} />}
     </>
   );
-}
-
-function initials(name) {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
 }
 
 function AiSummary({ product, showOriginal, setShowOriginal }) {
