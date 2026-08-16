@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import BottomNav from '../../components/BottomNav.jsx';
 import StarPicker from '../../components/StarPicker.jsx';
 import { subscribeToActiveProducts } from '../../services/productsService';
-import { formatUSD } from '../../utils/format';
+import { formatPrice } from '../../utils/format';
 import { shortConditionLabel } from '../../utils/condition';
-import { CATEGORIES, MATERIALS } from '../../utils/constants';
+import { CATEGORIES } from '../../utils/constants';
 import styles from './Feed.module.css';
 
 const QUICK_CHIPS = [
@@ -19,7 +19,7 @@ const emptyFilters = {
   categoria: null,
   conditionType: null,
   minStars: null,
-  material: null,
+  material: '',
   color: '',
   marca: '',
 };
@@ -60,7 +60,7 @@ export default function Feed() {
       if (filters.categoria && p.category !== filters.categoria) return false;
       if (filters.conditionType && p.conditionType !== filters.conditionType) return false;
       if (filters.minStars && (p.conditionStars || 0) < filters.minStars) return false;
-      if (filters.material && p.material !== filters.material) return false;
+      if (filters.material.trim() && !p.material?.toLowerCase().includes(filters.material.trim().toLowerCase())) return false;
       if (filters.color.trim() && !p.color?.toLowerCase().includes(filters.color.trim().toLowerCase())) return false;
       if (filters.marca.trim() && !p.brand?.toLowerCase().includes(filters.marca.trim().toLowerCase())) return false;
       return true;
@@ -71,7 +71,7 @@ export default function Feed() {
     (filters.categoria ? 1 : 0) +
     (filters.conditionType ? 1 : 0) +
     (filters.minStars ? 1 : 0) +
-    (filters.material ? 1 : 0) +
+    (filters.material.trim() ? 1 : 0) +
     (filters.color.trim() ? 1 : 0) +
     (filters.marca.trim() ? 1 : 0) +
     (filters.maxPrice < 2000 ? 1 : 0);
@@ -159,8 +159,8 @@ export default function Feed() {
                 <div className={styles.cardBody}>
                   <div className={styles.cardTitle}>{p.title}</div>
                   <div>
-                    <span className={styles.priceTag}>{formatUSD(p.price)}</span>
-                    {p.oldPrice && <span className={styles.priceOld}>{formatUSD(p.oldPrice)}</span>}
+                    <span className={styles.priceTag}>{formatPrice(p.price, p.currency)}</span>
+                    {p.oldPrice && <span className={styles.priceOld}>{formatPrice(p.oldPrice, p.currency)}</span>}
                   </div>
                   <div className={styles.dist}>📍 {p.city || 'Uruguay'}</div>
                 </div>
@@ -183,7 +183,7 @@ export default function Feed() {
         </div>
         <div className={styles.drawerBody}>
           <div className={styles.fsection}>
-            <h4>Precio máximo (USD)</h4>
+            <h4>Precio máximo</h4>
             <div className={styles.frange}>
               <span>$0</span>
               <input
@@ -260,17 +260,21 @@ export default function Feed() {
 
           <div className={styles.fsection}>
             <h4>Material</h4>
-            <div className="pill-grid">
-              {MATERIALS.map((m) => (
-                <div
-                  key={m}
-                  className={`pill ${draftFilters.material === m ? 'sel' : ''}`}
-                  onClick={() => setDraftFilters((f) => ({ ...f, material: f.material === m ? null : m }))}
-                >
-                  {m}
-                </div>
-              ))}
-            </div>
+            <input
+              type="text"
+              value={draftFilters.material}
+              onChange={(e) => setDraftFilters((f) => ({ ...f, material: e.target.value }))}
+              placeholder="Ej: Madera, aluminio..."
+              style={{
+                width: '100%',
+                border: '1.5px solid var(--line)',
+                borderRadius: 11,
+                padding: '11px 13px',
+                fontSize: 13,
+                outline: 'none',
+                background: 'var(--paper)',
+              }}
+            />
           </div>
 
           <div className={styles.fsection}>

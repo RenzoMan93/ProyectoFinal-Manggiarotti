@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { getProduct } from '../../services/productsService';
 import { createOrder, markOrderPaid } from '../../services/ordersService';
 import { processPayment } from '../../services/paymentProvider';
-import { formatUSD } from '../../utils/format';
+import { formatPrice } from '../../utils/format';
 import styles from './Checkout.module.css';
 
 const STEP_LABELS = ['Entrega', 'Pago', 'Confirmar', 'Listo'];
@@ -138,6 +138,7 @@ export default function Checkout() {
             code={code}
             codLimitOk={codLimitOk}
             total={total}
+            currency={product.currency}
           />
         )}
         {step === 3 && <StepConfirmar product={product} entrega={entrega} pago={pago} red={red} total={total} />}
@@ -206,7 +207,7 @@ function StepEntrega({ product, entrega, setEntrega, direccion, setDireccion, ci
           <div className={styles.prodTitle}>{product.title}</div>
           <div className={styles.prodSeller}>Vendido por {product.sellerName}{product.sellerVerified ? ' ✓' : ''}</div>
         </div>
-        <div className={styles.prodPrice}>{formatUSD(product.price)}</div>
+        <div className={styles.prodPrice}>{formatPrice(product.price, product.currency)}</div>
       </div>
 
       <div className={styles.sectionLabel}>Forma de entrega</div>
@@ -225,7 +226,7 @@ function StepEntrega({ product, entrega, setEntrega, direccion, setDireccion, ci
             <div className={styles.optTitle}>Envío a domicilio</div>
             <div className={styles.optSub}>Llega en 2-4 días hábiles</div>
           </div>
-          <div className={styles.optPrice}>{formatUSD(SHIPPING_COST)}</div>
+          <div className={styles.optPrice}>{formatPrice(SHIPPING_COST, product.currency)}</div>
         </div>
       )}
       <div className={`${styles.optCard} ${entrega === 'retiro' ? styles.sel : ''}`} onClick={() => setEntrega('retiro')}>
@@ -270,7 +271,7 @@ function StepEntrega({ product, entrega, setEntrega, direccion, setDireccion, ci
   );
 }
 
-function StepPago({ pago, setPago, card, setCard, red, setRed, code, codLimitOk, total }) {
+function StepPago({ pago, setPago, card, setCard, red, setRed, code, codLimitOk, total, currency }) {
   return (
     <div>
       <div className={styles.stepTitle}>Método de pago</div>
@@ -297,7 +298,9 @@ function StepPago({ pago, setPago, card, setCard, red, setRed, code, codLimitOk,
         <div className={styles.optText}>
           <div className={styles.optTitle}>Efectivo al recibir</div>
           <div className={`${styles.optCap} ${!codLimitOk ? styles.blocked : ''}`}>
-            {codLimitOk ? 'Disponible en compras de hasta $3.000' : `No disponible: el total (${formatUSD(total)}) supera el máximo de $3.000`}
+            {codLimitOk
+              ? `Disponible en compras de hasta ${formatPrice(CASH_ON_DELIVERY_LIMIT, currency)}`
+              : `No disponible: el total (${formatPrice(total, currency)}) supera el máximo de ${formatPrice(CASH_ON_DELIVERY_LIMIT, currency)}`}
           </div>
         </div>
         <div className={styles.radioDot} />
@@ -412,15 +415,15 @@ function StepConfirmar({ product, entrega, pago, red, total }) {
       <div className={styles.summaryBox}>
         <div className={styles.summaryRow}>
           <span>Producto</span>
-          <span className={styles.amt}>{formatUSD(product.price)}</span>
+          <span className={styles.amt}>{formatPrice(product.price, product.currency)}</span>
         </div>
         <div className={styles.summaryRow}>
           <span>Envío</span>
-          <span className={styles.amt}>{shipping === 0 ? 'Gratis' : formatUSD(shipping)}</span>
+          <span className={styles.amt}>{shipping === 0 ? 'Gratis' : formatPrice(shipping, product.currency)}</span>
         </div>
         <div className={`${styles.summaryRow} ${styles.total}`}>
           <span>Total</span>
-          <span className={styles.amt}>{formatUSD(total)}</span>
+          <span className={styles.amt}>{formatPrice(total, product.currency)}</span>
         </div>
       </div>
 

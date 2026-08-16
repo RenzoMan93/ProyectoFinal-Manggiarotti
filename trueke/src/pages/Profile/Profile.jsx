@@ -5,7 +5,7 @@ import BottomNav from '../../components/BottomNav.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { auth } from '../../firebase';
 import { subscribeToSellerProducts } from '../../services/productsService';
-import { formatUSD } from '../../utils/format';
+import { formatPrice } from '../../utils/format';
 import styles from './Profile.module.css';
 
 export default function Profile() {
@@ -42,7 +42,7 @@ export default function Profile() {
             <div key={p.id} className={styles.listingRow} onClick={() => navigate(`/producto/${p.id}`)}>
               <img className={styles.listingImg} src={p.photos?.[0]} alt="" />
               <div className={styles.listingTitle}>{p.title}</div>
-              <div className={styles.listingPrice}>{formatUSD(p.price)}</div>
+              <div className={styles.listingPrice}>{formatPrice(p.price, p.currency)}</div>
             </div>
           ))
         )}

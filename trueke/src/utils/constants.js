@@ -19,6 +19,9 @@ export const CATEGORIES = [
   'Otros',
 ];
 
-export const MATERIALS = ['Madera', 'Metal', 'Aluminio', 'Cuero', 'Tela', 'Plástico'];
-
 export const COUNTRIES = ['Uruguay', 'Argentina', 'Brasil', 'Chile', 'Paraguay'];
+
+export const CURRENCIES = [
+  { code: 'USD', label: 'USD', symbol: 'US$' },
+  { code: 'UYU', label: '$ (pesos)', symbol: '$' },
+];

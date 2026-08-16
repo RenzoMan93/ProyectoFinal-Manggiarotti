@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { subscribeToProduct } from '../../services/productsService';
 import { buildAutoReply, getOrCreateConversation, sendMessage, subscribeToMessages } from '../../services/chatService';
-import { formatUSD } from '../../utils/format';
+import { formatPrice } from '../../utils/format';
 import { fullConditionLabel } from '../../utils/condition';
 import styles from './ProductDetail.module.css';
 
@@ -57,8 +57,8 @@ export default function ProductDetail() {
       <div className={styles.bodyScroll}>
         <div className={styles.panel}>
           <div className={styles.priceRow}>
-            <span className={styles.priceBig}>{formatUSD(product.price)}</span>
-            {product.oldPrice && <span className={styles.priceOldLg}>{formatUSD(product.oldPrice)}</span>}
+            <span className={styles.priceBig}>{formatPrice(product.price, product.currency)}</span>
+            {product.oldPrice && <span className={styles.priceOldLg}>{formatPrice(product.oldPrice, product.currency)}</span>}
             {discount && <span className={styles.discountTag}>-{discount}%</span>}
           </div>
           <div className={styles.titleLg}>{product.title}</div>
