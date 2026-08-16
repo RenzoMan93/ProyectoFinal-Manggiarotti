@@ -69,10 +69,12 @@ export default function ProductDetail() {
           </div>
 
           <div className={styles.specs}>
-            <div>
-              <div className={styles.specLabel}>Marca</div>
-              <div className={styles.specVal}>{product.brand || '—'}</div>
-            </div>
+            {product.brand && (
+              <div>
+                <div className={styles.specLabel}>Marca</div>
+                <div className={styles.specVal}>{product.brand}</div>
+              </div>
+            )}
             <div>
               <div className={styles.specLabel}>Estado</div>
               <div className={styles.specVal}>{fullConditionLabel(product)}</div>
