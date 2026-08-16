@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { createProduct } from '../../services/productsService';
 import { checkImageQuality, uploadImage } from '../../services/storageService';
 import { CATEGORIES, CURRENCIES } from '../../utils/constants';
+import { normalizeShoutingCase } from '../../utils/format';
 import ConditionPicker from '../../components/ConditionPicker.jsx';
 import styles from './Publish.module.css';
 
@@ -100,7 +101,7 @@ export default function Publish() {
       const sellerName = profile?.name || user.email.split('@')[0];
       const id = await createProduct(user.uid, sellerName, {
         photos: approvedPhotos.map((p) => p.url),
-        title: titulo.trim(),
+        title: normalizeShoutingCase(titulo),
         categories: categorias,
         description: description.trim(),
         conditionType,
@@ -173,7 +174,13 @@ export default function Publish() {
           <div className={styles.sectionLabel}>Datos del producto</div>
 
           <Field label="Título" required>
-            <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Bicicleta Trek montaña rodado 29" />
+            <input
+              type="text"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              onBlur={() => setTitulo((t) => normalizeShoutingCase(t))}
+              placeholder="Ej: Bicicleta Trek montaña rodado 29"
+            />
           </Field>
 
           <Field label="Estado" required>
