@@ -85,6 +85,15 @@ export default function ProductDetail() {
             </div>
           </div>
 
+          {product.conditionDetails && (
+            <div className={styles.conditionNote}>
+              <span>⚠️</span>
+              <span>
+                <b>Detalles del estado:</b> {product.conditionDetails}
+              </span>
+            </div>
+          )}
+
           <AiSummary product={product} showOriginal={showOriginal} setShowOriginal={setShowOriginal} />
 
           <div className={styles.sellerCard}>

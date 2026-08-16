@@ -19,6 +19,7 @@ export default function Publish() {
   const [categoria, setCategoria] = useState(null);
   const [marca, setMarca] = useState('');
   const [estado, setEstado] = useState(null);
+  const [detalleEstado, setDetalleEstado] = useState('');
   const [material, setMaterial] = useState(null);
   const [color, setColor] = useState(null);
   const [precio, setPrecio] = useState('');
@@ -64,6 +65,7 @@ export default function Publish() {
     categoria: !!categoria,
     marca: marca.trim().length > 0,
     estado: !!estado,
+    detalleEstado: estado !== 'Con detalles' || detalleEstado.trim().length > 0,
     material: !!material,
     color: !!color,
     precio: String(precio).trim().length > 0 && Number(precio) > 0,
@@ -79,6 +81,7 @@ export default function Publish() {
     categoria: 'categoría',
     marca: 'marca',
     estado: 'estado',
+    detalleEstado: 'detalle del estado ("con detalles")',
     material: 'material',
     color: 'color',
     precio: 'precio',
@@ -99,6 +102,7 @@ export default function Publish() {
         category: categoria,
         brand: marca.trim(),
         condition: estado,
+        conditionDetails: estado === 'Con detalles' ? detalleEstado.trim() : null,
         material,
         color,
         price: Number(precio),
@@ -205,6 +209,17 @@ export default function Publish() {
               ))}
             </div>
           </Field>
+
+          {estado === 'Con detalles' && (
+            <Field label="¿Qué detalles tiene?" done={checks.detalleEstado}>
+              <input
+                type="text"
+                value={detalleEstado}
+                onChange={(e) => setDetalleEstado(e.target.value)}
+                placeholder="Ej: rayón en la base, le falta un tornillo, mancha en la manga..."
+              />
+            </Field>
+          )}
 
           <Field label="Material" done={checks.material}>
             <div className="pill-grid">

@@ -1,4 +1,23 @@
-export const CATEGORIES = ['Deportes', 'Hogar', 'Tecnología', 'Indumentaria', 'Otros'];
+export const CATEGORIES = [
+  'Deportes',
+  'Hogar',
+  'Muebles',
+  'Tecnología',
+  'Electrodomésticos',
+  'Indumentaria',
+  'Calzado',
+  'Bebés y niños',
+  'Juguetes',
+  'Libros y música',
+  'Herramientas',
+  'Jardín y exterior',
+  'Vehículos y accesorios',
+  'Belleza y cuidado personal',
+  'Instrumentos musicales',
+  'Mascotas',
+  'Arte y coleccionables',
+  'Otros',
+];
 
 export const CONDITIONS = ['Nuevo', 'Como nuevo', 'Buen estado', 'Con detalles'];
 
