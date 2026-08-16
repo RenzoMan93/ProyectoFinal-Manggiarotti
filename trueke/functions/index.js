@@ -54,7 +54,7 @@ Texto del vendedor:
 
     try {
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-haiku-20241022',
+        model: 'claude-haiku-4-5',
         max_tokens: 400,
         messages: [{ role: 'user', content: prompt }],
       });
@@ -71,6 +71,71 @@ Texto del vendedor:
       });
     } catch (err) {
       logger.error('summarizeListing failed', err);
+    }
+  }
+);
+
+/**
+ * Looks at every photo a seller uploaded for a listing and uses Claude's
+ * vision capability to pick the one that best represents the product (in
+ * focus, well lit, shows the whole item), then reorders `photos` so that
+ * one is at index 0. Every screen in the app (Feed cards, product gallery,
+ * checkout, profile listings) already renders `photos[0]` as the cover, so
+ * nothing else needs to change for the pick to take effect.
+ *
+ * Runs once per listing (skips if there's only one photo, or once a pick
+ * has already been made). Same secret as summarizeListing above —
+ * `firebase functions:secrets:set ANTHROPIC_API_KEY` — and calling a
+ * vision model on every new listing's photos is real, billed Anthropic API
+ * usage, same as summarizeListing.
+ */
+exports.pickCoverPhoto = onDocumentCreated(
+  { document: 'products/{productId}', secrets: [anthropicApiKey] },
+  async (event) => {
+    const snap = event.data;
+    const product = snap.data();
+    const photos = product?.photos;
+    if (!Array.isArray(photos) || photos.length < 2 || product.coverPhotoPicked) return;
+
+    const apiKey = anthropicApiKey.value();
+    if (!apiKey) {
+      logger.warn('ANTHROPIC_API_KEY not configured — skipping cover photo selection.');
+      return;
+    }
+
+    const { default: Anthropic } = await import('@anthropic-ai/sdk');
+    const anthropic = new Anthropic({ apiKey });
+
+    const prompt = `Estas son las fotos que un vendedor subió para un producto de un marketplace de segunda mano
+llamado Trueke${product.title ? ` ("${product.title}")` : ''}, numeradas en el orden en que te las muestro (empezando en 0).
+Elegí cuál es la MEJOR para usar como foto de portada (la primera que ve el comprador en el listado): la que
+muestra el producto completo, bien iluminada, enfocada, y sin elementos que distraigan.
+Respondé ÚNICAMENTE con un JSON (sin texto adicional, sin markdown), con esta forma exacta: {"bestIndex": N}`;
+
+    try {
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-5',
+        max_tokens: 100,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              ...photos.map((url) => ({ type: 'image', source: { type: 'url', url } })),
+              { type: 'text', text: prompt },
+            ],
+          },
+        ],
+      });
+      const text = response.content?.[0]?.text?.trim() || '{}';
+      const bestIndex = Number(JSON.parse(text).bestIndex);
+
+      const update = { coverPhotoPicked: true };
+      if (Number.isInteger(bestIndex) && bestIndex > 0 && bestIndex < photos.length) {
+        update.photos = [photos[bestIndex], ...photos.filter((_, i) => i !== bestIndex)];
+      }
+      await snap.ref.update(update);
+    } catch (err) {
+      logger.error('pickCoverPhoto failed', err);
     }
   }
 );

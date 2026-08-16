@@ -41,6 +41,7 @@ export default function ProductDetail() {
   const discount = product.oldPrice
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : null;
+  const isOwner = !!user && product.sellerId === user.uid;
 
   function openChat() {
     if (!user) {
@@ -77,8 +78,8 @@ export default function ProductDetail() {
               <div className={styles.specVal}>{fullConditionLabel(product)}</div>
             </div>
             <div>
-              <div className={styles.specLabel}>Categoría</div>
-              <div className={styles.specVal}>{product.category || '—'}</div>
+              <div className={styles.specLabel}>{product.categories?.length > 1 ? 'Categorías' : 'Categoría'}</div>
+              <div className={styles.specVal}>{product.categories?.length ? product.categories.join(', ') : '—'}</div>
             </div>
             {product.material && (
               <div>
@@ -127,27 +128,31 @@ export default function ProductDetail() {
       </div>
 
       <div className={styles.buybar}>
-        <button className={styles.btnAsk} onClick={openChat}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B4B43" strokeWidth="2.2">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-          </svg>
-        </button>
+        {!isOwner && (
+          <button className={styles.btnAsk} onClick={openChat}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B4B43" strokeWidth="2.2">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+            </svg>
+          </button>
+        )}
         <button
           className={styles.btnBuy}
           onClick={() =>
-            user
+            isOwner
+              ? navigate('/perfil')
+              : user
               ? navigate(`/checkout/${product.id}`)
               : navigate('/login', { state: { from: { pathname: `/checkout/${product.id}` } } })
           }
         >
-          Comprar ahora
+          {isOwner ? 'Vender ahora' : 'Comprar ahora'}
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4">
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>
       </div>
 
-      {chatOpen && <ChatDrawer product={product} onClose={() => setChatOpen(false)} />}
+      {!isOwner && chatOpen && <ChatDrawer product={product} onClose={() => setChatOpen(false)} />}
     </>
   );
 }
@@ -290,6 +295,30 @@ function Gallery({ photos, condition, index, setIndex, onBack }) {
           </svg>
         </button>
       </div>
+      {photos.length > 1 && (
+        <>
+          <button
+            className={`${styles.galArrow} ${styles.galArrowLeft}`}
+            onClick={() => goTo(index - 1)}
+            disabled={index === 0}
+            aria-label="Foto anterior"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.8">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button
+            className={`${styles.galArrow} ${styles.galArrowRight}`}
+            onClick={() => goTo(index + 1)}
+            disabled={index === photos.length - 1}
+            aria-label="Foto siguiente"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.8">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </>
+      )}
       <div className={styles.badgeCondLg}>{condition}</div>
       {photos.length > 0 && <div className={styles.galCount}>{index + 1}/{photos.length}</div>}
       <div className={styles.galDots}>

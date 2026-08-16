@@ -16,7 +16,7 @@ export default function Publish() {
 
   const [photos, setPhotos] = useState([]); // {id, status, url, reason}
   const [titulo, setTitulo] = useState('');
-  const [categoria, setCategoria] = useState(null);
+  const [categorias, setCategorias] = useState([]);
   const [description, setDescription] = useState('');
   const [conditionType, setConditionType] = useState(null); // 'Nuevo' | 'Usado'
   const [conditionStars, setConditionStars] = useState(null); // 1-5, forced to 5 when Nuevo
@@ -63,12 +63,16 @@ export default function Publish() {
     setConditionStars(type === 'Nuevo' ? 5 : null);
   }
 
+  function toggleCategoria(c) {
+    setCategorias((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  }
+
   const approvedPhotos = photos.filter((p) => p.status === 'approved');
 
   const checks = {
     fotos: approvedPhotos.length >= REQUIRED_PHOTOS,
     titulo: titulo.trim().length > 0,
-    categoria: !!categoria,
+    categoria: categorias.length > 0,
     descripcion: description.trim().length > 0,
     condicion: !!conditionType && !!conditionStars,
     precio: String(precio).trim().length > 0 && Number(precio) > 0,
@@ -80,7 +84,7 @@ export default function Publish() {
   const missingLabels = {
     fotos: `fotos (${approvedPhotos.length}/${REQUIRED_PHOTOS} aprobadas)`,
     titulo: 'título',
-    categoria: 'categoría',
+    categoria: 'categoría (al menos una)',
     descripcion: 'descripción',
     condicion: 'estado',
     precio: 'precio',
@@ -97,7 +101,7 @@ export default function Publish() {
       const id = await createProduct(user.uid, sellerName, {
         photos: approvedPhotos.map((p) => p.url),
         title: titulo.trim(),
-        category: categoria,
+        categories: categorias,
         description: description.trim(),
         conditionType,
         conditionStars,
@@ -160,7 +164,8 @@ export default function Publish() {
           </div>
           <div className={styles.photoHint}>
             <b>Cómo funciona:</b> cada foto pasa por una revisión automática de calidad (resolución y nitidez) antes
-            de subirse. Si sale borrosa o pesa demasiado, te pedimos que la reemplaces.
+            de subirse. Si sale borrosa o pesa demasiado, te pedimos que la reemplaces. Al publicar, una IA analiza
+            todas las fotos aprobadas y elige automáticamente la mejor como foto de portada.
           </div>
         </div>
 
@@ -200,7 +205,7 @@ export default function Publish() {
           <Field label="Categoría" required>
             <div className="pill-grid">
               {CATEGORIES.map((c) => (
-                <div key={c} className={`pill ${categoria === c ? 'sel' : ''}`} onClick={() => setCategoria(c)}>
+                <div key={c} className={`pill ${categorias.includes(c) ? 'sel' : ''}`} onClick={() => toggleCategoria(c)}>
                   {c}
                 </div>
               ))}

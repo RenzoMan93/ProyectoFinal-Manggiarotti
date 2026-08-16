@@ -72,6 +72,43 @@
   border-radius: 10px;
 }
 
+.galArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(20, 20, 15, 0.5);
+  border: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 6;
+}
+
+.galArrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.galArrowLeft {
+  left: 12px;
+}
+
+.galArrowRight {
+  right: 12px;
+}
+
+/* Click-to-slide arrows only make sense on devices with a mouse; touch
+   devices keep the drag/swipe gesture from the pointer handlers below. */
+@media (hover: hover) and (pointer: fine) {
+  .galArrow {
+    display: flex;
+  }
+}
+
 .badgeCondLg {
   position: absolute;
   top: 16px;

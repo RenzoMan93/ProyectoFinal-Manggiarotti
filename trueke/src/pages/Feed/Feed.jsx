@@ -57,7 +57,7 @@ export default function Feed() {
       if (activeChips.has('envio') && !p.offersShipping) return false;
       if (activeChips.has('verificado') && !p.sellerVerified) return false;
       if (p.price > filters.maxPrice) return false;
-      if (filters.categoria && p.category !== filters.categoria) return false;
+      if (filters.categoria && !p.categories?.includes(filters.categoria)) return false;
       if (filters.conditionType && p.conditionType !== filters.conditionType) return false;
       if (filters.minStars && (p.conditionStars || 0) < filters.minStars) return false;
       if (filters.material.trim() && !p.material?.toLowerCase().includes(filters.material.trim().toLowerCase())) return false;
