@@ -205,7 +205,14 @@ export default function Publish() {
             </div>
             <div className={styles.priceInput}>
               <span>{CURRENCIES.find((c) => c.code === moneda)?.symbol}</span>
-              <input type="number" min="0" value={precio} onChange={(e) => setPrecio(e.target.value)} placeholder="0" />
+              <input
+                type="number"
+                min="0"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+                placeholder="0"
+                style={{ paddingLeft: `${19 + (CURRENCIES.find((c) => c.code === moneda)?.symbol.length || 1) * 9}px` }}
+              />
             </div>
           </Field>
 
