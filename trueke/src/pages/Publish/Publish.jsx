@@ -242,7 +242,7 @@ export default function Publish() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Contale a los compradores por qué lo vendés, qué incluye, y cualquier detalle sobre el estado..."
+              placeholder="Contanos, como si le escribieras a un amigo: ¿por qué lo vendés?, ¿qué incluye (accesorios, caja, manual)?, ¿cómo funciona y en qué estado está?, ¿hay algo a tener en cuenta (golpes, detalles, piezas faltantes)? No hace falta que quede prolijo ni ordenado."
             />
             <div className={styles.aiHint}>
               🤖 No te preocupes por el orden: en cuanto publiques, una IA toma este texto y arma automáticamente el
