@@ -4,18 +4,10 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { createProduct } from '../../services/productsService';
 import { checkImageQuality, uploadImage } from '../../services/storageService';
 import { CATEGORIES, CURRENCIES } from '../../utils/constants';
-import StarPicker from '../../components/StarPicker.jsx';
+import ConditionPicker from '../../components/ConditionPicker.jsx';
 import styles from './Publish.module.css';
 
 const REQUIRED_PHOTOS = 3;
-
-const STAR_LABELS = {
-  5: 'Como nueva — casi sin marcas de uso',
-  4: 'Muy buen estado — uso mínimo, sin detalles importantes',
-  3: 'Buen estado — señales de uso normales',
-  2: 'Estado regular — con detalles visibles',
-  1: 'Muy usada — funcional, pero con desgaste notorio',
-};
 
 export default function Publish() {
   const { user, profile } = useAuth();
@@ -23,17 +15,17 @@ export default function Publish() {
   const fileInputRef = useRef(null);
 
   const [photos, setPhotos] = useState([]); // {id, status, url, reason}
-  const [description, setDescription] = useState('');
   const [titulo, setTitulo] = useState('');
   const [categoria, setCategoria] = useState(null);
-  const [marca, setMarca] = useState('');
+  const [description, setDescription] = useState('');
   const [conditionType, setConditionType] = useState(null); // 'Nuevo' | 'Usado'
   const [conditionStars, setConditionStars] = useState(null); // 1-5, forced to 5 when Nuevo
-  const [material, setMaterial] = useState('');
-  const [color, setColor] = useState('');
   const [moneda, setMoneda] = useState('USD');
   const [precio, setPrecio] = useState('');
   const [ubicacion, setUbicacion] = useState('');
+  const [marca, setMarca] = useState('');
+  const [material, setMaterial] = useState('');
+  const [color, setColor] = useState('');
   const [offersShipping, setOffersShipping] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
@@ -75,10 +67,9 @@ export default function Publish() {
 
   const checks = {
     fotos: approvedPhotos.length >= REQUIRED_PHOTOS,
-    descripcion: description.trim().length > 0,
     titulo: titulo.trim().length > 0,
     categoria: !!categoria,
-    marca: marca.trim().length > 0,
+    descripcion: description.trim().length > 0,
     condicion: !!conditionType && !!conditionStars,
     precio: String(precio).trim().length > 0 && Number(precio) > 0,
     ubicacion: ubicacion.trim().length > 0,
@@ -88,13 +79,12 @@ export default function Publish() {
 
   const missingLabels = {
     fotos: `fotos (${approvedPhotos.length}/${REQUIRED_PHOTOS} aprobadas)`,
-    descripcion: 'descripción',
     titulo: 'título',
     categoria: 'categoría',
-    marca: 'marca',
+    descripcion: 'descripción',
     condicion: 'estado',
     precio: 'precio',
-    ubicacion: 'ubicación',
+    ubicacion: 'ciudad',
   };
   const missing = keys.filter((k) => !checks[k]).map((k) => missingLabels[k]);
   const canPublish = missing.length === 0 && !publishing;
@@ -106,17 +96,17 @@ export default function Publish() {
       const sellerName = profile?.name || user.email.split('@')[0];
       const id = await createProduct(user.uid, sellerName, {
         photos: approvedPhotos.map((p) => p.url),
-        description: description.trim(),
         title: titulo.trim(),
         category: categoria,
-        brand: marca.trim(),
+        description: description.trim(),
         conditionType,
         conditionStars,
-        material: material.trim() || null,
-        color: color.trim() || null,
         price: Number(precio),
         currency: moneda,
         city: ubicacion.trim(),
+        brand: marca.trim() || null,
+        material: material.trim() || null,
+        color: color.trim() || null,
         offersShipping,
         sellerVerified: profile?.verificationStatus === 'verified',
       });
@@ -175,28 +165,13 @@ export default function Publish() {
         </div>
 
         <div className={styles.cardBlock}>
-          <div className={styles.sectionLabel}>
-            Descripción <span className={styles.reqStar}>*</span>
-          </div>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Contale a los compradores por qué lo vendés, en qué estado está, qué incluye..."
-          />
-          <div className={styles.aiHint}>
-            🤖 No te preocupes por el orden: en cuanto publiques, una IA toma este texto y arma automáticamente el
-            resumen estandarizado que ven los compradores (estado, qué incluye, motivo de venta, etc.).
-          </div>
-        </div>
-
-        <div className={styles.cardBlock}>
           <div className={styles.sectionLabel}>Datos del producto</div>
 
-          <Field label="Título" done={checks.titulo}>
+          <Field label="Título" required>
             <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Bicicleta Trek montaña rodado 29" />
           </Field>
 
-          <Field label="Categoría" done={checks.categoria}>
+          <Field label="Categoría" required>
             <div className="pill-grid">
               {CATEGORIES.map((c) => (
                 <div key={c} className={`pill ${categoria === c ? 'sel' : ''}`} onClick={() => setCategoria(c)}>
@@ -206,11 +181,19 @@ export default function Publish() {
             </div>
           </Field>
 
-          <Field label="Marca" done={checks.marca}>
-            <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Ej: Trek" />
+          <Field label="Descripción" required>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Contale a los compradores por qué lo vendés, qué incluye, y cualquier detalle sobre el estado..."
+            />
+            <div className={styles.aiHint}>
+              🤖 No te preocupes por el orden: en cuanto publiques, una IA toma este texto y arma automáticamente el
+              resumen que ven los compradores (qué incluye, motivo de venta, etc.).
+            </div>
           </Field>
 
-          <Field label="Estado" done={checks.condicion}>
+          <Field label="Estado" required>
             <div className="pill-grid">
               <div className={`pill ${conditionType === 'Nuevo' ? 'sel' : ''}`} onClick={() => selectConditionType('Nuevo')}>
                 Nuevo
@@ -219,25 +202,10 @@ export default function Publish() {
                 Usado
               </div>
             </div>
-            {conditionType === 'Usado' && (
-              <>
-                <StarPicker value={conditionStars} onChange={setConditionStars} />
-                <div className={styles.starHint}>
-                  {conditionStars ? STAR_LABELS[conditionStars] : 'Elegí cuántas estrellas reflejan el estado del producto.'}
-                </div>
-              </>
-            )}
+            {conditionType === 'Usado' && <ConditionPicker value={conditionStars} onChange={setConditionStars} />}
           </Field>
 
-          <Field label="Material" optional>
-            <input type="text" value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="Ej: Algodón, aluminio, madera maciza..." />
-          </Field>
-
-          <Field label="Color" optional>
-            <input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Ej: Verde oliva, negro mate..." />
-          </Field>
-
-          <Field label="Precio" done={checks.precio}>
+          <Field label="Precio" required>
             <div className="pill-grid" style={{ marginBottom: 8 }}>
               {CURRENCIES.map((c) => (
                 <div key={c.code} className={`pill ${moneda === c.code ? 'sel' : ''}`} onClick={() => setMoneda(c.code)}>
@@ -251,11 +219,23 @@ export default function Publish() {
             </div>
           </Field>
 
-          <Field label="Ciudad" done={checks.ubicacion}>
+          <Field label="Ciudad" required>
             <input type="text" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder="Ej: Punta del Este" />
           </Field>
 
-          <Field label="Entrega" optional>
+          <Field label="Marca">
+            <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Ej: Trek" />
+          </Field>
+
+          <Field label="Material">
+            <input type="text" value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="Ej: Algodón, aluminio, madera maciza..." />
+          </Field>
+
+          <Field label="Color">
+            <input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Ej: Verde oliva, negro mate..." />
+          </Field>
+
+          <Field label="Entrega">
             <div className="pill-grid">
               <div className={`pill ${offersShipping ? 'sel' : ''}`} onClick={() => setOffersShipping((v) => !v)}>
                 Ofrezco envío a domicilio
@@ -277,19 +257,12 @@ export default function Publish() {
   );
 }
 
-function Field({ label, done, optional, children }) {
+function Field({ label, required, children }) {
   return (
     <div className={styles.field}>
-      <div className={`${styles.fieldLabel} ${done ? styles.done : ''}`}>
-        {!optional && (
-          <span className={styles.check}>
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </span>
-        )}
+      <div className={styles.fieldLabel}>
         {label}
-        {optional && <span className={styles.optionalTag}>opcional</span>}
+        {required && <span className={styles.reqStar}>*</span>}
       </div>
       {children}
     </div>
