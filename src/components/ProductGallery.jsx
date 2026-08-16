@@ -47,7 +47,7 @@ export default function ProductGallery({ photos, alt }) {
 
   if (total <= 1) {
     return (
-      <div className="relative mb-5 h-64 overflow-hidden rounded-2xl bg-cream sm:h-80">
+      <div className="relative mb-5 aspect-square overflow-hidden rounded-2xl bg-cream">
         {photos[0] && <img src={photos[0]} alt={alt} className="h-full w-full object-cover" />}
       </div>
     );
@@ -55,7 +55,7 @@ export default function ProductGallery({ photos, alt }) {
 
   return (
     <div
-      className="relative mb-5 h-64 touch-pan-y overflow-hidden rounded-2xl bg-cream sm:h-80"
+      className="relative mb-5 aspect-square touch-pan-y overflow-hidden rounded-2xl bg-cream"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
