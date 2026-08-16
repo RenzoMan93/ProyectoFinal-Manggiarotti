@@ -15,7 +15,7 @@ export default function ConditionPicker({ value, onChange }) {
           <span className={styles.stars}>{starString(level.stars)}</span>
           <div className={styles.text}>
             <div className={styles.title}>{level.title}</div>
-            <div className={styles.subtitle}>{level.subtitle}</div>
+            {level.subtitle && <div className={styles.subtitle}>{level.subtitle}</div>}
           </div>
           <div className={styles.radioDot} />
         </div>

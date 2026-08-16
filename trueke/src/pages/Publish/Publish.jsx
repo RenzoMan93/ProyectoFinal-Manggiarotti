@@ -171,16 +171,6 @@ export default function Publish() {
             <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Bicicleta Trek montaña rodado 29" />
           </Field>
 
-          <Field label="Categoría" required>
-            <div className="pill-grid">
-              {CATEGORIES.map((c) => (
-                <div key={c} className={`pill ${categoria === c ? 'sel' : ''}`} onClick={() => setCategoria(c)}>
-                  {c}
-                </div>
-              ))}
-            </div>
-          </Field>
-
           <Field label="Descripción" required>
             <textarea
               value={description}
@@ -219,8 +209,14 @@ export default function Publish() {
             </div>
           </Field>
 
-          <Field label="Ciudad" required>
-            <input type="text" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder="Ej: Punta del Este" />
+          <Field label="Categoría" required>
+            <div className="pill-grid">
+              {CATEGORIES.map((c) => (
+                <div key={c} className={`pill ${categoria === c ? 'sel' : ''}`} onClick={() => setCategoria(c)}>
+                  {c}
+                </div>
+              ))}
+            </div>
           </Field>
 
           <Field label="Marca">
@@ -233,6 +229,10 @@ export default function Publish() {
 
           <Field label="Color">
             <input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Ej: Verde oliva, negro mate..." />
+          </Field>
+
+          <Field label="Ciudad" required>
+            <input type="text" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder="Ej: Punta del Este" />
           </Field>
 
           <Field label="Entrega">

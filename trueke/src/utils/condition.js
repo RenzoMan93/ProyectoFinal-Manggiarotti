@@ -1,7 +1,7 @@
 export const USED_CONDITION_LEVELS = [
-  { stars: 5, title: 'Como nueva', subtitle: 'Casi sin marcas de uso' },
-  { stars: 4, title: 'Muy buen estado', subtitle: 'Uso mínimo, sin detalles importantes' },
-  { stars: 3, title: 'Buen estado', subtitle: 'Señales de uso normales' },
+  { stars: 5, title: 'Como nueva', subtitle: '' },
+  { stars: 4, title: 'Muy buen estado', subtitle: 'Muy poco uso' },
+  { stars: 3, title: 'Buen estado', subtitle: '' },
   { stars: 2, title: 'Estado regular', subtitle: 'Con detalles visibles' },
   { stars: 1, title: 'Muy usada', subtitle: 'Funcional, pero con desgaste notorio' },
 ];
