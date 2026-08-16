@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { CATEGORIES, CONDITIONS, DEPARTAMENTOS } from "@/lib/constants";
+import { CATEGORIES, CONDITIONS, COLOR_SWATCHES, DEPARTAMENTOS, MATERIALS } from "@/lib/constants";
 import { resizeImageToBlob, scoreImageQuality } from "@/lib/image";
 
 const MAX_PHOTOS = 5;
@@ -12,7 +12,11 @@ const emptyForm = {
   title: "",
   description: "",
   color: "",
+  material: "",
+  brand: "",
   price: "",
+  oldPrice: "",
+  offersShipping: false,
   category: CATEGORIES[0].id,
   condition: CONDITIONS[0],
   location: DEPARTAMENTOS[0],
@@ -82,6 +86,10 @@ export default function PublishForm() {
       setError("Ingresá un precio válido.");
       return;
     }
+    if (form.oldPrice && Number(form.oldPrice) <= Number(form.price)) {
+      setError("El precio anterior tiene que ser mayor al precio actual.");
+      return;
+    }
     if (photos.length === 0) {
       setError("Subí al menos una foto del artículo.");
       return;
@@ -120,8 +128,12 @@ export default function PublishForm() {
           seller_id: user.id,
           title: form.title.trim(),
           description: form.description.trim(),
-          color: form.color.trim() || null,
+          color: form.color || null,
+          material: form.material || null,
+          brand: form.brand.trim() || null,
           price: Number(form.price),
+          old_price: form.oldPrice ? Number(form.oldPrice) : null,
+          offers_shipping: form.offersShipping,
           category: form.category,
           condition: form.condition,
           location: form.location,
@@ -224,13 +236,48 @@ export default function PublishForm() {
         />
       </Field>
 
-      <Field label="Color (opcional)">
+      <Field label="Marca (opcional)">
         <input
-          maxLength={30}
-          value={form.color}
-          onChange={update("color")}
+          maxLength={40}
+          value={form.brand}
+          onChange={update("brand")}
+          placeholder="Ej: Trek, IKEA, Sony..."
           className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
         />
+      </Field>
+
+      <Field label="Color (opcional)">
+        <div className="flex flex-wrap gap-2.5">
+          {COLOR_SWATCHES.map((c) => (
+            <button
+              key={c.name}
+              type="button"
+              title={c.name}
+              onClick={() => setForm((f) => ({ ...f, color: f.color === c.name ? "" : c.name }))}
+              className={`flex h-9 w-9 items-center justify-center rounded-full border-2 ${
+                form.color === c.name ? "border-brand" : "border-transparent"
+              }`}
+              style={{ backgroundColor: c.hex }}
+            >
+              {form.color === c.name && (
+                <span className="text-xs text-white drop-shadow-[0_0_2px_rgba(0,0,0,0.6)]">✓</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      <Field label="Material (opcional)">
+        <div className="flex flex-wrap gap-2">
+          {MATERIALS.map((m) => (
+            <PillOption
+              key={m}
+              label={m}
+              selected={form.material === m}
+              onClick={() => setForm((f) => ({ ...f, material: f.material === m ? "" : m }))}
+            />
+          ))}
+        </div>
       </Field>
 
       <Field label="Precio (UYU)">
@@ -243,6 +290,27 @@ export default function PublishForm() {
           className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
         />
       </Field>
+
+      <Field label="Precio anterior (opcional, para mostrar descuento)">
+        <input
+          type="number"
+          min="0"
+          value={form.oldPrice}
+          onChange={update("oldPrice")}
+          placeholder="Ej: 5000"
+          className="w-full rounded-lg border border-line bg-paper px-3 py-2 focus:border-brand focus:outline-none"
+        />
+      </Field>
+
+      <label className="flex items-center gap-2.5 rounded-lg border border-line bg-paper px-3 py-2.5">
+        <input
+          type="checkbox"
+          checked={form.offersShipping}
+          onChange={(e) => setForm((f) => ({ ...f, offersShipping: e.target.checked }))}
+          className="h-4 w-4 accent-brand"
+        />
+        <span className="text-sm font-medium text-ink">Ofrezco coordinar envío</span>
+      </label>
 
       <Field label="Categoría">
         <div className="flex flex-wrap gap-2">

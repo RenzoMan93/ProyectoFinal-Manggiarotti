@@ -21,11 +21,13 @@ export default async function MyProductsPage() {
     .eq("seller_id", user.id)
     .order("created_at", { ascending: false });
 
+  const { data: me } = await supabase.from("profiles").select("id_verified").eq("id", user.id).single();
+
   const byStatus = (status) => (products || []).filter((p) => p.status === status);
 
   return (
     <div>
-      <h1 className="mb-6 font-serif text-2xl font-semibold text-ink">Mis publicaciones</h1>
+      <h1 className="mb-6 text-2xl font-extrabold text-ink">Mis publicaciones</h1>
 
       {!products || products.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted">Todavía no publicaste ningún artículo.</p>
@@ -40,7 +42,13 @@ export default async function MyProductsPage() {
               </h3>
               <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4">
                 {items.map((p) => (
-                  <ProductCard key={p.id} product={p} isFavorite={false} loggedIn={Boolean(user)} />
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    isFavorite={false}
+                    loggedIn={Boolean(user)}
+                    sellerVerified={Boolean(me?.id_verified)}
+                  />
                 ))}
               </div>
             </div>

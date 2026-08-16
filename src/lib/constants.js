@@ -22,3 +22,14 @@ export const DEPARTAMENTOS = [
   "Durazno", "Flores", "Florida", "Lavalleja", "Río Negro", "Soriano",
   "Treinta y Tres",
 ];
+
+export const MATERIALS = ["Madera", "Metal", "Cuero", "Tela", "Plástico", "Otro"];
+
+export const COLOR_SWATCHES = [
+  { name: "Negro", hex: "#1E241F" },
+  { name: "Blanco", hex: "#F4F0E4" },
+  { name: "Terracota", hex: "#C4593B" },
+  { name: "Verde", hex: "#1B4B43" },
+  { name: "Amarillo", hex: "#D9A22C" },
+  { name: "Azul", hex: "#3B5CC4" },
+];

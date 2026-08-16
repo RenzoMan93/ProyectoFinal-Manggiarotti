@@ -1,5 +1,6 @@
 import { IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import BottomNav from "@/components/BottomNav";
 import Header from "@/components/Header";
 import MessageNotifier from "@/components/MessageNotifier";
 import SupabaseSetupNeeded from "@/components/SupabaseSetupNeeded";
@@ -28,12 +29,13 @@ export default function RootLayout({ children }) {
           <>
             <MessageNotifier />
             <Header />
-            <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
-            <footer className="border-t border-line py-5 text-center text-xs text-muted">
+            <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24 sm:pb-6">{children}</main>
+            <footer className="hidden border-t border-line py-5 text-center text-xs text-muted sm:block">
               ReUsalo · Compra y venta de segunda mano en Uruguay
               <br />
               © {new Date().getFullYear()} Renzo Manggiarotti. Todos los derechos reservados.
             </footer>
+            <BottomNav />
           </>
         ) : (
           <SupabaseSetupNeeded />

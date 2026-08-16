@@ -4,6 +4,16 @@ export function categoryById(id) {
   return CATEGORIES.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
 }
 
+const CONDITION_BADGES = {
+  Nuevo: "Nuevo",
+  "Usado - buen estado": "Buen estado",
+  "Usado - regular estado": "Estado regular",
+};
+
+export function conditionBadge(condition) {
+  return CONDITION_BADGES[condition] || condition;
+}
+
 export function formatPrice(n) {
   const num = Number(n);
   if (Number.isNaN(num)) return n;

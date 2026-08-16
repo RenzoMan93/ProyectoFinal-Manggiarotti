@@ -70,12 +70,23 @@ export default async function ProductDetailPage({ params }) {
         {product.color ? ` · ${product.color}` : ""}
       </span>
 
-      <h1 className="mb-1.5 mt-2 font-serif text-2xl font-semibold text-ink">{product.title}</h1>
-      <div className="mb-3 font-mono text-2xl font-semibold text-brand-dark">{formatPrice(product.price)}</div>
+      <h1 className="mb-1.5 mt-2 text-2xl font-extrabold text-ink">{product.title}</h1>
+      {(product.brand || product.material) && (
+        <div className="mb-1 text-sm text-muted">
+          {[product.brand, product.material].filter(Boolean).join(" · ")}
+        </div>
+      )}
+      <div className="mb-3 flex items-baseline gap-2">
+        <span className="font-mono text-2xl font-semibold text-brand-dark">{formatPrice(product.price)}</span>
+        {product.old_price && Number(product.old_price) > Number(product.price) && (
+          <span className="font-mono text-sm text-muted line-through">{formatPrice(product.old_price)}</span>
+        )}
+      </div>
 
       <div className="mb-4 flex flex-wrap gap-3 text-sm text-muted">
         <span>📍 {product.location}</span>
         <span>{product.condition}</span>
+        {product.offers_shipping && <span>🚚 Ofrece envío</span>}
         <span>Publicado {timeAgo(product.created_at)}</span>
         <span>👁 {product.views} {product.views === 1 ? "vista" : "vistas"}</span>
       </div>
