@@ -33,13 +33,13 @@ export default async function VerifyPage() {
         <h1 className="mb-2 font-serif text-2xl font-semibold text-ink">Verificar identidad</h1>
         <p className="mb-4 rounded-lg bg-[#FBF3DF] px-4 py-3 text-sm text-[#7a5c0c]">
           ⏳ Recibimos tus datos y tu documento. Un administrador los está revisando — te va a aparecer la
-          insignia de verificado apenas quede aprobado. Mientras tanto ya podés usar ReUsalo con normalidad.
+          insignia de verificado apenas quede aprobado. Mientras tanto ya podés usar Trueke con normalidad.
         </p>
         <Link
           href="/"
           className="inline-block rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
         >
-          Ir a ReUsalo
+          Ir a Trueke
         </Link>
       </div>
     );

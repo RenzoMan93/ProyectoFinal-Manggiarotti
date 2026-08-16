@@ -1,10 +1,10 @@
-# ReUsalo — versión de producción
+# Trueke — versión de producción
 
 Marketplace C2C de artículos de segunda mano para Uruguay. Next.js (App Router) + Tailwind CSS
 + Supabase (Postgres + Auth + Storage). Ver el brief original para el alcance completo por fases.
 
 **Esta versión no cobra comisión ni integra pasarela de pago.** El pago se coordina directo
-entre comprador y vendedor (efectivo o transferencia); ReUsalo da la confianza (identidad
+entre comprador y vendedor (efectivo o transferencia); Trueke da la confianza (identidad
 verificada, moderación por IA, calificaciones), no la billetera. Integrar MercadoPago queda
 para una fase futura, cuando haya tracción real.
 

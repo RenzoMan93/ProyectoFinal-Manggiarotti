@@ -139,7 +139,7 @@ export default function VerifyForm({ initialName, initialData }) {
         <div>
           <h2 className="mb-1 font-serif text-xl font-semibold text-ink">Tus datos</h2>
           <p className="mb-5 text-sm text-muted">
-            Los necesitamos para verificar tu identidad como comprador y vendedor en ReUsalo.
+            Los necesitamos para verificar tu identidad como comprador y vendedor en Trueke.
           </p>
           <div className="space-y-3.5">
             <Field label="Nombre completo">
@@ -193,14 +193,14 @@ export default function VerifyForm({ initialName, initialData }) {
           <h2 className="mb-2 font-serif text-xl font-semibold text-ink">¡Listo, lo enviamos!</h2>
           <p className="mb-4 text-sm text-muted">
             Un administrador va a revisar tu cédula y te va a llegar la insignia de verificado apenas quede
-            aprobada. Mientras tanto ya podés usar ReUsalo con normalidad.
+            aprobada. Mientras tanto ya podés usar Trueke con normalidad.
           </p>
           <button
             type="button"
             onClick={() => router.push("/")}
             className="rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
           >
-            Ir a ReUsalo
+            Ir a Trueke
           </button>
         </div>
       )}

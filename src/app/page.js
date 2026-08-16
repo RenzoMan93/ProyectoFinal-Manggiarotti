@@ -5,13 +5,6 @@ import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
 import FilterDrawer from "@/components/FilterDrawer";
 
-const PERKS = [
-  { icon: "🚫💳", text: "Sin comisiones" },
-  { icon: "🤝", text: "Comprale directo a tu vecino" },
-  { icon: "⚡", text: "Publicá en 1 minuto" },
-  { icon: "✅", text: "Identidad verificada" },
-];
-
 export default async function Home({ searchParams }) {
   const params = await searchParams;
   const q = (params.q || "").trim();
@@ -95,35 +88,6 @@ export default async function Home({ searchParams }) {
 
   return (
     <>
-      <div className="relative mb-6 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand via-[#0E8F63] to-brand px-7 py-10 text-white">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-        <h1 className="relative mb-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
-          Dale una segunda vida a tus cosas
-        </h1>
-        <p className="relative mb-5 max-w-md text-sm leading-relaxed text-[#D9F0E4]">
-          Comprá y vendé artículos usados cerca tuyo, en cualquier rincón de Uruguay. Publicá en
-          menos de un minuto.
-        </p>
-        <Link
-          href="/publicar"
-          className="relative inline-block rounded-xl bg-coral px-5 py-2.5 text-sm font-bold text-white hover:opacity-90"
-        >
-          Publicar un artículo
-        </Link>
-      </div>
-
-      <div className="mb-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-        {PERKS.map((perk) => (
-          <div
-            key={perk.text}
-            className="flex items-center gap-2.5 rounded-2xl border border-line bg-paper px-3.5 py-3"
-          >
-            <span className="text-xl leading-none">{perk.icon}</span>
-            <span className="text-xs font-bold leading-tight text-ink">{perk.text}</span>
-          </div>
-        ))}
-      </div>
-
       <div className="mb-4 flex items-start gap-2">
         <div className="flex-1">
           <SearchBar q={q} categoria={categoria} minPrice={minPrice} maxPrice={maxPrice} />

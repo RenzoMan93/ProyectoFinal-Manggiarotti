@@ -62,7 +62,7 @@ export default function CheckoutForm({ product, seller }) {
       <div className="rounded-2xl border border-line bg-paper p-5 text-center">
         <p className="mb-4 text-[15px] font-semibold text-ink">¡Compra registrada!</p>
         <p className="mb-4 text-sm text-muted">
-          Coordiná la entrega directo con {seller?.name || "el vendedor"} por el chat de ReUsalo.
+          Coordiná la entrega directo con {seller?.name || "el vendedor"} por el chat de Trueke.
         </p>
         <Link
           href="/mensajes"

@@ -8,18 +8,18 @@ export default function TermsPage() {
       </p>
       <div className="space-y-3 text-sm leading-relaxed text-ink">
         <p>
-          Al crear una cuenta en ReUsalo aceptás usar la plataforma de buena fe, publicar
+          Al crear una cuenta en Trueke aceptás usar la plataforma de buena fe, publicar
           artículos reales que estén en tu posesión, y respetar a otros usuarios en el chat y las
           transacciones.
         </p>
         <p>
-          ReUsalo no cobra comisión ni maneja el dinero de las transacciones: el pago se coordina
-          directamente entre comprador y vendedor (efectivo o transferencia). ReUsalo ofrece la
+          Trueke no cobra comisión ni maneja el dinero de las transacciones: el pago se coordina
+          directamente entre comprador y vendedor (efectivo o transferencia). Trueke ofrece la
           confianza —identidad verificada, calificaciones, reportes— pero no la billetera.
         </p>
         <p>
           La coordinación y entrega del artículo son responsabilidad directa de comprador y
-          vendedor, sin protección automática de ReUsalo sobre el pago.
+          vendedor, sin protección automática de Trueke sobre el pago.
         </p>
       </div>
     </div>

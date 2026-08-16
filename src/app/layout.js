@@ -14,7 +14,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata = {
-  title: "ReUsalo — Compra y venta de segunda mano en Uruguay",
+  title: "Trueke — Compra y venta de segunda mano en Uruguay",
   description: "Marketplace de artículos de segunda mano para Uruguay.",
 };
 
@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
             <Header />
             <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24 sm:pb-6">{children}</main>
             <footer className="hidden border-t border-line py-5 text-center text-xs text-muted sm:block">
-              ReUsalo · Compra y venta de segunda mano en Uruguay
+              Trueke · Compra y venta de segunda mano en Uruguay
               <br />
               © {new Date().getFullYear()} Renzo Manggiarotti. Todos los derechos reservados.
             </footer>

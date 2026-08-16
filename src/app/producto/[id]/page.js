@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { categoryById, conditionBadge, formatPrice, timeAgo } from "@/lib/format";
+import { categoryById, conditionBadge, formatPrice, initials, timeAgo } from "@/lib/format";
 import FavoriteButton from "@/components/FavoriteButton";
 import ProductGallery from "@/components/ProductGallery";
 import ProductStatusToggle from "@/components/ProductStatusToggle";
@@ -10,12 +10,6 @@ import ChatButton from "@/components/ChatButton";
 import ReportButton from "@/components/ReportButton";
 import ViewCounter from "@/components/ViewCounter";
 import ShareButton from "@/components/ShareButton";
-
-function initials(name) {
-  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
-}
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;

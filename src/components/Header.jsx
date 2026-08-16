@@ -2,7 +2,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getConversationsWithUnread } from "@/lib/unread";
 import LogoutButton from "@/components/LogoutButton";
-import MobileMenu from "@/components/MobileMenu";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -31,7 +30,7 @@ export default async function Header() {
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand text-base text-white">
             ♻
           </span>
-          ReUsalo
+          Trueke
         </Link>
 
         <nav className="flex items-center gap-1.5">
@@ -68,7 +67,7 @@ export default async function Header() {
               </Link>
               <Link
                 href="/publicar"
-                className="rounded-xl bg-coral px-4 py-2 text-sm font-bold text-white hover:opacity-90"
+                className="hidden rounded-xl bg-coral px-4 py-2 text-sm font-bold text-white hover:opacity-90 sm:inline-block"
               >
                 Publicar
               </Link>
@@ -85,13 +84,9 @@ export default async function Header() {
                   Panel admin
                 </Link>
               )}
-              <MobileMenu
-                unreadCount={unreadCount}
-                profileName={profile?.name?.split(" ")[0]}
-                verificationStatus={profile?.verification_status}
-                isAdmin={profile?.is_admin}
-              />
-              <LogoutButton />
+              <span className="hidden sm:inline">
+                <LogoutButton />
+              </span>
             </>
           ) : (
             <>

@@ -27,7 +27,7 @@ export default function ShareButton({ title }) {
   // Este bloque solo se renderiza después de que el usuario interactúa
   // (open pasa a true desde un click), así que acceder a window acá nunca
   // corre durante el render del servidor.
-  const shareText = open ? encodeURIComponent(`Mirá esto en ReUsalo: ${title}`) : "";
+  const shareText = open ? encodeURIComponent(`Mirá esto en Trueke: ${title}`) : "";
   const shareUrl = open ? encodeURIComponent(window.location.href) : "";
 
   return (
