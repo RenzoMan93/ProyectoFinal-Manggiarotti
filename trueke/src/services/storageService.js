@@ -1,15 +1,38 @@
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { storage } from '../firebase';
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 /**
- * Uploads a single image file to Firebase Storage and returns its public download URL.
+ * Uploads a single image file to Cloudinary (free tier, no card required)
+ * using an unsigned upload preset, and returns its public URL.
  * `folder` groups files by purpose (e.g. "products/<uid>", "kyc/<uid>").
+ *
+ * Setup: create a Cloudinary account, then Settings → Upload → Upload
+ * presets → Add upload preset → Signing Mode: "Unsigned". Put the cloud
+ * name and preset name in .env.local (VITE_CLOUDINARY_CLOUD_NAME /
+ * VITE_CLOUDINARY_UPLOAD_PRESET).
  */
 export async function uploadImage(folder, file) {
-  const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-  const fileRef = ref(storage, `${folder}/${safeName}`);
-  await uploadBytes(fileRef, file);
-  return getDownloadURL(fileRef);
+  if (!CLOUD_NAME || !UPLOAD_PRESET) {
+    throw new Error('Cloudinary no está configurado — completá VITE_CLOUDINARY_CLOUD_NAME y VITE_CLOUDINARY_UPLOAD_PRESET en .env.local');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', UPLOAD_PRESET);
+  formData.append('folder', folder);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'No se pudo subir la imagen a Cloudinary.');
+  }
+
+  const data = await response.json();
+  return data.secure_url;
 }
 
 /**

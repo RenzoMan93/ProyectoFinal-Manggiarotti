@@ -206,8 +206,9 @@ function DocCapture({ uid, label, folder, value, onChange }) {
     try {
       const url = await uploadImage(`kyc/${uid}`, file);
       onChange({ status: 'approved', url });
-    } catch {
-      onChange({ status: 'rejected', reason: 'No se pudo subir la foto, probá de nuevo.' });
+    } catch (err) {
+      console.error('Error subiendo a Cloudinary:', err);
+      onChange({ status: 'rejected', reason: err.message || 'No se pudo subir la foto, probá de nuevo.' });
     }
   }
 
@@ -262,8 +263,9 @@ function StepSelfie({ uid, selfie, setSelfie }) {
     try {
       const url = await uploadImage(`kyc/${uid}`, file);
       setSelfie({ status: 'approved', url });
-    } catch {
-      setSelfie({ status: 'rejected', reason: 'No se pudo subir la selfie, probá de nuevo.' });
+    } catch (err) {
+      console.error('Error subiendo a Cloudinary:', err);
+      setSelfie({ status: 'rejected', reason: err.message || 'No se pudo subir la selfie, probá de nuevo.' });
     }
   }
 

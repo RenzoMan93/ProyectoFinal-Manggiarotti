@@ -19,13 +19,16 @@ como **web app** y, empaquetado con Capacitor, como **app de Android/iOS**.
 
 ## Lo que es real vs. lo que es mock
 
-Este proyecto usa Firebase real (Auth, Firestore, Storage) para todo el
-estado de la app. Dos piezas están explícitamente mockeadas porque requieren
-proveedores externos que no vienen incluidos:
+Este proyecto usa Firebase real (Auth, Firestore) para todo el estado de la
+app, y Cloudinary (plan gratuito, sin tarjeta) para las fotos — Firebase
+Storage requiere el plan de pago Blaze, así que no se usa acá. Dos piezas
+están explícitamente mockeadas porque requieren proveedores externos que no
+vienen incluidos:
 
 | Función | Estado | Dónde |
 | --- | --- | --- |
 | Auth, catálogo, chat, pedidos | **Real** (Firebase) | `src/services/*` |
+| Fotos de productos y KYC | **Real** (Cloudinary, plan gratuito) | `src/services/storageService.js` |
 | Resumen de la publicación por IA | **Real** (Claude, vía Cloud Function) | `functions/index.js` → `summarizeListing` |
 | Revisión de fotos | Heurística simple (resolución/peso), no visión real | `src/services/storageService.js` |
 | Verificación de identidad (match documento/selfie) | **Mock** — aprueba automáticamente | `functions/index.js` → `reviewKycSubmission` |
@@ -36,26 +39,32 @@ haría falta (qué proveedor, qué credenciales) para volverlo real.
 
 ## Puesta en marcha (web)
 
-Requisitos: Node 18+, una cuenta de Firebase.
+Requisitos: Node 18+, una cuenta de Firebase y una cuenta de Cloudinary
+(ambas gratuitas, ninguna pide tarjeta).
 
 1. **Creá un proyecto de Firebase** en https://console.firebase.google.com
-   y activá: Authentication (método Email/Password), Firestore Database y
-   Storage.
-2. **Instalá dependencias**:
+   y activá: Authentication (método Email/Password) y Firestore Database.
+   No hace falta activar Storage.
+2. **Creá una cuenta de Cloudinary** en https://cloudinary.com/users/register/free
+   y andá a Settings (ícono de tuerca) → pestaña **Upload** → "Upload
+   presets" → **Add upload preset** → poné Signing Mode en **Unsigned** →
+   guardá. Anotá el nombre del preset y tu "Cloud name" (aparece arriba de
+   todo en el Dashboard).
+3. **Instalá dependencias**:
    ```bash
    npm install
    ```
-3. **Configurá las credenciales**: copiá `.env.example` a `.env.local` y
-   completá los valores desde Firebase console → Configuración del proyecto
-   → Tus apps → SDK setup and configuration.
-4. **Desplegá las reglas e índices** (una vez, con la Firebase CLI):
+4. **Configurá las credenciales**: copiá `.env.example` a `.env.local` y
+   completá los valores de Firebase (Configuración del proyecto → Tus apps
+   → SDK setup and configuration) y los dos de Cloudinary del paso 2.
+5. **Desplegá las reglas e índices de Firestore** (una vez, con la Firebase CLI):
    ```bash
    npm install -g firebase-tools
    firebase login
    firebase use --add          # elegí tu proyecto
-   firebase deploy --only firestore:rules,firestore:indexes,storage
+   firebase deploy --only firestore:rules,firestore:indexes
    ```
-5. **Corré la app**:
+6. **Corré la app**:
    ```bash
    npm run dev
    ```
@@ -101,11 +110,11 @@ Capacitor traduce a la cámara nativa sin necesitar un plugin aparte.
 trueke/
   src/
     pages/          # Feed, Product, Publish, Onboarding, Checkout, Auth, Messages, Profile
-    services/        # Toda la lógica de Firestore/Storage/Auth, sin UI
+    services/        # Toda la lógica de Firestore/Cloudinary/Auth, sin UI
     components/       # BottomNav, ProtectedRoute
     context/          # AuthContext (usuario + perfil en vivo)
   functions/          # Cloud Functions (resumen IA, revisión KYC)
-  firestore.rules, storage.rules, firestore.indexes.json
+  firestore.rules, firestore.indexes.json
 ```
 
 ## Limitaciones conocidas

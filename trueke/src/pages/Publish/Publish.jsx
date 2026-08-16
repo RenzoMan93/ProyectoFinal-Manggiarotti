@@ -43,9 +43,10 @@ export default function Publish() {
     try {
       const url = await uploadImage(`products/${user.uid}`, file);
       setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'approved', url } : p)));
-    } catch {
+    } catch (err) {
+      console.error('Error subiendo a Cloudinary:', err);
       setPhotos((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: 'rejected', reason: 'No se pudo subir la foto, probá de nuevo.' } : p))
+        prev.map((p) => (p.id === id ? { ...p, status: 'rejected', reason: err.message || 'No se pudo subir la foto, probá de nuevo.' } : p))
       );
     }
   }
