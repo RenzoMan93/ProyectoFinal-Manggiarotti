@@ -1,27 +1,27 @@
 export const CATEGORIES = [
-  'Deportes',
-  'Hogar',
-  'Muebles',
-  'Tecnología',
-  'Electrodomésticos',
-  'Indumentaria',
-  'Calzado',
+  'Arte y coleccionables',
   'Bebés y niños',
+  'Belleza y cuidado personal',
+  'Calzado',
+  'Deportes',
+  'Electrodomésticos',
+  'Herramientas',
+  'Hogar',
+  'Indumentaria',
+  'Instrumentos musicales',
+  'Jardín y exterior',
   'Juguetes',
   'Libros y música',
-  'Herramientas',
-  'Jardín y exterior',
-  'Vehículos y accesorios',
-  'Belleza y cuidado personal',
-  'Instrumentos musicales',
   'Mascotas',
-  'Arte y coleccionables',
+  'Muebles',
+  'Tecnología',
+  'Vehículos y accesorios',
   'Otros',
 ];
 
 export const COUNTRIES = ['Uruguay', 'Argentina', 'Brasil', 'Chile', 'Paraguay'];
 
 export const CURRENCIES = [
-  { code: 'USD', label: 'US$ (USD)', symbol: 'US$' },
   { code: 'UYU', label: '$ (UY)', symbol: '$' },
+  { code: 'USD', label: 'US$ (USD)', symbol: 'US$' },
 ];
