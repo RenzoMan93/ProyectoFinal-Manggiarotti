@@ -57,12 +57,12 @@ export default function ProductDetail() {
 
       <div className={styles.bodyScroll}>
         <div className={styles.panel}>
+          <div className={styles.titleLg}>{product.title}</div>
           <div className={styles.priceRow}>
             <span className={styles.priceBig}>{formatPrice(product.price, product.currency)}</span>
             {product.oldPrice && <span className={styles.priceOldLg}>{formatPrice(product.oldPrice, product.currency)}</span>}
             {discount && <span className={styles.discountTag}>-{discount}%</span>}
           </div>
-          <div className={styles.titleLg}>{product.title}</div>
           <div className={styles.metaRow}>
             <span>📍 {product.city || 'Uruguay'}</span>
             <span>👁 {product.views || 0} vistas</span>
