@@ -2,9 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project state
+## Two unrelated projects live in this repo
 
-This repo is an early-stage, incomplete scaffold for **SportStyle**, a React + Firebase e-commerce catalog (Spanish UI text). It is **not currently runnable**:
+- **Repo root** — the incomplete `SportStyle` scaffold described below.
+- **`trueke/`** — a separate, runnable React + Firebase marketplace app
+  ("Trueke"), unrelated to SportStyle, with its own `package.json`, `src/`,
+  Cloud Functions, and Capacitor config for building Android/iOS from the
+  same codebase. See `trueke/README.md` for setup, architecture, and what's
+  real vs. mocked (payments, KYC review). Don't mix files between the two —
+  root-level fixes below never apply inside `trueke/`, and vice versa.
+
+## Project state (repo root — SportStyle)
+
+This part of the repo is an early-stage, incomplete scaffold for **SportStyle**, a React + Firebase e-commerce catalog (Spanish UI text). It is **not currently runnable**:
 
 - There is no `package.json` (and no lockfile) anywhere in the repo, so there are no declared dependencies and no `npm`/`yarn` scripts to build, lint, or test with. Before writing code that assumes a working dev/build/test pipeline, check whether `package.json` has been added — if not, that's a prerequisite, not something to silently work around.
 - `main.jsx` is an empty file.

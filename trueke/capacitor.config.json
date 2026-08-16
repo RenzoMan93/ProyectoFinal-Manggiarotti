@@ -1,0 +1,8 @@
+{
+  "appId": "uy.trueke.app",
+  "appName": "Trueke",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

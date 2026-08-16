@@ -1,0 +1,16 @@
+:root {
+  --bg: #f4f0e4;
+  --ink: #1e241f;
+  --forest: #1b4b43;
+  --forest-dark: #123430;
+  --ochre: #d9a22c;
+  --coral: #c4593b;
+  --paper: #ffffff;
+  --line: #dcd5c2;
+  --muted: #7a7568;
+  --ok: #3ea26c;
+
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}

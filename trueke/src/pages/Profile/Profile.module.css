@@ -1,0 +1,132 @@
+.topbar {
+  background: var(--forest);
+  color: #fff;
+  padding: 26px 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ochre), #b97f1c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #123430;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 19px;
+  flex: none;
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.email {
+  font-size: 11.5px;
+  color: #cfe0da;
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 18px 24px;
+}
+
+.statusCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.statusCard.verified {
+  background: #e4efea;
+  color: var(--forest-dark);
+}
+
+.statusCard.pending {
+  background: #efe7d2;
+  color: #5c5537;
+}
+
+.statusCard.unverified {
+  background: #f6e6e0;
+  color: #7a3421;
+}
+
+.statusCard a,
+.statusCard button {
+  color: var(--forest);
+  font-weight: 700;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.listingRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.listingImg {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex: none;
+}
+
+.listingTitle {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.listingPrice {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--forest-dark);
+  margin-left: auto;
+}
+
+.logout {
+  width: 100%;
+  margin-top: 12px;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 13px;
+  padding: 13px;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--coral);
+  cursor: pointer;
+}

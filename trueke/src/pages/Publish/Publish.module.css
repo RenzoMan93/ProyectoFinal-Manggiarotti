@@ -1,0 +1,343 @@
+.topbar {
+  background: var(--forest);
+  color: #fff;
+  padding: 16px 18px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbarTitle {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.progressWrap {
+  padding: 14px 18px 16px;
+  background: var(--forest);
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #cfe0da;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.progressBar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--ochre);
+  transition: width 0.35s;
+}
+
+.bodyScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 18px 24px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  font-weight: 700;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reqStar {
+  color: var(--coral);
+  font-weight: 800;
+}
+
+.cardBlock {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.photoSlot {
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  border: 1.5px dashed var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photoSlot.filled {
+  border-style: solid;
+  border-color: var(--line);
+}
+
+.photoSlot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.addPhoto {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: var(--forest);
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.photoStatus {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 6px;
+}
+
+.analyzing {
+  background: rgba(18, 52, 48, 0.72);
+  color: #fff;
+}
+
+.analyzing span {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.badgeOk {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ok);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+.photoReject {
+  position: absolute;
+  inset: 0;
+  background: rgba(196, 89, 59, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  text-align: center;
+}
+
+.photoReject p {
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0 0 6px;
+}
+
+.photoRemove {
+  background: #fff;
+  color: var(--coral);
+  border: none;
+  border-radius: 7px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.photoRemoveX {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+
+.photoHint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.photoHint b {
+  color: var(--forest-dark);
+}
+
+textarea {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 13px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  resize: none;
+  min-height: 90px;
+  outline: none;
+  background: var(--bg);
+}
+
+textarea:focus {
+  border-color: var(--forest);
+}
+
+.aiHint {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #5c5537;
+  background: #efe7d2;
+  border: 1px dashed var(--ochre);
+  border-radius: 10px;
+  padding: 9px 11px;
+  line-height: 1.45;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fieldLabel .check {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ok);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.fieldLabel.done .check {
+  display: flex;
+}
+
+input[type='text'],
+input[type='number'] {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  padding: 11px 13px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+  background: var(--bg);
+}
+
+input:focus {
+  border-color: var(--forest);
+}
+
+.priceInput {
+  position: relative;
+}
+
+.priceInput span {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.priceInput input {
+  padding-left: 28px;
+  font-family: var(--font-mono);
+}
+
+.publishbar {
+  background: #fff;
+  border-top: 1px solid var(--line);
+  padding: 12px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.missingNote {
+  font-size: 11px;
+  color: var(--coral);
+  font-weight: 600;
+  margin-bottom: 9px;
+  min-height: 14px;
+}
+
+.missingNote.ok {
+  color: var(--ok);
+}
+
+.btnPublish {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 14.5px;
+  font-weight: 700;
+  background: var(--line);
+  color: #9a9484;
+  cursor: not-allowed;
+  transition: all 0.2s;
+}
+
+.btnPublish.active {
+  background: var(--forest);
+  color: #fff;
+  cursor: pointer;
+}

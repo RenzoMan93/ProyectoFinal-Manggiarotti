@@ -1,0 +1,14 @@
+{
+  "name": "trueke-functions",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.3",
+    "firebase-admin": "^12.3.1",
+    "firebase-functions": "^5.0.1"
+  }
+}
