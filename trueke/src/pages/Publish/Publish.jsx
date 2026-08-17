@@ -32,7 +32,7 @@ export default function Publish() {
   const [precio, setPrecio] = useState('');
   const [descuentoActivo, setDescuentoActivo] = useState(false);
   const [descuentoPorcentaje, setDescuentoPorcentaje] = useState('');
-  const [ubicacion, setUbicacion] = useState('');
+  const [ubicacion, setUbicacion] = useState(CITIES[0]);
   const [barrio, setBarrio] = useState('');
   const [direccion, setDireccion] = useState('');
   const [lat, setLat] = useState(null);
@@ -302,9 +302,6 @@ export default function Publish() {
                 setBarrio('');
               }}
             >
-              <option value="" disabled>
-                Seleccioná tu ciudad
-              </option>
               {CITIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
