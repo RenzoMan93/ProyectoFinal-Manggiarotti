@@ -6,6 +6,8 @@ import { subscribeToActiveProducts } from '../../services/productsService';
 import { formatPrice } from '../../utils/format';
 import { shortConditionLabel } from '../../utils/condition';
 import { CATEGORIES } from '../../utils/constants';
+import { convertPrice } from '../../services/exchangeRateService';
+import { useExchangeRate } from '../../hooks/useExchangeRate';
 import styles from './Feed.module.css';
 
 const QUICK_CHIPS = [
@@ -33,6 +35,7 @@ export default function Feed() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filters, setFilters] = useState(emptyFilters);
   const [draftFilters, setDraftFilters] = useState(emptyFilters);
+  const exchangeRate = useExchangeRate();
 
   useEffect(() => {
     const unsub = subscribeToActiveProducts((list) => {
@@ -162,6 +165,11 @@ export default function Feed() {
                     <span className={styles.priceTag}>{formatPrice(p.price, p.currency)}</span>
                     {p.oldPrice && <span className={styles.priceOld}>{formatPrice(p.oldPrice, p.currency)}</span>}
                   </div>
+                  {exchangeRate && (
+                    <div className={styles.priceAlt}>
+                      ≈ {formatPrice(Math.round(convertPrice(p.price, p.currency, exchangeRate)), p.currency === 'USD' ? 'UYU' : 'USD')}
+                    </div>
+                  )}
                   <div className={styles.dist}>📍 {p.city || 'Uruguay'}</div>
                 </div>
               </div>

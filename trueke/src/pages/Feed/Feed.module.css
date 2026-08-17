@@ -217,6 +217,13 @@
   margin-left: 5px;
 }
 
+.priceAlt {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
 .dist {
   font-size: 10.5px;
   color: var(--muted);

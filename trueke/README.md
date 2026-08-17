@@ -30,6 +30,7 @@ vienen incluidos:
 | Auth, catálogo, chat, pedidos | **Real** (Firebase) | `src/services/*` |
 | Fotos de productos y KYC | **Real** (Cloudinary, plan gratuito) | `src/services/storageService.js` |
 | Resumen de la publicación por IA | **Real** (Claude, vía Cloud Function) | `functions/index.js` → `summarizeListing` |
+| Precio también en la otra moneda (USD↔UYU) | **Real** (open.er-api.com, gratis y sin API key, se cachea 1 día) | `src/services/exchangeRateService.js` |
 | Revisión de fotos | Heurística simple (resolución/peso), no visión real | `src/services/storageService.js` |
 | Verificación de identidad (match documento/selfie) | **Mock** — aprueba automáticamente | `functions/index.js` → `reviewKycSubmission` |
 | Pago con tarjeta / Mercado Pago / efectivo | **Mock** — nunca se procesa un cobro real, y los datos de tarjeta nunca se guardan | `src/services/paymentProvider.js` |

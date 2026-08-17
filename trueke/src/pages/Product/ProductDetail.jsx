@@ -5,6 +5,8 @@ import { subscribeToProduct } from '../../services/productsService';
 import { buildAutoReply, getOrCreateConversation, sendMessage, subscribeToMessages } from '../../services/chatService';
 import { formatPrice } from '../../utils/format';
 import { fullConditionLabel } from '../../utils/condition';
+import { convertPrice } from '../../services/exchangeRateService';
+import { useExchangeRate } from '../../hooks/useExchangeRate';
 import styles from './ProductDetail.module.css';
 
 const QUICK_QUESTIONS = [
@@ -24,6 +26,7 @@ export default function ProductDetail() {
   const [showOriginal, setShowOriginal] = useState(false);
   const [galIndex, setGalIndex] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
+  const exchangeRate = useExchangeRate();
 
   useEffect(() => {
     const unsub = subscribeToProduct(id, setProduct);
@@ -64,6 +67,16 @@ export default function ProductDetail() {
             {product.oldPrice && <span className={styles.priceOldLg}>{formatPrice(product.oldPrice, product.currency)}</span>}
             {discount && <span className={styles.discountTag}>-{discount}%</span>}
           </div>
+          {exchangeRate && (
+            <div className={styles.priceAlt}>
+              ≈{' '}
+              {formatPrice(
+                Math.round(convertPrice(product.price, product.currency, exchangeRate)),
+                product.currency === 'USD' ? 'UYU' : 'USD'
+              )}{' '}
+              (cotización del día)
+            </div>
+          )}
           <div className={styles.metaRow}>
             <span>📍 {product.city || 'Uruguay'}</span>
             <span>👁 {product.views || 0} vistas</span>

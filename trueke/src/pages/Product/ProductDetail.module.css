@@ -148,6 +148,13 @@
   border-radius: 6px;
 }
 
+.priceAlt {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
 .titleLg {
   font-family: var(--font-serif);
   font-size: 19px;
