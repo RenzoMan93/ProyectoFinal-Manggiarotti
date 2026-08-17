@@ -5,11 +5,22 @@ import StarPicker from '../../components/StarPicker.jsx';
 import { subscribeToActiveProducts } from '../../services/productsService';
 import { formatPrice } from '../../utils/format';
 import { shortConditionLabel } from '../../utils/condition';
-import { CATEGORIES, CITIES } from '../../utils/constants';
+import { CATEGORIES, CITIES, CURRENCIES } from '../../utils/constants';
 import { convertPrice } from '../../services/exchangeRateService';
 import { useExchangeRate } from '../../hooks/useExchangeRate';
 import { findTypeFacet } from '../../utils/typeFacets';
 import styles from './Feed.module.css';
+
+const selectStyle = {
+  width: '100%',
+  border: '1.5px solid var(--line)',
+  borderRadius: 11,
+  padding: '11px 13px',
+  fontSize: 13,
+  outline: 'none',
+  background: 'var(--paper)',
+  color: 'inherit',
+};
 
 const QUICK_CHIPS = [
   { key: 'comoNueva', label: 'Como nueva' },
@@ -18,14 +29,15 @@ const QUICK_CHIPS = [
 ];
 
 const emptyFilters = {
-  minPrice: 0,
-  maxPrice: 2000,
+  minPrice: null,
+  maxPrice: null,
+  priceCurrency: 'UYU',
   categoria: null,
   ciudad: null,
   minStars: null,
   material: '',
   color: '',
-  marca: '',
+  marca: null,
   tipo: null,
 };
 
@@ -78,21 +90,44 @@ export default function Feed() {
       if (activeChips.has('comoNueva') && p.conditionStars !== 5) return false;
       if (activeChips.has('envio') && p.deliveryOption !== 'envio' && p.deliveryOption !== 'ambos') return false;
       if (activeChips.has('verificado') && !p.sellerVerified) return false;
-      if (p.price > filters.maxPrice) return false;
-      if (p.price < filters.minPrice) return false;
+      if (filters.minPrice != null || filters.maxPrice != null) {
+        const priceInFilterCurrency =
+          p.currency === filters.priceCurrency ? p.price : exchangeRate ? convertPrice(p.price, p.currency, exchangeRate) : p.price;
+        if (filters.minPrice != null && priceInFilterCurrency < filters.minPrice) return false;
+        if (filters.maxPrice != null && priceInFilterCurrency > filters.maxPrice) return false;
+      }
       if (filters.categoria && !p.categories?.includes(filters.categoria)) return false;
       if (filters.ciudad && p.city !== filters.ciudad) return false;
       if (filters.minStars && (p.conditionStars || 0) < filters.minStars) return false;
       if (filters.material.trim() && !p.material?.toLowerCase().includes(filters.material.trim().toLowerCase())) return false;
       if (filters.color.trim() && !p.color?.toLowerCase().includes(filters.color.trim().toLowerCase())) return false;
-      if (filters.marca.trim() && !p.brand?.toLowerCase().includes(filters.marca.trim().toLowerCase())) return false;
+      if (filters.marca && p.brand !== filters.marca) return false;
       if (filters.tipo) {
         const text = `${p.title || ''} ${p.description || ''}`.toLowerCase();
         if (!text.includes(filters.tipo.toLowerCase())) return false;
       }
       return true;
     });
-  }, [products, search, activeChips, filters]);
+  }, [products, search, activeChips, filters, exchangeRate]);
+
+  // Marca options are scoped to what's actually being searched for, instead
+  // of a free-text box — pick "bicicleta" and you only see brands that show
+  // up among matching bikes, not every brand ever published on the site.
+  const availableBrands = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const pool = q ? products.filter((p) => p.title?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)) : products;
+    const brands = new Set(pool.map((p) => p.brand).filter(Boolean));
+    return Array.from(brands).sort((a, b) => a.localeCompare(b, 'es'));
+  }, [products, search]);
+
+  // Same idea as the tipo facet above: if the search changes and the
+  // selected marca is no longer among the available options, drop it.
+  useEffect(() => {
+    if (filters.marca && !availableBrands.includes(filters.marca)) {
+      setFilters((f) => ({ ...f, marca: null }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableBrands]);
 
   const activeFilterCount =
     (filters.categoria ? 1 : 0) +
@@ -100,10 +135,9 @@ export default function Feed() {
     (filters.minStars ? 1 : 0) +
     (filters.material.trim() ? 1 : 0) +
     (filters.color.trim() ? 1 : 0) +
-    (filters.marca.trim() ? 1 : 0) +
+    (filters.marca ? 1 : 0) +
     (filters.tipo ? 1 : 0) +
-    (filters.maxPrice < 2000 ? 1 : 0) +
-    (filters.minPrice > 0 ? 1 : 0);
+    (filters.minPrice != null || filters.maxPrice != null ? 1 : 0);
 
   function openDrawer() {
     setDraftFilters(filters);
@@ -235,68 +269,66 @@ export default function Feed() {
 
           <div className={styles.fsection}>
             <h4>Presupuesto</h4>
+            <div className="pill-grid" style={{ marginBottom: 8 }}>
+              {CURRENCIES.map((c) => (
+                <div
+                  key={c.code}
+                  className={`pill ${draftFilters.priceCurrency === c.code ? 'sel' : ''}`}
+                  onClick={() => setDraftFilters((f) => ({ ...f, priceCurrency: c.code }))}
+                >
+                  {c.label}
+                </div>
+              ))}
+            </div>
             <div className={styles.frange}>
               <input
                 type="number"
                 min="0"
-                value={draftFilters.minPrice}
-                onChange={(e) => setDraftFilters((f) => ({ ...f, minPrice: Number(e.target.value) || 0 }))}
-                style={{
-                  width: 70,
-                  border: '1.5px solid var(--line)',
-                  borderRadius: 9,
-                  padding: '7px 8px',
-                  fontSize: 12.5,
-                  outline: 'none',
-                  background: 'var(--paper)',
-                  color: 'inherit',
-                }}
+                value={draftFilters.minPrice ?? ''}
+                onChange={(e) =>
+                  setDraftFilters((f) => ({ ...f, minPrice: e.target.value === '' ? null : Number(e.target.value) }))
+                }
+                placeholder="Desde"
+                style={{ ...selectStyle, padding: '9px 10px' }}
               />
+              <span>—</span>
               <input
-                type="range"
+                type="number"
                 min="0"
-                max="2000"
-                value={draftFilters.maxPrice}
-                onChange={(e) => setDraftFilters((f) => ({ ...f, maxPrice: Number(e.target.value) }))}
+                value={draftFilters.maxPrice ?? ''}
+                onChange={(e) =>
+                  setDraftFilters((f) => ({ ...f, maxPrice: e.target.value === '' ? null : Number(e.target.value) }))
+                }
+                placeholder="Hasta"
+                style={{ ...selectStyle, padding: '9px 10px' }}
               />
-              <span>${draftFilters.maxPrice}</span>
             </div>
           </div>
 
           <div className={styles.fsection}>
             <h4>Categoría</h4>
-            <div className="pill-grid">
+            <select
+              value={draftFilters.categoria || ''}
+              onChange={(e) => setDraftFilters((f) => ({ ...f, categoria: e.target.value || null }))}
+              style={selectStyle}
+            >
+              <option value="">Todas las categorías</option>
               {CATEGORIES.map((c) => (
-                <div
-                  key={c}
-                  className={`pill ${draftFilters.categoria === c ? 'sel' : ''}`}
-                  onClick={() =>
-                    setDraftFilters((f) => ({ ...f, categoria: f.categoria === c ? null : c }))
-                  }
-                >
+                <option key={c} value={c}>
                   {c}
-                </div>
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
           <div className={styles.fsection}>
-            <h4>Ciudad</h4>
+            <h4>Ubicación</h4>
             <select
               value={draftFilters.ciudad || ''}
               onChange={(e) => setDraftFilters((f) => ({ ...f, ciudad: e.target.value || null }))}
-              style={{
-                width: '100%',
-                border: '1.5px solid var(--line)',
-                borderRadius: 11,
-                padding: '11px 13px',
-                fontSize: 13,
-                outline: 'none',
-                background: 'var(--paper)',
-                color: 'inherit',
-              }}
+              style={selectStyle}
             >
-              <option value="">Todas las ciudades</option>
+              <option value="">Todos los departamentos</option>
               {CITIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -320,15 +352,7 @@ export default function Feed() {
               value={draftFilters.color}
               onChange={(e) => setDraftFilters((f) => ({ ...f, color: e.target.value }))}
               placeholder="Ej: Negro, verde oliva..."
-              style={{
-                width: '100%',
-                border: '1.5px solid var(--line)',
-                borderRadius: 11,
-                padding: '11px 13px',
-                fontSize: 13,
-                outline: 'none',
-                background: 'var(--paper)',
-              }}
+              style={selectStyle}
             />
           </div>
 
@@ -339,35 +363,32 @@ export default function Feed() {
               value={draftFilters.material}
               onChange={(e) => setDraftFilters((f) => ({ ...f, material: e.target.value }))}
               placeholder="Ej: Madera, aluminio..."
-              style={{
-                width: '100%',
-                border: '1.5px solid var(--line)',
-                borderRadius: 11,
-                padding: '11px 13px',
-                fontSize: 13,
-                outline: 'none',
-                background: 'var(--paper)',
-              }}
+              style={selectStyle}
             />
           </div>
 
           <div className={styles.fsection}>
             <h4>Marca</h4>
-            <input
-              type="text"
-              value={draftFilters.marca}
-              onChange={(e) => setDraftFilters((f) => ({ ...f, marca: e.target.value }))}
-              placeholder="Ej: Trek"
-              style={{
-                width: '100%',
-                border: '1.5px solid var(--line)',
-                borderRadius: 11,
-                padding: '11px 13px',
-                fontSize: 13,
-                outline: 'none',
-                background: 'var(--paper)',
-              }}
-            />
+            {availableBrands.length === 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                {search.trim()
+                  ? 'Todavía no hay marcas cargadas para esta búsqueda.'
+                  : 'Buscá un producto para ver las marcas disponibles.'}
+              </div>
+            ) : (
+              <select
+                value={draftFilters.marca || ''}
+                onChange={(e) => setDraftFilters((f) => ({ ...f, marca: e.target.value || null }))}
+                style={selectStyle}
+              >
+                <option value="">Todas las marcas</option>
+                {availableBrands.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
         <div className={styles.drawerFoot}>

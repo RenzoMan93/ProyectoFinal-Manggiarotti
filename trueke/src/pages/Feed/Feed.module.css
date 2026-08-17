@@ -322,14 +322,14 @@
 .frange {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-family: var(--font-mono);
   font-size: 13px;
 }
 
-.frange input[type='range'] {
+.frange input {
   flex: 1;
-  accent-color: var(--forest);
+  min-width: 0;
 }
 
 .drawerFoot {
