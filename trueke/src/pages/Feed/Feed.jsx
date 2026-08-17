@@ -8,6 +8,7 @@ import { shortConditionLabel } from '../../utils/condition';
 import { CATEGORIES, CITIES } from '../../utils/constants';
 import { convertPrice } from '../../services/exchangeRateService';
 import { useExchangeRate } from '../../hooks/useExchangeRate';
+import { findTypeFacet } from '../../utils/typeFacets';
 import styles from './Feed.module.css';
 
 const QUICK_CHIPS = [
@@ -17,6 +18,7 @@ const QUICK_CHIPS = [
 ];
 
 const emptyFilters = {
+  minPrice: 0,
   maxPrice: 2000,
   categoria: null,
   ciudad: null,
@@ -24,6 +26,7 @@ const emptyFilters = {
   material: '',
   color: '',
   marca: '',
+  tipo: null,
 };
 
 export default function Feed() {
@@ -36,6 +39,7 @@ export default function Feed() {
   const [filters, setFilters] = useState(emptyFilters);
   const [draftFilters, setDraftFilters] = useState(emptyFilters);
   const exchangeRate = useExchangeRate();
+  const typeFacet = useMemo(() => findTypeFacet(search), [search]);
 
   useEffect(() => {
     const unsub = subscribeToActiveProducts((list) => {
@@ -44,6 +48,17 @@ export default function Feed() {
     });
     return unsub;
   }, []);
+
+  // The "Tipo" facet's options depend on the live search text — if the
+  // search changes to something that no longer offers the currently
+  // selected tipo (or offers no facet at all), drop it instead of silently
+  // filtering by an option the drawer no longer shows.
+  useEffect(() => {
+    if (!typeFacet?.options.includes(filters.tipo)) {
+      setFilters((f) => (f.tipo ? { ...f, tipo: null } : f));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typeFacet]);
 
   function toggleChip(key) {
     setActiveChips((prev) => {
@@ -64,12 +79,17 @@ export default function Feed() {
       if (activeChips.has('envio') && p.deliveryOption !== 'envio' && p.deliveryOption !== 'ambos') return false;
       if (activeChips.has('verificado') && !p.sellerVerified) return false;
       if (p.price > filters.maxPrice) return false;
+      if (p.price < filters.minPrice) return false;
       if (filters.categoria && !p.categories?.includes(filters.categoria)) return false;
       if (filters.ciudad && p.city !== filters.ciudad) return false;
       if (filters.minStars && (p.conditionStars || 0) < filters.minStars) return false;
       if (filters.material.trim() && !p.material?.toLowerCase().includes(filters.material.trim().toLowerCase())) return false;
       if (filters.color.trim() && !p.color?.toLowerCase().includes(filters.color.trim().toLowerCase())) return false;
       if (filters.marca.trim() && !p.brand?.toLowerCase().includes(filters.marca.trim().toLowerCase())) return false;
+      if (filters.tipo) {
+        const text = `${p.title || ''} ${p.description || ''}`.toLowerCase();
+        if (!text.includes(filters.tipo.toLowerCase())) return false;
+      }
       return true;
     });
   }, [products, search, activeChips, filters]);
@@ -81,7 +101,9 @@ export default function Feed() {
     (filters.material.trim() ? 1 : 0) +
     (filters.color.trim() ? 1 : 0) +
     (filters.marca.trim() ? 1 : 0) +
-    (filters.maxPrice < 2000 ? 1 : 0);
+    (filters.tipo ? 1 : 0) +
+    (filters.maxPrice < 2000 ? 1 : 0) +
+    (filters.minPrice > 0 ? 1 : 0);
 
   function openDrawer() {
     setDraftFilters(filters);
@@ -194,10 +216,42 @@ export default function Feed() {
           </button>
         </div>
         <div className={styles.drawerBody}>
+          {typeFacet && (
+            <div className={styles.fsection}>
+              <h4>{typeFacet.label}</h4>
+              <div className="pill-grid">
+                {typeFacet.options.map((o) => (
+                  <div
+                    key={o}
+                    className={`pill ${draftFilters.tipo === o ? 'sel' : ''}`}
+                    onClick={() => setDraftFilters((f) => ({ ...f, tipo: f.tipo === o ? null : o }))}
+                  >
+                    {o}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className={styles.fsection}>
-            <h4>Precio máximo</h4>
+            <h4>Presupuesto</h4>
             <div className={styles.frange}>
-              <span>$0</span>
+              <input
+                type="number"
+                min="0"
+                value={draftFilters.minPrice}
+                onChange={(e) => setDraftFilters((f) => ({ ...f, minPrice: Number(e.target.value) || 0 }))}
+                style={{
+                  width: 70,
+                  border: '1.5px solid var(--line)',
+                  borderRadius: 9,
+                  padding: '7px 8px',
+                  fontSize: 12.5,
+                  outline: 'none',
+                  background: 'var(--paper)',
+                  color: 'inherit',
+                }}
+              />
               <input
                 type="range"
                 min="0"
