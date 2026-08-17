@@ -14,6 +14,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+  const reason = reasonForPath(from);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -40,7 +41,7 @@ export default function Auth() {
       <div className={styles.brand}>
         true<em>ke</em>
       </div>
-      <div className={styles.sub}>Comprá y vendé de segunda mano, con confianza.</div>
+      <div className={styles.sub}>{reason || 'Comprá y vendé de segunda mano, con confianza.'}</div>
 
       <form className={styles.card} onSubmit={handleSubmit}>
         <div className={styles.title}>{mode === 'login' ? 'Iniciá sesión' : 'Creá tu cuenta'}</div>
@@ -89,6 +90,18 @@ export default function Auth() {
       </form>
     </div>
   );
+}
+
+/** Explains why a guest landed on the login screen, based on the protected
+ * route they were trying to reach (see ProtectedRoute.jsx). Browsing the
+ * Feed and product pages never requires an account — only these do. */
+function reasonForPath(path) {
+  if (path.startsWith('/publicar')) return 'Registrate para poder publicar y vender tus productos.';
+  if (path.startsWith('/checkout')) return 'Registrate o iniciá sesión para completar tu compra.';
+  if (path.startsWith('/mensajes')) return 'Registrate para chatear con compradores y vendedores.';
+  if (path.startsWith('/perfil')) return 'Registrate para ver tu perfil y tus publicaciones.';
+  if (path.startsWith('/verificar')) return 'Registrate para verificar tu identidad.';
+  return null;
 }
 
 function mapAuthError(code) {

@@ -5,7 +5,7 @@ import StarPicker from '../../components/StarPicker.jsx';
 import { subscribeToActiveProducts } from '../../services/productsService';
 import { formatPrice } from '../../utils/format';
 import { shortConditionLabel } from '../../utils/condition';
-import { CATEGORIES } from '../../utils/constants';
+import { CATEGORIES, CITIES } from '../../utils/constants';
 import { convertPrice } from '../../services/exchangeRateService';
 import { useExchangeRate } from '../../hooks/useExchangeRate';
 import styles from './Feed.module.css';
@@ -19,6 +19,7 @@ const QUICK_CHIPS = [
 const emptyFilters = {
   maxPrice: 2000,
   categoria: null,
+  ciudad: null,
   minStars: null,
   material: '',
   color: '',
@@ -54,12 +55,17 @@ export default function Feed() {
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
-      if (search.trim() && !p.title?.toLowerCase().includes(search.trim().toLowerCase())) return false;
+      if (search.trim()) {
+        const q = search.trim().toLowerCase();
+        const matches = p.title?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
+        if (!matches) return false;
+      }
       if (activeChips.has('comoNueva') && p.conditionStars !== 5) return false;
       if (activeChips.has('envio') && p.deliveryOption !== 'envio' && p.deliveryOption !== 'ambos') return false;
       if (activeChips.has('verificado') && !p.sellerVerified) return false;
       if (p.price > filters.maxPrice) return false;
       if (filters.categoria && !p.categories?.includes(filters.categoria)) return false;
+      if (filters.ciudad && p.city !== filters.ciudad) return false;
       if (filters.minStars && (p.conditionStars || 0) < filters.minStars) return false;
       if (filters.material.trim() && !p.material?.toLowerCase().includes(filters.material.trim().toLowerCase())) return false;
       if (filters.color.trim() && !p.color?.toLowerCase().includes(filters.color.trim().toLowerCase())) return false;
@@ -70,6 +76,7 @@ export default function Feed() {
 
   const activeFilterCount =
     (filters.categoria ? 1 : 0) +
+    (filters.ciudad ? 1 : 0) +
     (filters.minStars ? 1 : 0) +
     (filters.material.trim() ? 1 : 0) +
     (filters.color.trim() ? 1 : 0) +
@@ -217,6 +224,31 @@ export default function Feed() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className={styles.fsection}>
+            <h4>Ciudad</h4>
+            <select
+              value={draftFilters.ciudad || ''}
+              onChange={(e) => setDraftFilters((f) => ({ ...f, ciudad: e.target.value || null }))}
+              style={{
+                width: '100%',
+                border: '1.5px solid var(--line)',
+                borderRadius: 11,
+                padding: '11px 13px',
+                fontSize: 13,
+                outline: 'none',
+                background: 'var(--paper)',
+                color: 'inherit',
+              }}
+            >
+              <option value="">Todas las ciudades</option>
+              {CITIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.fsection}>
