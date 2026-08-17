@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { createProduct } from '../../services/productsService';
 import { checkImageQuality, uploadImage } from '../../services/storageService';
 import { CATEGORIES, CURRENCIES } from '../../utils/constants';
-import { normalizeShoutingCase } from '../../utils/format';
+import { normalizeShoutingCase, formatPrice } from '../../utils/format';
 import ConditionPicker from '../../components/ConditionPicker.jsx';
 import styles from './Publish.module.css';
 
@@ -22,7 +22,8 @@ export default function Publish() {
   const [conditionStars, setConditionStars] = useState(null); // 1-5
   const [moneda, setMoneda] = useState('USD');
   const [precio, setPrecio] = useState('');
-  const [precioAnterior, setPrecioAnterior] = useState('');
+  const [descuentoActivo, setDescuentoActivo] = useState(false);
+  const [descuentoPorcentaje, setDescuentoPorcentaje] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [marca, setMarca] = useState('');
   const [material, setMaterial] = useState('');
@@ -65,6 +66,13 @@ export default function Publish() {
 
   const approvedPhotos = photos.filter((p) => p.status === 'approved');
 
+  const descuentoValido = descuentoActivo && Number(descuentoPorcentaje) > 0 && Number(descuentoPorcentaje) < 100;
+  // El vendedor carga el precio ya con el descuento aplicado + el % que rebajó;
+  // el precio anterior (tachado en la ficha) se reconstruye a partir de esos dos.
+  const precioAnteriorCalculado = descuentoValido
+    ? Math.round(Number(precio || 0) / (1 - Number(descuentoPorcentaje) / 100))
+    : null;
+
   const checks = {
     fotos: approvedPhotos.length >= REQUIRED_PHOTOS,
     titulo: titulo.trim().length > 0,
@@ -101,7 +109,7 @@ export default function Publish() {
         description: description.trim(),
         conditionStars,
         price: Number(precio),
-        oldPrice: Number(precioAnterior) > Number(precio) ? Number(precioAnterior) : null,
+        oldPrice: precioAnteriorCalculado,
         currency: moneda,
         city: ubicacion.trim(),
         brand: marca.trim() || null,
@@ -179,13 +187,7 @@ export default function Publish() {
           </Field>
 
           <Field label="Categoría" required>
-            <div className="pill-grid">
-              {CATEGORIES.map((c) => (
-                <div key={c} className={`pill ${categorias.includes(c) ? 'sel' : ''}`} onClick={() => toggleCategoria(c)}>
-                  {c}
-                </div>
-              ))}
-            </div>
+            <CategoryDropdown selected={categorias} onToggle={toggleCategoria} />
           </Field>
 
           <Field label="Estado" required>
@@ -212,27 +214,43 @@ export default function Publish() {
               />
             </div>
 
-            <div className={styles.oldPriceLabel}>Precio anterior (opcional) — mostralo si estás haciendo una rebaja</div>
-            <div className={styles.priceInput}>
-              <span>{CURRENCIES.find((c) => c.code === moneda)?.symbol}</span>
-              <input
-                type="number"
-                min="0"
-                value={precioAnterior}
-                onChange={(e) => setPrecioAnterior(e.target.value)}
-                placeholder="0"
-                style={{ paddingLeft: `${19 + (CURRENCIES.find((c) => c.code === moneda)?.symbol.length || 1) * 9}px` }}
-              />
+            <div className={styles.discountToggle} onClick={() => setDescuentoActivo((v) => !v)}>
+              <span className={`${styles.discountCheckbox} ${descuentoActivo ? styles.active : ''}`}>
+                {descuentoActivo && (
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </span>
+              ¿Estás haciendo un descuento?
             </div>
-            {precioAnterior.trim().length > 0 &&
-              (Number(precioAnterior) > Number(precio || 0) ? (
-                <div className={styles.oldPriceDiscount}>
-                  🏷️ {Math.round(((Number(precioAnterior) - Number(precio || 0)) / Number(precioAnterior)) * 100)}% de descuento — así se
-                  va a ver en la publicación
+
+            {descuentoActivo && (
+              <>
+                <div className={styles.oldPriceLabel}>Porcentaje de descuento sobre el precio anterior</div>
+                <div className={styles.percentInput}>
+                  <input
+                    type="number"
+                    min="1"
+                    max="99"
+                    value={descuentoPorcentaje}
+                    onChange={(e) => setDescuentoPorcentaje(e.target.value)}
+                    placeholder="0"
+                  />
+                  <span>%</span>
                 </div>
-              ) : (
-                <div className={styles.oldPriceWarn}>Tiene que ser mayor al precio actual para mostrarse como rebaja.</div>
-              ))}
+                {descuentoValido ? (
+                  <div className={styles.oldPriceDiscount}>
+                    🏷️ Se va a mostrar el precio anterior tachado ({formatPrice(precioAnteriorCalculado, moneda)}) junto al precio
+                    actual con el {descuentoPorcentaje}% de descuento ya aplicado.
+                  </div>
+                ) : (
+                  descuentoPorcentaje.trim().length > 0 && (
+                    <div className={styles.oldPriceWarn}>El porcentaje tiene que ser mayor a 0 y menor a 100.</div>
+                  )
+                )}
+              </>
+            )}
           </Field>
 
           <Field label="Marca">
@@ -282,6 +300,51 @@ export default function Publish() {
         </button>
       </div>
     </>
+  );
+}
+
+/** Multi-select dropdown: a trigger button (styled like the other inputs)
+ * that opens a checklist panel of categories, closing on an outside click. */
+function CategoryDropdown({ selected, onToggle }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    function onDocClick(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
+
+  return (
+    <div className={styles.categoryDropdown} ref={wrapRef}>
+      <button type="button" className={styles.categoryTrigger} onClick={() => setOpen((o) => !o)}>
+        <span className={selected.length === 0 ? styles.categoryPlaceholder : ''}>
+          {selected.length === 0 ? 'Seleccioná una o más categorías' : selected.join(', ')}
+        </span>
+      </button>
+      {open && (
+        <div className={styles.categoryPanel}>
+          {CATEGORIES.map((c) => (
+            <div
+              key={c}
+              className={`${styles.categoryOption} ${selected.includes(c) ? styles.categoryOptionSel : ''}`}
+              onClick={() => onToggle(c)}
+            >
+              <span className={styles.categoryCheck}>
+                {selected.includes(c) && (
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </span>
+              {c}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

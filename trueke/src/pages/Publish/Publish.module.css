@@ -293,6 +293,143 @@ input:focus {
   border-color: var(--forest);
 }
 
+.categoryDropdown {
+  position: relative;
+}
+
+.categoryTrigger {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  padding: 11px 13px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: inherit;
+  background: var(--bg);
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.categoryTrigger:focus {
+  border-color: var(--forest);
+}
+
+.categoryTrigger span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoryPlaceholder {
+  color: var(--muted);
+}
+
+.categoryTrigger::after {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translateY(-3px);
+}
+
+.categoryPanel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  max-height: 260px;
+  overflow-y: auto;
+  box-shadow: 0 10px 26px rgba(20, 20, 15, 0.16);
+}
+
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.categoryOption:hover {
+  background: var(--bg);
+}
+
+.categoryCheck {
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  border: 1.5px solid var(--line);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.categoryOptionSel .categoryCheck {
+  background: var(--forest);
+  border-color: var(--forest);
+}
+
+.discountToggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 12px 0 4px;
+}
+
+.discountCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.discountCheckbox.active {
+  background: var(--forest);
+  border-color: var(--forest);
+}
+
+.percentInput {
+  position: relative;
+  max-width: 140px;
+  margin-top: 8px;
+}
+
+.percentInput input {
+  padding-right: 30px;
+  font-family: var(--font-mono);
+}
+
+.percentInput span {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .oldPriceLabel {
   font-size: 11px;
   color: var(--muted);
