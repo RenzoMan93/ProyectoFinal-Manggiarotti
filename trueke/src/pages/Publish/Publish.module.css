@@ -255,6 +255,19 @@ textarea:focus {
   gap: 4px;
 }
 
+.conditionLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--forest-dark);
+  margin-top: 8px;
+}
+
+.conditionLabel.conditionPlaceholder {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--muted);
+}
+
 input[type='text'],
 input[type='number'] {
   width: 100%;
