@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../../components/BottomNav.jsx';
 import StarPicker from '../../components/StarPicker.jsx';
+import FavoriteButton from '../../components/FavoriteButton.jsx';
 import { subscribeToActiveProducts } from '../../services/productsService';
 import { formatPrice } from '../../utils/format';
 import { shortConditionLabel } from '../../utils/condition';
@@ -9,6 +10,8 @@ import { CATEGORIES, CITIES, CURRENCIES } from '../../utils/constants';
 import { convertPrice } from '../../services/exchangeRateService';
 import { useExchangeRate } from '../../hooks/useExchangeRate';
 import { findTypeFacet } from '../../utils/typeFacets';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { useFavorites } from '../../hooks/useFavorites';
 import styles from './Feed.module.css';
 
 const selectStyle = {
@@ -43,6 +46,7 @@ const emptyFilters = {
 
 export default function Feed() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -51,6 +55,7 @@ export default function Feed() {
   const [filters, setFilters] = useState(emptyFilters);
   const [draftFilters, setDraftFilters] = useState(emptyFilters);
   const exchangeRate = useExchangeRate();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const typeFacet = useMemo(() => findTypeFacet(search), [search]);
 
   useEffect(() => {
@@ -218,6 +223,18 @@ export default function Feed() {
                 <div className={styles.cardImg}>
                   <img src={p.photos?.[0]} alt={p.title} loading="lazy" />
                   <div className={styles.badgeCond}>{shortConditionLabel(p)}</div>
+                  <FavoriteButton
+                    className={styles.favBtn}
+                    active={isFavorite(p.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!user) {
+                        navigate('/login', { state: { from: { pathname: '/' } } });
+                        return;
+                      }
+                      toggleFavorite(p);
+                    }}
+                  />
                 </div>
                 <div className={styles.cardBody}>
                   <div className={styles.cardTitle}>{p.title}</div>

@@ -69,6 +69,10 @@ export default function Checkout() {
     async function runCheckout() {
       const id = await createOrder({
         productId: product.id,
+        productTitle: product.title,
+        productPhoto: product.photos?.[0] || null,
+        currency: product.currency,
+        sellerName: product.sellerName,
         buyerId: user.uid,
         sellerId: product.sellerId,
         deliveryMethod: entrega,

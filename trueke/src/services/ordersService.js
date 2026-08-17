@@ -1,7 +1,14 @@
-import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const ordersCol = collection(db, 'orders');
+
+export function subscribeToBuyerOrders(buyerId, callback) {
+  const q = query(ordersCol, where('buyerId', '==', buyerId), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  });
+}
 
 export async function createOrder(order) {
   const ref = await addDoc(ordersCol, {

@@ -15,7 +15,13 @@ como **web app** y, empaquetado con Capacitor, como **app de Android/iOS**.
 - **Verificación de identidad (KYC)** — datos personales, captura de
   documento y selfie.
 - **Checkout** — entrega, medio de pago, confirmación y resultado.
-- **Mensajes** y **Perfil** — inbox de conversaciones y estado de cuenta.
+- **Favoritos** — guardar publicaciones desde el Feed o la ficha para
+  encontrarlas después en el perfil.
+- **Calificación de vendedores** — al comprar, el comprador puede calificar
+  (1-5 estrellas + comentario opcional) desde "Mis compras"; el promedio se
+  muestra en la ficha del producto y en el perfil del vendedor.
+- **Mensajes** y **Perfil** — inbox de conversaciones, mis compras, mis
+  favoritos, mis publicaciones y estado de cuenta.
 
 ## Lo que es real vs. lo que es mock
 
@@ -34,6 +40,8 @@ vienen incluidos:
 | Mapa para marcar la dirección exacta | **Real** (Leaflet + OpenStreetMap, gratis y sin API key) | `src/components/LocationPicker.jsx` |
 | Bloqueo de categorías prohibidas (alimentos, medicamentos, cosméticos, inflamables/químicos, alquileres/servicios, etc. — Trueke es solo venta) | **Real**, dos capas: bloqueo por palabras clave en Publicar + revisión por Claude vía Cloud Function que retira la publicación si se le escapa a la primera capa | `src/utils/prohibitedItems.js`, `functions/index.js` → `moderateListing` |
 | Declaración jurada obligatoria para publicar vehículos | **Real** (checkbox + matrícula, guardado privado igual que la dirección) | `src/pages/Publish/Publish.jsx`, `productsService.js` → `setVehicleDeclaration` |
+| Favoritos | **Real** (Firestore, subcolección privada por usuario) | `src/services/favoritesService.js` |
+| Calificación de vendedores | **Real** — el promedio se recalcula server-side vía Cloud Function, nunca lo escribe el cliente | `src/services/reviewsService.js`, `functions/index.js` → `applyReview` |
 | Revisión de fotos | Heurística simple (resolución/peso), no visión real | `src/services/storageService.js` |
 | Verificación de identidad (match documento/selfie) | **Mock** — aprueba automáticamente | `functions/index.js` → `reviewKycSubmission` |
 | Pago con tarjeta / Mercado Pago / efectivo | **Mock** — nunca se procesa un cobro real, y los datos de tarjeta nunca se guardan | `src/services/paymentProvider.js` |

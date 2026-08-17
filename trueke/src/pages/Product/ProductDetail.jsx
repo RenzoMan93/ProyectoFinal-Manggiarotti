@@ -7,6 +7,9 @@ import { formatPrice } from '../../utils/format';
 import { fullConditionLabel } from '../../utils/condition';
 import { convertPrice } from '../../services/exchangeRateService';
 import { useExchangeRate } from '../../hooks/useExchangeRate';
+import { useFavorites } from '../../hooks/useFavorites';
+import { getSellerRating } from '../../services/sellersService';
+import FavoriteButton from '../../components/FavoriteButton.jsx';
 import styles from './ProductDetail.module.css';
 
 const QUICK_QUESTIONS = [
@@ -26,7 +29,9 @@ export default function ProductDetail() {
   const [showOriginal, setShowOriginal] = useState(false);
   const [galIndex, setGalIndex] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
+  const [sellerRating, setSellerRating] = useState(null);
   const exchangeRate = useExchangeRate();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     const unsub = subscribeToProduct(id, setProduct);
@@ -36,6 +41,11 @@ export default function ProductDetail() {
   useEffect(() => {
     if (searchParams.get('chat') === '1' && user) setChatOpen(true);
   }, [searchParams, user]);
+
+  useEffect(() => {
+    if (!product?.sellerId) return;
+    getSellerRating(product.sellerId).then(setSellerRating);
+  }, [product?.sellerId]);
 
   if (!product) {
     return <div className="centered-loader">Cargando publicación…</div>;
@@ -60,9 +70,24 @@ export default function ProductDetail() {
     setChatOpen(true);
   }
 
+  function handleToggleFavorite() {
+    if (!user) {
+      navigate('/login', { state: { from: { pathname: `/producto/${id}` } } });
+      return;
+    }
+    toggleFavorite(product);
+  }
+
   return (
     <>
-      <Gallery photos={photos} index={galIndex} setIndex={setGalIndex} onBack={() => navigate(-1)} />
+      <Gallery
+        photos={photos}
+        index={galIndex}
+        setIndex={setGalIndex}
+        onBack={() => navigate(-1)}
+        isFavorite={!isOwner && isFavorite(product.id)}
+        onToggleFavorite={!isOwner ? handleToggleFavorite : null}
+      />
 
       <div className={styles.bodyScroll}>
         <div className={styles.panel}>
@@ -95,6 +120,11 @@ export default function ProductDetail() {
           <div className={styles.metaRow}>
             <span>📍 {[product.city, product.neighborhood].filter(Boolean).join(', ') || 'Uruguay'}</span>
             <span>👁 {product.views || 0} vistas</span>
+            {sellerRating?.ratingCount > 0 && (
+              <span>
+                ⭐ {sellerRating.ratingAvg.toFixed(1)} ({sellerRating.ratingCount})
+              </span>
+            )}
           </div>
 
           <div className={styles.specs}>
@@ -265,7 +295,7 @@ function SummaryItem({ icon, label, text }) {
   );
 }
 
-function Gallery({ photos, index, setIndex, onBack }) {
+function Gallery({ photos, index, setIndex, onBack, isFavorite, onToggleFavorite }) {
   const containerRef = useRef(null);
   const trackRef = useRef(null);
   const dragState = useRef({ dragging: false, startX: 0, offset: 0 });
@@ -328,6 +358,9 @@ function Gallery({ photos, index, setIndex, onBack }) {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
+        {onToggleFavorite && (
+          <FavoriteButton className="icon-btn" active={isFavorite} onClick={onToggleFavorite} />
+        )}
       </div>
       {photos.length > 1 && (
         <>

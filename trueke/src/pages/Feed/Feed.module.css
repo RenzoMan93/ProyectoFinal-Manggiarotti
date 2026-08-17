@@ -189,6 +189,21 @@
   letter-spacing: 0.2px;
 }
 
+.favBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(30, 36, 31, 0.5);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .cardBody {
   padding: 10px 11px 12px;
 }

@@ -225,6 +225,31 @@ Respondé ÚNICAMENTE con un JSON (sin texto adicional, sin markdown), con esta 
 );
 
 /**
+ * Recomputes a seller's aggregate rating whenever a buyer leaves a review.
+ * Writes to `sellers/{sellerId}` — a small public mirror doc, separate from
+ * `users/{sellerId}`, so the rating can be publicly readable (ProductDetail,
+ * Profile) without exposing the rest of that user's profile. Nothing in
+ * firestore.rules grants clients write access to this collection, so this
+ * Cloud Function (via the Admin SDK, which bypasses rules) is the only way
+ * that document ever changes — a buyer can't inflate a seller's score by
+ * writing to it directly.
+ */
+exports.applyReview = onDocumentCreated('reviews/{reviewId}', async (event) => {
+  const review = event.data.data();
+  if (!review?.sellerId || !review.rating) return;
+
+  const sellerRef = db.doc(`sellers/${review.sellerId}`);
+  await db.runTransaction(async (tx) => {
+    const sellerSnap = await tx.get(sellerRef);
+    const prevCount = sellerSnap.data()?.ratingCount || 0;
+    const prevAvg = sellerSnap.data()?.ratingAvg || 0;
+    const ratingCount = prevCount + 1;
+    const ratingAvg = (prevAvg * prevCount + review.rating) / ratingCount;
+    tx.set(sellerRef, { ratingAvg, ratingCount }, { merge: true });
+  });
+});
+
+/**
  * Placeholder for the real identity-verification pipeline. Real KYC needs a
  * dedicated vendor (Veriff, Onfido, AWS Rekognition face-match, etc.) that
  * you'd call here with the uploaded document/selfie URLs, then flip

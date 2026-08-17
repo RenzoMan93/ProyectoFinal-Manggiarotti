@@ -17,6 +17,31 @@ service cloud.firestore {
       allow update: if request.auth != null && request.auth.uid == uid &&
         (request.resource.data.verificationStatus == resource.data.verificationStatus ||
          request.resource.data.verificationStatus == 'pending');
+
+      // Saved listings — only the owner ever reads or writes their own list.
+      match /favorites/{productId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Public mirror of a seller's aggregate rating (see functions/index.js
+    // applyReview). No client write rule at all — this collection is only
+    // ever written by the Admin SDK, which bypasses these rules entirely.
+    match /sellers/{sellerId} {
+      allow read: if true;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      // A review must correspond to a real order the buyer actually placed
+      // with that exact seller/product — cross-checked against the order
+      // doc itself so a buyer can't fabricate a rating out of thin air.
+      // Reviews are immutable once created (no update/delete rule).
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.buyerId &&
+        get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.buyerId == request.auth.uid &&
+        get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.sellerId == request.resource.data.sellerId &&
+        get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.productId == request.resource.data.productId;
     }
 
     match /products/{productId} {

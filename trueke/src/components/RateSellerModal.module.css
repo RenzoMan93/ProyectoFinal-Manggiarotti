@@ -1,0 +1,63 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 20, 15, 0.5);
+  z-index: 40;
+}
+
+.modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 48px);
+  max-width: 340px;
+  background: var(--paper);
+  border-radius: 18px;
+  padding: 22px 20px;
+  z-index: 41;
+  box-shadow: 0 20px 50px rgba(20, 20, 15, 0.3);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.starsWrap {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 16px;
+}
+
+.comment {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  resize: none;
+  min-height: 70px;
+  outline: none;
+  background: var(--bg);
+}
+
+.comment:focus {
+  border-color: var(--forest);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
