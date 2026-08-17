@@ -232,7 +232,7 @@ export default function Publish() {
                   </svg>
                 )}
               </span>
-              ¿Estás haciendo un descuento?
+              ¿Deseás aplicar un descuento?
             </div>
 
             {descuentoActivo && (
