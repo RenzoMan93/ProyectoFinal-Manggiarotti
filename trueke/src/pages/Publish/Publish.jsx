@@ -5,7 +5,7 @@ import { createProduct } from '../../services/productsService';
 import { checkImageQuality, uploadImage } from '../../services/storageService';
 import { CATEGORIES, CURRENCIES } from '../../utils/constants';
 import { normalizeShoutingCase, formatPrice } from '../../utils/format';
-import { fullConditionLabel } from '../../utils/condition';
+import { conditionTitle } from '../../utils/condition';
 import StarPicker from '../../components/StarPicker.jsx';
 import styles from './Publish.module.css';
 
@@ -188,7 +188,7 @@ export default function Publish() {
           <Field label="Estado" required>
             <StarPicker value={conditionStars} onChange={setConditionStars} />
             <div className={`${styles.conditionLabel} ${!conditionStars ? styles.conditionPlaceholder : ''}`}>
-              {conditionStars ? fullConditionLabel({ conditionStars }) : 'Tocá las estrellas para indicar el estado del producto'}
+              {conditionStars ? conditionTitle(conditionStars) : 'Tocá las estrellas para indicar el estado del producto'}
             </div>
           </Field>
 

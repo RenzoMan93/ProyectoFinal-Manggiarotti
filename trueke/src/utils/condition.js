@@ -11,7 +11,7 @@ export function starString(count) {
   return '★'.repeat(n) + '☆'.repeat(5 - n);
 }
 
-function levelTitle(stars) {
+export function conditionTitle(stars) {
   return CONDITION_LEVELS.find((l) => l.stars === stars)?.title || '';
 }
 
@@ -24,6 +24,6 @@ export function shortConditionLabel(product) {
 /** "Como nueva ★★★★★" — used on the product detail spec. */
 export function fullConditionLabel(product) {
   if (!product) return '';
-  const title = levelTitle(product.conditionStars);
+  const title = conditionTitle(product.conditionStars);
   return `${title ? `${title} ` : ''}${starString(product.conditionStars)}`;
 }
