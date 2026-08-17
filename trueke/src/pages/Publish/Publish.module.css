@@ -284,6 +284,16 @@ input:focus {
   margin-top: 6px;
 }
 
+.oldPriceDiscount {
+  font-size: 11.5px;
+  color: var(--forest-dark);
+  font-weight: 700;
+  margin-top: 7px;
+  background: #e4efea;
+  border-radius: 9px;
+  padding: 7px 10px;
+}
+
 .priceInput {
   position: relative;
 }

@@ -224,9 +224,15 @@ export default function Publish() {
                 style={{ paddingLeft: `${19 + (CURRENCIES.find((c) => c.code === moneda)?.symbol.length || 1) * 9}px` }}
               />
             </div>
-            {precioAnterior.trim().length > 0 && Number(precioAnterior) <= Number(precio || 0) && (
-              <div className={styles.oldPriceWarn}>Tiene que ser mayor al precio actual para mostrarse como rebaja.</div>
-            )}
+            {precioAnterior.trim().length > 0 &&
+              (Number(precioAnterior) > Number(precio || 0) ? (
+                <div className={styles.oldPriceDiscount}>
+                  🏷️ {Math.round(((Number(precioAnterior) - Number(precio || 0)) / Number(precioAnterior)) * 100)}% de descuento — así se
+                  va a ver en la publicación
+                </div>
+              ) : (
+                <div className={styles.oldPriceWarn}>Tiene que ser mayor al precio actual para mostrarse como rebaja.</div>
+              ))}
           </Field>
 
           <Field label="Marca">
