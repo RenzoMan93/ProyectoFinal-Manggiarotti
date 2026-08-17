@@ -22,6 +22,6 @@ export const CATEGORIES = [
 export const COUNTRIES = ['Uruguay', 'Argentina', 'Brasil', 'Chile', 'Paraguay'];
 
 export const CURRENCIES = [
-  { code: 'UYU', label: '$ (UY)', symbol: '$' },
-  { code: 'USD', label: 'US$ (USD)', symbol: 'US$' },
+  { code: 'UYU', label: 'Pesos uruguayos ($)', symbol: '$' },
+  { code: 'USD', label: 'Dólares estadounidenses (US$)', symbol: 'US$' },
 ];
