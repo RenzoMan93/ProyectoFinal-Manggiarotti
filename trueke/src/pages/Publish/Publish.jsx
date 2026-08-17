@@ -26,9 +26,6 @@ export default function Publish() {
   const [descuentoActivo, setDescuentoActivo] = useState(false);
   const [descuentoPorcentaje, setDescuentoPorcentaje] = useState('');
   const [ubicacion, setUbicacion] = useState('');
-  const [marca, setMarca] = useState('');
-  const [material, setMaterial] = useState('');
-  const [color, setColor] = useState('');
   const [offersShipping, setOffersShipping] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
@@ -113,9 +110,6 @@ export default function Publish() {
         oldPrice: precioAnteriorCalculado,
         currency: moneda,
         city: ubicacion.trim(),
-        brand: marca.trim() || null,
-        material: material.trim() || null,
-        color: color.trim() || null,
         offersShipping,
         sellerVerified: profile?.verificationStatus === 'verified',
       });
@@ -269,27 +263,16 @@ export default function Publish() {
             )}
           </Field>
 
-          <Field label="Marca">
-            <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Ej: Trek" />
-          </Field>
-
-          <Field label="Material">
-            <input type="text" value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="Ej: Algodón, aluminio, madera maciza..." />
-          </Field>
-
-          <Field label="Color">
-            <input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Ej: Verde oliva, negro mate..." />
-          </Field>
-
           <Field label="Descripción" required>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Contanos, como si le escribieras a un amigo: ¿por qué lo vendés?, ¿qué incluye (accesorios, caja, manual)?, ¿cómo funciona y en qué estado está?, ¿hay algo a tener en cuenta (golpes, detalles, piezas faltantes)? No hace falta que quede prolijo ni ordenado."
+              placeholder="Contanos, como si le escribieras a un amigo: ¿qué marca/modelo es?, ¿de qué material y color?, ¿por qué lo vendés?, ¿qué incluye (accesorios, caja, manual)?, ¿cómo funciona y en qué estado está?, ¿hay algo a tener en cuenta (golpes, detalles, piezas faltantes)? No hace falta que quede prolijo ni ordenado."
             />
             <div className={styles.aiHint}>
-              🤖 No te preocupes por el orden: en cuanto publiques, una IA toma este texto y arma automáticamente el
-              resumen que ven los compradores (qué incluye, motivo de venta, etc.).
+              🤖 No te preocupes por el orden: en cuanto publiques, una IA toma este texto y separa automáticamente
+              marca, material y color, además de armar el resumen que ven los compradores (qué incluye, motivo de
+              venta, etc.) — así todas las publicaciones se ven con el mismo formato.
             </div>
           </Field>
 

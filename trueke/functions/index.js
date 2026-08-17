@@ -9,11 +9,15 @@ const db = admin.firestore();
 const anthropicApiKey = defineSecret('ANTHROPIC_API_KEY');
 
 /**
- * Turns a seller's free-text description into the structured summary shown
- * on the product page (condition, what's included, sale reason, things to
- * watch out for). This is the one place in the project that calls a real
- * LLM — and it only happens here, server-side, because the API key must
- * never be shipped to the client.
+ * Turns a seller's free-text description into the structured data shown on
+ * the product page: the summary (condition, what's included, sale reason,
+ * things to watch out for) AND the standalone specs — brand, material,
+ * color — that used to be separate Publish form fields. Sellers now just
+ * mention that stuff in the description and this function pulls it out, so
+ * every listing ends up with the same spec format regardless of how the
+ * seller wrote about it. This is the one place in the project that calls a
+ * real LLM — and it only happens here, server-side, because the API key
+ * must never be shipped to the client.
  *
  * Setup: `firebase functions:secrets:set ANTHROPIC_API_KEY`
  * If the secret isn't configured, the function skips silently and the
@@ -39,15 +43,18 @@ exports.summarizeListing = onDocumentCreated(
     const prompt = `Sos un asistente que organiza publicaciones de un marketplace de segunda mano llamado Trueke.
 A partir del texto libre que escribió el vendedor, devolvé ÚNICAMENTE un JSON (sin texto adicional, sin markdown)
 con esta forma exacta:
-{"condition": "...", "includes": "...", "saleReason": "...", "notes": "..."}
+{"condition": "...", "includes": "...", "saleReason": "...", "notes": "...", "brand": "...", "material": "...", "color": "..."}
 
 Reglas:
-- Cada campo es un string corto (1-2 oraciones) en español rioplatense.
-- Si el vendedor no menciona algo, dejá ese campo como string vacío "" — no inventes información.
-- "condition": estado y funcionamiento del producto.
-- "includes": qué accesorios/extras incluye la venta.
-- "saleReason": por qué lo vende, si lo dice.
-- "notes": desperfectos o cosas a tener en cuenta que el vendedor haya mencionado.
+- No inventes información que no esté en el texto — si el vendedor no menciona algo, dejá ese campo como string vacío "".
+- "condition", "includes", "saleReason", "notes": strings cortos (1-2 oraciones) en español rioplatense.
+  - "condition": estado y funcionamiento del producto.
+  - "includes": qué accesorios/extras incluye la venta.
+  - "saleReason": por qué lo vende, si lo dice.
+  - "notes": desperfectos o cosas a tener en cuenta que el vendedor haya mencionado.
+- "brand": la marca del producto (ej: "Trek", "Samsung"), solo el nombre, sin explicación.
+- "material": el material principal (ej: "Aluminio", "Algodón"), solo el nombre.
+- "color": el color principal (ej: "Verde oliva", "Negro mate"), solo el nombre.
 
 Texto del vendedor:
 """${product.description}"""`;
@@ -68,6 +75,9 @@ Texto del vendedor:
           saleReason: parsed.saleReason || '',
           notes: parsed.notes || '',
         },
+        brand: parsed.brand || null,
+        material: parsed.material || null,
+        color: parsed.color || null,
       });
     } catch (err) {
       logger.error('summarizeListing failed', err);
