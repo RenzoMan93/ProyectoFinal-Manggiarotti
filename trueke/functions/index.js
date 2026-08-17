@@ -90,7 +90,9 @@ const PROHIBITED_POLICY = `- Alimentos o bebidas (comestibles de cualquier tipo)
 - Suplementos y superalimentos.
 - Cremas, cosméticos y productos de skin care (maquillaje, esmalte de uñas, bronceadores, etc.).
 - Artículos de laboratorio, con fecha de vencimiento, o que requieran habilitación del MSP u otro organismo regulador.
-- Productos inflamables, químicos, alcoholes o perfumes.`;
+- Productos inflamables, químicos, alcoholes o perfumes.
+- Alquileres de cualquier tipo (inmuebles, autos, o cualquier otro producto ofrecido en alquiler en vez de venta) y
+  cualquier servicio (Trueke es exclusivamente para venta de productos, no para prestación de servicios).`;
 
 /**
  * Server-side backstop for the category ban Publish.jsx already enforces

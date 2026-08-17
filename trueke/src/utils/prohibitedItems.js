@@ -106,6 +106,29 @@ const PROHIBITED_CATEGORIES = [
       'whisky',
     ],
   },
+  {
+    label: 'alquiler o servicios (Trueke es solo venta, no alquiler ni servicios)',
+    keywords: [
+      'alquiler',
+      'alquilo',
+      'se alquila',
+      'en alquiler',
+      'arriendo',
+      'arrendamos',
+      'renta mensual',
+      'renta diaria',
+      'renta por dia',
+      'servicio de',
+      'ofrezco mis servicios',
+      'ofrezco servicio',
+      'clases particulares',
+      'clases de',
+      'reparacion a domicilio',
+      'reparaciones a domicilio',
+      'flete',
+      'mudanzas',
+    ],
+  },
 ];
 
 function normalize(text) {

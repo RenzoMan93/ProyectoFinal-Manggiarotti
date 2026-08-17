@@ -64,3 +64,18 @@ export async function createProduct(sellerId, sellerName, data) {
 export async function setProductLocation(productId, location) {
   await setDoc(doc(db, 'products', productId, 'private', 'location'), location);
 }
+
+/**
+ * Sworn statement (declaración jurada) required for vehicle listings —
+ * the seller attests they're the legal owner (or authorized to sell), the
+ * vehicle isn't stolen, and it has no legal impediment to sale. Kept in the
+ * same seller-only-readable subcollection pattern as the address, since a
+ * license plate is identifying information that shouldn't be public, but
+ * still needs to be recoverable if a fraud claim ever needs to be checked.
+ */
+export async function setVehicleDeclaration(productId, declaration) {
+  await setDoc(doc(db, 'products', productId, 'private', 'vehicleDeclaration'), {
+    ...declaration,
+    declaredAt: serverTimestamp(),
+  });
+}

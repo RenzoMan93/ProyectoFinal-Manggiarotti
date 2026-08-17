@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { createProduct, setProductLocation } from '../../services/productsService';
+import { createProduct, setProductLocation, setVehicleDeclaration } from '../../services/productsService';
 import { checkImageQuality, uploadImage } from '../../services/storageService';
 import { CATEGORIES, CITIES, CURRENCIES, MONTEVIDEO_NEIGHBORHOODS } from '../../utils/constants';
 import { normalizeShoutingCase, formatPrice } from '../../utils/format';
@@ -39,6 +39,8 @@ export default function Publish() {
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
   const [deliveryOption, setDeliveryOption] = useState(null); // 'domicilio' | 'envio' | 'ambos'
+  const [matricula, setMatricula] = useState('');
+  const [declaracionAceptada, setDeclaracionAceptada] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
   async function onFileSelected(e) {
@@ -77,6 +79,7 @@ export default function Publish() {
   const approvedPhotos = photos.filter((p) => p.status === 'approved');
 
   const prohibitedMatch = findProhibitedMatch(`${titulo} ${description}`);
+  const esVehiculo = categorias.includes('Vehículos y accesorios');
 
   const descuentoValido = descuentoActivo && Number(descuentoPorcentaje) > 0 && Number(descuentoPorcentaje) < 100;
   // El vendedor carga el precio ya con el descuento aplicado + el % que rebajó;
@@ -94,6 +97,7 @@ export default function Publish() {
     precio: String(precio).trim().length > 0 && Number(precio) > 0,
     ubicacion: ubicacion.trim().length > 0,
     entrega: !!deliveryOption,
+    declaracion: !esVehiculo || (matricula.trim().length > 0 && declaracionAceptada),
   };
   const keys = Object.keys(checks);
   const doneCount = keys.filter((k) => checks[k]).length;
@@ -107,6 +111,7 @@ export default function Publish() {
     precio: 'precio',
     ubicacion: 'ciudad',
     entrega: 'tipo de entrega',
+    declaracion: 'declaración jurada del vehículo',
   };
   const missing = keys.filter((k) => !checks[k]).map((k) => missingLabels[k]);
   const canPublish = missing.length === 0 && !prohibitedMatch && !publishing;
@@ -132,6 +137,9 @@ export default function Publish() {
       });
       if (direccion.trim() || (lat && lng)) {
         await setProductLocation(id, { address: direccion.trim() || null, lat, lng });
+      }
+      if (esVehiculo) {
+        await setVehicleDeclaration(id, { plate: matricula.trim().toUpperCase(), accepted: true });
       }
       navigate(`/producto/${id}`);
     } finally {
@@ -192,8 +200,10 @@ export default function Publish() {
           <b>No se pueden publicar:</b> alimentos o bebidas, medicamentos y productos de farmacia, suplementos y
           superalimentos, cremas/cosméticos/skin care (maquillaje, esmalte de uñas, bronceadores, etc.), artículos de
           laboratorio con vencimiento o que requieran habilitación del MSP u otros organismos, ni productos
-          inflamables, químicos, alcoholes o perfumes. El título y la descripción se revisan automáticamente antes de
-          publicar.
+          inflamables, químicos, alcoholes o perfumes.{' '}
+          <b>Trueke es solo para venta:</b> no se permite publicar alquileres de inmuebles, autos, ni ningún producto
+          o servicio ofrecido en alquiler o prestación. El título y la descripción se revisan automáticamente antes
+          de publicar.
         </div>
 
         <div className={styles.cardBlock}>
@@ -347,6 +357,33 @@ export default function Publish() {
             </div>
             <LocationPicker lat={lat} lng={lng} onChange={(newLat, newLng) => { setLat(newLat); setLng(newLng); }} />
           </Field>
+
+          {esVehiculo && (
+            <Field label="Declaración jurada del vehículo" required>
+              <input
+                type="text"
+                value={matricula}
+                onChange={(e) => setMatricula(e.target.value)}
+                placeholder="Matrícula / padrón del vehículo"
+              />
+              <div className={styles.declarationRow} onClick={() => setDeclaracionAceptada((v) => !v)}>
+                <span className={`${styles.discountCheckbox} ${declaracionAceptada ? styles.active : ''}`}>
+                  {declaracionAceptada && (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </span>
+                <span>
+                  Declaro bajo juramento que soy el propietario legal de este vehículo (o cuento con autorización
+                  expresa del propietario para venderlo), que no fue robado, y que no tiene impedimentos legales
+                  para su venta (embargos, prendas sin cancelar, etc.). Toda la información publicada es veraz y
+                  entiendo que esta declaración puede usarse como prueba en caso de fraude o reventa de un vehículo
+                  no legal.
+                </span>
+              </div>
+            </Field>
+          )}
 
           <Field label="Tipo de entrega" required>
             <div className="pill-grid">

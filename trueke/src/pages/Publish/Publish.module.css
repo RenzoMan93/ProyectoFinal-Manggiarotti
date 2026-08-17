@@ -474,6 +474,21 @@ input:focus {
   margin: 12px 0 4px;
 }
 
+.declarationRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.declarationRow .discountCheckbox {
+  margin-top: 1px;
+}
+
 .discountCheckbox {
   width: 18px;
   height: 18px;

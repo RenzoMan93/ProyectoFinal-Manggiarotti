@@ -32,7 +32,8 @@ vienen incluidos:
 | Resumen de la publicación por IA (y extracción de marca/material/color) | **Real** (Claude, vía Cloud Function) | `functions/index.js` → `summarizeListing` |
 | Precio también en la otra moneda (USD↔UYU) | **Real** (open.er-api.com, gratis y sin API key, se cachea 1 día) | `src/services/exchangeRateService.js` |
 | Mapa para marcar la dirección exacta | **Real** (Leaflet + OpenStreetMap, gratis y sin API key) | `src/components/LocationPicker.jsx` |
-| Bloqueo de categorías prohibidas (alimentos, medicamentos, cosméticos, inflamables/químicos, etc.) | **Real**, dos capas: bloqueo por palabras clave en Publicar + revisión por Claude vía Cloud Function que retira la publicación si se le escapa a la primera capa | `src/utils/prohibitedItems.js`, `functions/index.js` → `moderateListing` |
+| Bloqueo de categorías prohibidas (alimentos, medicamentos, cosméticos, inflamables/químicos, alquileres/servicios, etc. — Trueke es solo venta) | **Real**, dos capas: bloqueo por palabras clave en Publicar + revisión por Claude vía Cloud Function que retira la publicación si se le escapa a la primera capa | `src/utils/prohibitedItems.js`, `functions/index.js` → `moderateListing` |
+| Declaración jurada obligatoria para publicar vehículos | **Real** (checkbox + matrícula, guardado privado igual que la dirección) | `src/pages/Publish/Publish.jsx`, `productsService.js` → `setVehicleDeclaration` |
 | Revisión de fotos | Heurística simple (resolución/peso), no visión real | `src/services/storageService.js` |
 | Verificación de identidad (match documento/selfie) | **Mock** — aprueba automáticamente | `functions/index.js` → `reviewKycSubmission` |
 | Pago con tarjeta / Mercado Pago / efectivo | **Mock** — nunca se procesa un cobro real, y los datos de tarjeta nunca se guardan | `src/services/paymentProvider.js` |
@@ -131,6 +132,16 @@ trueke/
   original se sacó): el mapa en Publicar sirve para que el vendedor marque
   el punto exacto de entrega, pero ese punto no alimenta ningún cálculo de
   distancia/costo de envío ni el buscador del Feed.
+- La declaración jurada de vehículos guarda lo que el vendedor tildó y
+  escribió (matrícula), pero no lo contrasta contra ningún registro real
+  (DNIC, padrón, prendas/embargos); sirve como respaldo legal/evidencia si
+  hay un reclamo, no como verificación automática de que el vehículo es
+  legal.
+- El bloqueo de categorías prohibidas (alimentos, medicamentos,
+  alquileres/servicios, etc.) es de mejor esfuerzo, no una garantía legal:
+  la capa de palabras clave se puede evadir con errores de tipeo o
+  sinónimos raros, y aunque la revisión por IA es una segunda capa
+  independiente, ningún clasificador automático es 100% infalible.
 - La dirección exacta y el pin del mapa **nunca son públicos**: se guardan
   en `products/{id}/private/location`, una subcolección cuyas reglas de
   Firestore (`firestore.rules`) solo permiten leerla al propio vendedor.
