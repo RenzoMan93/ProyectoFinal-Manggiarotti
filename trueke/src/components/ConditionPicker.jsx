@@ -1,12 +1,12 @@
 import React from 'react';
-import { starString, USED_CONDITION_LEVELS } from '../utils/condition';
+import { starString, CONDITION_LEVELS } from '../utils/condition';
 import styles from './ConditionPicker.module.css';
 
-/** Named condition levels for "Usado" listings, backed by a 1-5 star value. */
+/** Named condition levels for a listing, backed by a 1-5 star value. */
 export default function ConditionPicker({ value, onChange }) {
   return (
     <div className={styles.list}>
-      {USED_CONDITION_LEVELS.map((level) => (
+      {CONDITION_LEVELS.map((level) => (
         <div
           key={level.stars}
           className={`${styles.row} ${value === level.stars ? styles.sel : ''}`}

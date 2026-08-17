@@ -11,7 +11,7 @@ import { useExchangeRate } from '../../hooks/useExchangeRate';
 import styles from './Feed.module.css';
 
 const QUICK_CHIPS = [
-  { key: 'nuevo', label: 'Nuevo' },
+  { key: 'comoNueva', label: 'Como nueva' },
   { key: 'envio', label: 'Con envío' },
   { key: 'verificado', label: 'Vendedor verificado' },
 ];
@@ -19,7 +19,6 @@ const QUICK_CHIPS = [
 const emptyFilters = {
   maxPrice: 2000,
   categoria: null,
-  conditionType: null,
   minStars: null,
   material: '',
   color: '',
@@ -56,12 +55,11 @@ export default function Feed() {
   const filtered = useMemo(() => {
     return products.filter((p) => {
       if (search.trim() && !p.title?.toLowerCase().includes(search.trim().toLowerCase())) return false;
-      if (activeChips.has('nuevo') && p.conditionType !== 'Nuevo') return false;
+      if (activeChips.has('comoNueva') && p.conditionStars !== 5) return false;
       if (activeChips.has('envio') && !p.offersShipping) return false;
       if (activeChips.has('verificado') && !p.sellerVerified) return false;
       if (p.price > filters.maxPrice) return false;
       if (filters.categoria && !p.categories?.includes(filters.categoria)) return false;
-      if (filters.conditionType && p.conditionType !== filters.conditionType) return false;
       if (filters.minStars && (p.conditionStars || 0) < filters.minStars) return false;
       if (filters.material.trim() && !p.material?.toLowerCase().includes(filters.material.trim().toLowerCase())) return false;
       if (filters.color.trim() && !p.color?.toLowerCase().includes(filters.color.trim().toLowerCase())) return false;
@@ -72,7 +70,6 @@ export default function Feed() {
 
   const activeFilterCount =
     (filters.categoria ? 1 : 0) +
-    (filters.conditionType ? 1 : 0) +
     (filters.minStars ? 1 : 0) +
     (filters.material.trim() ? 1 : 0) +
     (filters.color.trim() ? 1 : 0) +
@@ -214,23 +211,6 @@ export default function Feed() {
                   className={`pill ${draftFilters.categoria === c ? 'sel' : ''}`}
                   onClick={() =>
                     setDraftFilters((f) => ({ ...f, categoria: f.categoria === c ? null : c }))
-                  }
-                >
-                  {c}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.fsection}>
-            <h4>Estado</h4>
-            <div className="pill-grid">
-              {['Nuevo', 'Usado'].map((c) => (
-                <div
-                  key={c}
-                  className={`pill ${draftFilters.conditionType === c ? 'sel' : ''}`}
-                  onClick={() =>
-                    setDraftFilters((f) => ({ ...f, conditionType: f.conditionType === c ? null : c }))
                   }
                 >
                   {c}

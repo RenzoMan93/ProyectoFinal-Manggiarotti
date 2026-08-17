@@ -19,8 +19,7 @@ export default function Publish() {
   const [titulo, setTitulo] = useState('');
   const [categorias, setCategorias] = useState([]);
   const [description, setDescription] = useState('');
-  const [conditionType, setConditionType] = useState(null); // 'Nuevo' | 'Usado'
-  const [conditionStars, setConditionStars] = useState(null); // 1-5, forced to 5 when Nuevo
+  const [conditionStars, setConditionStars] = useState(null); // 1-5
   const [moneda, setMoneda] = useState('USD');
   const [precio, setPrecio] = useState('');
   const [precioAnterior, setPrecioAnterior] = useState('');
@@ -60,11 +59,6 @@ export default function Publish() {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   }
 
-  function selectConditionType(type) {
-    setConditionType(type);
-    setConditionStars(type === 'Nuevo' ? 5 : null);
-  }
-
   function toggleCategoria(c) {
     setCategorias((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
   }
@@ -76,7 +70,7 @@ export default function Publish() {
     titulo: titulo.trim().length > 0,
     categoria: categorias.length > 0,
     descripcion: description.trim().length > 0,
-    condicion: !!conditionType && !!conditionStars,
+    condicion: !!conditionStars,
     precio: String(precio).trim().length > 0 && Number(precio) > 0,
     ubicacion: ubicacion.trim().length > 0,
   };
@@ -105,7 +99,6 @@ export default function Publish() {
         title: normalizeShoutingCase(titulo),
         categories: categorias,
         description: description.trim(),
-        conditionType,
         conditionStars,
         price: Number(precio),
         oldPrice: Number(precioAnterior) > Number(precio) ? Number(precioAnterior) : null,
@@ -196,15 +189,7 @@ export default function Publish() {
           </Field>
 
           <Field label="Estado" required>
-            <div className="pill-grid">
-              <div className={`pill ${conditionType === 'Nuevo' ? 'sel' : ''}`} onClick={() => selectConditionType('Nuevo')}>
-                Nuevo
-              </div>
-              <div className={`pill ${conditionType === 'Usado' ? 'sel' : ''}`} onClick={() => selectConditionType('Usado')}>
-                Usado
-              </div>
-            </div>
-            {conditionType === 'Usado' && <ConditionPicker value={conditionStars} onChange={setConditionStars} />}
+            <ConditionPicker value={conditionStars} onChange={setConditionStars} />
           </Field>
 
           <Field label="Precio" required>
