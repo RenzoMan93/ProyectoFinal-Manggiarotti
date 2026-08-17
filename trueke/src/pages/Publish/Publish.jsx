@@ -199,22 +199,34 @@ export default function Publish() {
           </Field>
 
           <Field label="Precio" required>
-            <select className={styles.currencySelect} value={moneda} onChange={(e) => setMoneda(e.target.value)}>
+            <div className={styles.currencyLabel}>Seleccioná moneda</div>
+            <div className={styles.currencyOptions}>
               {CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>
+                <div
+                  key={c.code}
+                  className={`${styles.currencyOption} ${moneda === c.code ? styles.currencyOptionSel : ''}`}
+                  onClick={() => setMoneda(c.code)}
+                >
+                  <span className={styles.currencyCheck}>
+                    {moneda === c.code && (
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </span>
                   {c.label}
-                </option>
+                </div>
               ))}
-            </select>
+            </div>
             <div className={styles.priceInput}>
-              <span>{moneda}</span>
+              <span>{CURRENCIES.find((c) => c.code === moneda)?.symbol}</span>
               <input
                 type="number"
                 min="0"
                 value={precio}
                 onChange={(e) => setPrecio(e.target.value)}
                 placeholder="0"
-                style={{ paddingLeft: `${19 + moneda.length * 9}px` }}
+                style={{ paddingLeft: `${19 + (CURRENCIES.find((c) => c.code === moneda)?.symbol.length || 1) * 9}px` }}
               />
             </div>
 
