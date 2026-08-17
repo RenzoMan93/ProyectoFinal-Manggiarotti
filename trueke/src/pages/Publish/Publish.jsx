@@ -314,15 +314,15 @@ export default function Publish() {
   );
 }
 
-/** Collapsible multi-select: a trigger row (with a chevron marking it as
- * expandable) that opens a searchable checklist panel, closing on an
- * outside click. Typing filters the list, but selecting is always done by
- * tapping an option in it — never free text. */
+/** A single search box (no separate trigger) — the dropdown opens as soon
+ * as the seller focuses/types in it, showing CATEGORIES (already
+ * alphabetical) filtered live. Selecting is always done by tapping an
+ * option in the list, never free text; what's already selected shows as
+ * removable chips under the box. */
 function CategoryDropdown({ selected, onToggle }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const wrapRef = useRef(null);
-  const searchRef = useRef(null);
 
   useEffect(() => {
     function onDocClick(e) {
@@ -332,30 +332,34 @@ function CategoryDropdown({ selected, onToggle }) {
     return () => document.removeEventListener('mousedown', onDocClick);
   }, []);
 
-  useEffect(() => {
-    if (open) searchRef.current?.focus();
-    else setQuery('');
-  }, [open]);
-
   const filtered = CATEGORIES.filter((c) => c.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
     <div className={styles.categoryDropdown} ref={wrapRef}>
-      <button type="button" className={`${styles.categoryTrigger} ${open ? styles.categoryTriggerOpen : ''}`} onClick={() => setOpen((o) => !o)}>
-        <span className={selected.length === 0 ? styles.categoryPlaceholder : ''}>
-          {selected.length === 0 ? 'Tocá para elegir categorías' : selected.join(', ')}
-        </span>
-      </button>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => setOpen(true)}
+        placeholder="Buscar categoría..."
+      />
+      {selected.length > 0 && (
+        <div className={styles.categoryChips}>
+          {selected.map((c) => (
+            <div key={c} className={styles.categoryChip}>
+              {c}
+              <button type="button" onClick={() => onToggle(c)} aria-label={`Quitar ${c}`}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       {open && (
         <div className={styles.categoryPanel}>
-          <input
-            ref={searchRef}
-            type="text"
-            className={styles.categorySearch}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar categoría..."
-          />
           <div className={styles.categoryList}>
             {filtered.length === 0 ? (
               <div className={styles.categoryEmpty}>No hay categorías que coincidan con "{query}".</div>

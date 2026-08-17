@@ -333,54 +333,38 @@ input:focus {
   position: relative;
 }
 
-.categoryTrigger {
-  width: 100%;
-  border: 1.5px solid var(--line);
-  border-radius: 11px;
-  padding: 11px 13px;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: inherit;
-  background: var(--bg);
-  outline: none;
-  cursor: pointer;
+.categoryChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.categoryChip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
+  padding: 5px 6px 5px 10px;
+  border-radius: 20px;
+  background: #e4efea;
+  color: var(--forest-dark);
+  font-size: 11.5px;
+  font-weight: 600;
 }
 
-.categoryTrigger:focus {
-  border-color: var(--forest);
-}
-
-.categoryTriggerOpen {
-  border-color: var(--forest);
-}
-
-.categoryTrigger span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.categoryPlaceholder {
-  color: var(--muted);
-}
-
-.categoryTrigger::after {
-  content: '';
+.categoryChip button {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(27, 75, 67, 0.16);
+  color: var(--forest-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   flex: none;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--muted);
-  border-bottom: 2px solid var(--muted);
-  transform: rotate(45deg) translateY(-3px);
-  transition: transform 0.15s;
-}
-
-.categoryTriggerOpen::after {
-  transform: rotate(225deg) translateY(2px);
+  padding: 0;
 }
 
 .categoryPanel {
@@ -396,19 +380,6 @@ input:focus {
   border-radius: 12px;
   max-height: 280px;
   box-shadow: 0 10px 26px rgba(20, 20, 15, 0.16);
-}
-
-.categorySearch {
-  width: 100%;
-  border: none;
-  border-bottom: 1.5px solid var(--line);
-  border-radius: 12px 12px 0 0;
-  padding: 10px 13px;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  outline: none;
-  background: transparent;
-  flex: none;
 }
 
 .categoryList {
