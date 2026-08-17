@@ -300,6 +300,55 @@
   display: block;
 }
 
+.faqBlock {
+  margin-bottom: 18px;
+}
+
+.faqHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  color: var(--forest-dark);
+  margin-bottom: 10px;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.faqItem {
+  background: var(--paper);
+  padding: 12px 14px;
+}
+
+.faqQ {
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.faqA {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #3d4038;
+}
+
+.faqHint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
 .aiNote {
   display: flex;
   gap: 10px;

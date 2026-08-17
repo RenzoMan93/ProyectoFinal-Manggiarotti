@@ -11,6 +11,7 @@ const QUICK_QUESTIONS = [
   { key: 'estado', label: '¿En qué estado está?' },
   { key: 'envio', label: '¿Hace envíos?' },
   { key: 'pago', label: '¿Qué medios de pago acepta?' },
+  { key: 'precio', label: '¿Hace descuento?' },
 ];
 
 export default function ProductDetail() {
@@ -99,6 +100,8 @@ export default function ProductDetail() {
 
           <AiSummary product={product} showOriginal={showOriginal} setShowOriginal={setShowOriginal} />
 
+          <PublicFaq product={product} />
+
           <div className={styles.aiNote}>
             <span>🛡️</span>
             <span>
@@ -184,6 +187,37 @@ function AiSummary({ product, showOriginal, setShowOriginal }) {
         </svg>
       </button>
       <div className={`${styles.originalBox} ${showOriginal ? styles.show : ''}`}>{product.description}</div>
+    </div>
+  );
+}
+
+/**
+ * Public FAQ built from the same canned auto-reply engine the chat uses
+ * (buildAutoReply only reads the product's own fields, never anything
+ * buyer-specific), so every future buyer sees the answers to the most
+ * common questions ("¿hace envíos?", "¿qué medios de pago acepta?") right
+ * on the listing instead of having to message the seller to ask them.
+ */
+function PublicFaq({ product }) {
+  return (
+    <div className={styles.faqBlock}>
+      <div className={styles.faqHead}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1B4B43" strokeWidth="2.3">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2 1.8-2 3.3" />
+          <circle cx="12" cy="16.3" r="0.6" fill="#1B4B43" />
+        </svg>
+        Preguntas frecuentes
+      </div>
+      <div className={styles.faqList}>
+        {QUICK_QUESTIONS.map((q) => (
+          <div key={q.key} className={styles.faqItem}>
+            <div className={styles.faqQ}>{q.label}</div>
+            <div className={styles.faqA}>{buildAutoReply(product, q.label)}</div>
+          </div>
+        ))}
+      </div>
+      <div className={styles.faqHint}>¿Tenés otra duda? Escribile directamente al vendedor.</div>
     </div>
   );
 }

@@ -271,6 +271,19 @@ input:focus {
   border-color: var(--forest);
 }
 
+.oldPriceLabel {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 12px 0 7px;
+}
+
+.oldPriceWarn {
+  font-size: 11px;
+  color: var(--coral);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
 .priceInput {
   position: relative;
 }

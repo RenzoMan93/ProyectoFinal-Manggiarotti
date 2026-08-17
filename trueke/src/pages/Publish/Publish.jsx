@@ -23,6 +23,7 @@ export default function Publish() {
   const [conditionStars, setConditionStars] = useState(null); // 1-5, forced to 5 when Nuevo
   const [moneda, setMoneda] = useState('USD');
   const [precio, setPrecio] = useState('');
+  const [precioAnterior, setPrecioAnterior] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [marca, setMarca] = useState('');
   const [material, setMaterial] = useState('');
@@ -107,6 +108,7 @@ export default function Publish() {
         conditionType,
         conditionStars,
         price: Number(precio),
+        oldPrice: Number(precioAnterior) > Number(precio) ? Number(precioAnterior) : null,
         currency: moneda,
         city: ubicacion.trim(),
         brand: marca.trim() || null,
@@ -224,6 +226,22 @@ export default function Publish() {
                 style={{ paddingLeft: `${19 + (CURRENCIES.find((c) => c.code === moneda)?.symbol.length || 1) * 9}px` }}
               />
             </div>
+
+            <div className={styles.oldPriceLabel}>Precio anterior (opcional) — mostralo si estás haciendo una rebaja</div>
+            <div className={styles.priceInput}>
+              <span>{CURRENCIES.find((c) => c.code === moneda)?.symbol}</span>
+              <input
+                type="number"
+                min="0"
+                value={precioAnterior}
+                onChange={(e) => setPrecioAnterior(e.target.value)}
+                placeholder="0"
+                style={{ paddingLeft: `${19 + (CURRENCIES.find((c) => c.code === moneda)?.symbol.length || 1) * 9}px` }}
+              />
+            </div>
+            {precioAnterior.trim().length > 0 && Number(precioAnterior) <= Number(precio || 0) && (
+              <div className={styles.oldPriceWarn}>Tiene que ser mayor al precio actual para mostrarse como rebaja.</div>
+            )}
           </Field>
 
           <Field label="Marca">
