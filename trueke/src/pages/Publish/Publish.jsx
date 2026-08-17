@@ -302,72 +302,44 @@ export default function Publish() {
   );
 }
 
-/** Multi-select dropdown: a trigger button (styled like the other inputs)
- * that opens a checklist panel of categories, closing on an outside click.
- * The panel has a search box so the seller can type to filter — but the
- * only way to actually select one is tapping it in the list, never free text. */
+/** Always-expanded searchable checklist of categories (no trigger button to
+ * open/close) — the seller can type to filter, but the only way to select
+ * one is tapping it in the list below, never free text. */
 function CategoryDropdown({ selected, onToggle }) {
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const wrapRef = useRef(null);
-  const searchRef = useRef(null);
-
-  useEffect(() => {
-    function onDocClick(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, []);
-
-  useEffect(() => {
-    if (open) searchRef.current?.focus();
-    else setQuery('');
-  }, [open]);
-
   const filtered = CATEGORIES.filter((c) => c.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
-    <div className={styles.categoryDropdown} ref={wrapRef}>
-      <button type="button" className={styles.categoryTrigger} onClick={() => setOpen((o) => !o)}>
-        <span className={selected.length === 0 ? styles.categoryPlaceholder : ''}>
-          {selected.length === 0 ? 'Seleccioná una o más categorías' : selected.join(', ')}
-        </span>
-      </button>
-      {open && (
-        <div className={styles.categoryPanel}>
-          <input
-            ref={searchRef}
-            type="text"
-            className={styles.categorySearch}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar categoría..."
-          />
-          <div className={styles.categoryList}>
-            {filtered.length === 0 ? (
-              <div className={styles.categoryEmpty}>No hay categorías que coincidan con "{query}".</div>
-            ) : (
-              filtered.map((c) => (
-                <div
-                  key={c}
-                  className={`${styles.categoryOption} ${selected.includes(c) ? styles.categoryOptionSel : ''}`}
-                  onClick={() => onToggle(c)}
-                >
-                  <span className={styles.categoryCheck}>
-                    {selected.includes(c) && (
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </span>
-                  {c}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+    <div className={styles.categoryPanel}>
+      <input
+        type="text"
+        className={styles.categorySearch}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Buscar categoría..."
+      />
+      <div className={styles.categoryList}>
+        {filtered.length === 0 ? (
+          <div className={styles.categoryEmpty}>No hay categorías que coincidan con "{query}".</div>
+        ) : (
+          filtered.map((c) => (
+            <div
+              key={c}
+              className={`${styles.categoryOption} ${selected.includes(c) ? styles.categoryOptionSel : ''}`}
+              onClick={() => onToggle(c)}
+            >
+              <span className={styles.categoryCheck}>
+                {selected.includes(c) && (
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </span>
+              {c}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
