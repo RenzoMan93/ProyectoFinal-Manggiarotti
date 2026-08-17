@@ -433,6 +433,16 @@ input:focus {
   font-family: var(--font-mono);
 }
 
+.percentInput input::-webkit-outer-spin-button,
+.percentInput input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.percentInput input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 .percentInput span {
   position: absolute;
   right: 13px;
