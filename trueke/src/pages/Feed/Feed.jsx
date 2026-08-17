@@ -56,7 +56,7 @@ export default function Feed() {
     return products.filter((p) => {
       if (search.trim() && !p.title?.toLowerCase().includes(search.trim().toLowerCase())) return false;
       if (activeChips.has('comoNueva') && p.conditionStars !== 5) return false;
-      if (activeChips.has('envio') && !p.offersShipping) return false;
+      if (activeChips.has('envio') && p.deliveryOption !== 'envio' && p.deliveryOption !== 'ambos') return false;
       if (activeChips.has('verificado') && !p.sellerVerified) return false;
       if (p.price > filters.maxPrice) return false;
       if (filters.categoria && !p.categories?.includes(filters.categoria)) return false;

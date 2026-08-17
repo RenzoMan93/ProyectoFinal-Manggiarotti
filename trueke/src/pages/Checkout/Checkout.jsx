@@ -212,7 +212,7 @@ function StepEntrega({ product, entrega, setEntrega, direccion, setDireccion, ci
 
       <div className={styles.sectionLabel}>Forma de entrega</div>
 
-      {product.offersShipping && (
+      {(product.deliveryOption === 'envio' || product.deliveryOption === 'ambos') && (
         <div className={`${styles.optCard} ${entrega === 'domicilio' ? styles.sel : ''}`} onClick={() => setEntrega('domicilio')}>
           <div className={styles.optIcon}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

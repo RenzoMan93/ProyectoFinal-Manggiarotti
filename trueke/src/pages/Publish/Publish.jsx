@@ -11,6 +11,12 @@ import styles from './Publish.module.css';
 
 const REQUIRED_PHOTOS = 3;
 
+const DELIVERY_OPTIONS = [
+  { value: 'domicilio', label: 'Entrega en domicilio' },
+  { value: 'envio', label: 'Envío' },
+  { value: 'ambos', label: 'Ambos' },
+];
+
 export default function Publish() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +32,7 @@ export default function Publish() {
   const [descuentoActivo, setDescuentoActivo] = useState(false);
   const [descuentoPorcentaje, setDescuentoPorcentaje] = useState('');
   const [ubicacion, setUbicacion] = useState('');
-  const [offersShipping, setOffersShipping] = useState(false);
+  const [deliveryOption, setDeliveryOption] = useState(null); // 'domicilio' | 'envio' | 'ambos'
   const [publishing, setPublishing] = useState(false);
 
   async function onFileSelected(e) {
@@ -110,7 +116,7 @@ export default function Publish() {
         oldPrice: precioAnteriorCalculado,
         currency: moneda,
         city: ubicacion.trim(),
-        offersShipping,
+        deliveryOption,
         sellerVerified: profile?.verificationStatus === 'verified',
       });
       navigate(`/producto/${id}`);
@@ -280,11 +286,17 @@ export default function Publish() {
             <input type="text" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder="Ej: Punta del Este" />
           </Field>
 
-          <Field label="Entrega">
+          <Field label="Tipo de entrega">
             <div className="pill-grid">
-              <div className={`pill ${offersShipping ? 'sel' : ''}`} onClick={() => setOffersShipping((v) => !v)}>
-                Ofrezco envío a domicilio
-              </div>
+              {DELIVERY_OPTIONS.map((o) => (
+                <div
+                  key={o.value}
+                  className={`pill ${deliveryOption === o.value ? 'sel' : ''}`}
+                  onClick={() => setDeliveryOption(o.value)}
+                >
+                  {o.label}
+                </div>
+              ))}
             </div>
           </Field>
         </div>
