@@ -31,6 +31,7 @@ vienen incluidos:
 | Fotos de productos y KYC | **Real** (Cloudinary, plan gratuito) | `src/services/storageService.js` |
 | Resumen de la publicación por IA (y extracción de marca/material/color) | **Real** (Claude, vía Cloud Function) | `functions/index.js` → `summarizeListing` |
 | Precio también en la otra moneda (USD↔UYU) | **Real** (open.er-api.com, gratis y sin API key, se cachea 1 día) | `src/services/exchangeRateService.js` |
+| Mapa para marcar la dirección exacta | **Real** (Leaflet + OpenStreetMap, gratis y sin API key) | `src/components/LocationPicker.jsx` |
 | Revisión de fotos | Heurística simple (resolución/peso), no visión real | `src/services/storageService.js` |
 | Verificación de identidad (match documento/selfie) | **Mock** — aprueba automáticamente | `functions/index.js` → `reviewKycSubmission` |
 | Pago con tarjeta / Mercado Pago / efectivo | **Mock** — nunca se procesa un cobro real, y los datos de tarjeta nunca se guardan | `src/services/paymentProvider.js` |
@@ -125,5 +126,12 @@ trueke/
   cliente y nunca mandar el número de tarjeta a tu propio backend.
 - La verificación de identidad se auto-aprueba (ver tabla arriba); antes de
   manejar usuarios reales hace falta un proveedor de KYC.
-- No hay búsqueda geográfica real: el filtro de "cercanía" del prototipo
-  original se sacó porque no hay geocoding de direcciones implementado.
+- No hay búsqueda geográfica real (el filtro de "cercanía" del prototipo
+  original se sacó): el mapa en Publicar sirve para que el vendedor marque
+  el punto exacto de entrega, pero ese punto no alimenta ningún cálculo de
+  distancia/costo de envío ni el buscador del Feed.
+- La dirección exacta y el pin del mapa **nunca son públicos**: se guardan
+  en `products/{id}/private/location`, una subcolección cuyas reglas de
+  Firestore (`firestore.rules`) solo permiten leerla al propio vendedor.
+  El producto en sí solo expone `city`/`neighborhood`, que sí son
+  públicos y son lo único que ve un comprador.

@@ -7,6 +7,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -52,4 +53,14 @@ export async function createProduct(sellerId, sellerName, data) {
     createdAt: serverTimestamp(),
   });
   return ref.id;
+}
+
+/**
+ * Exact address + map pin, kept in a subcollection with its own Firestore
+ * rules (only the seller can read/write it — see firestore.rules) so it
+ * never ends up in the public product document. City/neighborhood stay on
+ * the product itself; this is only for the precise pickup/delivery point.
+ */
+export async function setProductLocation(productId, location) {
+  await setDoc(doc(db, 'products', productId, 'private', 'location'), location);
 }

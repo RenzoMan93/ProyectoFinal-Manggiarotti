@@ -78,7 +78,7 @@ export default function ProductDetail() {
             </div>
           )}
           <div className={styles.metaRow}>
-            <span>📍 {product.city || 'Uruguay'}</span>
+            <span>📍 {[product.city, product.neighborhood].filter(Boolean).join(', ') || 'Uruguay'}</span>
             <span>👁 {product.views || 0} vistas</span>
           </div>
 

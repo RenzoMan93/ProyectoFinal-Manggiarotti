@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { createProduct } from '../../services/productsService';
+import { createProduct, setProductLocation } from '../../services/productsService';
 import { checkImageQuality, uploadImage } from '../../services/storageService';
-import { CATEGORIES, CURRENCIES } from '../../utils/constants';
+import { CATEGORIES, CITIES, CURRENCIES, MONTEVIDEO_NEIGHBORHOODS } from '../../utils/constants';
 import { normalizeShoutingCase, formatPrice } from '../../utils/format';
 import { conditionTitle } from '../../utils/condition';
 import StarPicker from '../../components/StarPicker.jsx';
+import LocationPicker from '../../components/LocationPicker.jsx';
 import styles from './Publish.module.css';
 
 const REQUIRED_PHOTOS = 3;
@@ -32,6 +33,10 @@ export default function Publish() {
   const [descuentoActivo, setDescuentoActivo] = useState(false);
   const [descuentoPorcentaje, setDescuentoPorcentaje] = useState('');
   const [ubicacion, setUbicacion] = useState('');
+  const [barrio, setBarrio] = useState('');
+  const [direccion, setDireccion] = useState('');
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
   const [deliveryOption, setDeliveryOption] = useState(null); // 'domicilio' | 'envio' | 'ambos'
   const [publishing, setPublishing] = useState(false);
 
@@ -85,6 +90,7 @@ export default function Publish() {
     condicion: !!conditionStars,
     precio: String(precio).trim().length > 0 && Number(precio) > 0,
     ubicacion: ubicacion.trim().length > 0,
+    entrega: !!deliveryOption,
   };
   const keys = Object.keys(checks);
   const doneCount = keys.filter((k) => checks[k]).length;
@@ -97,6 +103,7 @@ export default function Publish() {
     condicion: 'estado',
     precio: 'precio',
     ubicacion: 'ciudad',
+    entrega: 'tipo de entrega',
   };
   const missing = keys.filter((k) => !checks[k]).map((k) => missingLabels[k]);
   const canPublish = missing.length === 0 && !publishing;
@@ -115,10 +122,14 @@ export default function Publish() {
         price: Number(precio),
         oldPrice: precioAnteriorCalculado,
         currency: moneda,
-        city: ubicacion.trim(),
+        city: ubicacion,
+        neighborhood: barrio || null,
         deliveryOption,
         sellerVerified: profile?.verificationStatus === 'verified',
       });
+      if (direccion.trim() || (lat && lng)) {
+        await setProductLocation(id, { address: direccion.trim() || null, lat, lng });
+      }
       navigate(`/producto/${id}`);
     } finally {
       setPublishing(false);
@@ -283,10 +294,53 @@ export default function Publish() {
           </Field>
 
           <Field label="Ciudad" required>
-            <input type="text" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} placeholder="Ej: Punta del Este" />
+            <select
+              className={styles.selectInput}
+              value={ubicacion}
+              onChange={(e) => {
+                setUbicacion(e.target.value);
+                setBarrio('');
+              }}
+            >
+              <option value="" disabled>
+                Seleccioná tu ciudad
+              </option>
+              {CITIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </Field>
 
-          <Field label="Tipo de entrega">
+          {ubicacion === 'Montevideo' && (
+            <Field label="Barrio">
+              <select className={styles.selectInput} value={barrio} onChange={(e) => setBarrio(e.target.value)}>
+                <option value="">Seleccioná tu barrio (opcional)</option>
+                {MONTEVIDEO_NEIGHBORHOODS.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          <Field label="Dirección">
+            <input
+              type="text"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              placeholder="Ej: Calle 25 esq. Gorlero"
+            />
+            <div className={styles.addressHint}>
+              📍 Marcá el punto exacto en el mapa (opcional). Por seguridad, ni la dirección ni el mapa se muestran a
+              los compradores — solo vos los ves; se usan para coordinar la entrega en privado.
+            </div>
+            <LocationPicker lat={lat} lng={lng} onChange={(newLat, newLng) => { setLat(newLat); setLng(newLng); }} />
+          </Field>
+
+          <Field label="Tipo de entrega" required>
             <div className="pill-grid">
               {DELIVERY_OPTIONS.map((o) => (
                 <div

@@ -167,7 +167,7 @@ export default function Feed() {
                       ≈ {formatPrice(Math.round(convertPrice(p.price, p.currency, exchangeRate)), p.currency === 'USD' ? 'UYU' : 'USD')}
                     </div>
                   )}
-                  <div className={styles.dist}>📍 {p.city || 'Uruguay'}</div>
+                  <div className={styles.dist}>📍 {[p.city, p.neighborhood].filter(Boolean).join(', ') || 'Uruguay'}</div>
                 </div>
               </div>
             ))}
