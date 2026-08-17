@@ -271,6 +271,28 @@ input:focus {
   border-color: var(--forest);
 }
 
+.currencySelect {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  padding: 11px 13px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: inherit;
+  background: var(--bg);
+  outline: none;
+  margin-bottom: 8px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235c5c52' stroke-width='2.6'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+}
+
+.currencySelect:focus {
+  border-color: var(--forest);
+}
+
 .oldPriceLabel {
   font-size: 11px;
   color: var(--muted);

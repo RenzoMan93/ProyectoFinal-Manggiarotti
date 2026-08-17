@@ -193,13 +193,13 @@ export default function Publish() {
           </Field>
 
           <Field label="Precio" required>
-            <div className="pill-grid" style={{ marginBottom: 8 }}>
+            <select className={styles.currencySelect} value={moneda} onChange={(e) => setMoneda(e.target.value)}>
               {CURRENCIES.map((c) => (
-                <div key={c.code} className={`pill ${moneda === c.code ? 'sel' : ''}`} onClick={() => setMoneda(c.code)}>
+                <option key={c.code} value={c.code}>
                   {c.label}
-                </div>
+                </option>
               ))}
-            </div>
+            </select>
             <div className={styles.priceInput}>
               <span>{CURRENCIES.find((c) => c.code === moneda)?.symbol}</span>
               <input
