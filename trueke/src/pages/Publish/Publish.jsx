@@ -6,6 +6,7 @@ import { checkImageQuality, uploadImage } from '../../services/storageService';
 import { CATEGORIES, CITIES, CURRENCIES, MONTEVIDEO_NEIGHBORHOODS } from '../../utils/constants';
 import { normalizeShoutingCase, formatPrice } from '../../utils/format';
 import { conditionTitle } from '../../utils/condition';
+import { findProhibitedMatch } from '../../utils/prohibitedItems';
 import StarPicker from '../../components/StarPicker.jsx';
 import LocationPicker from '../../components/LocationPicker.jsx';
 import styles from './Publish.module.css';
@@ -75,6 +76,8 @@ export default function Publish() {
 
   const approvedPhotos = photos.filter((p) => p.status === 'approved');
 
+  const prohibitedMatch = findProhibitedMatch(`${titulo} ${description}`);
+
   const descuentoValido = descuentoActivo && Number(descuentoPorcentaje) > 0 && Number(descuentoPorcentaje) < 100;
   // El vendedor carga el precio ya con el descuento aplicado + el % que rebajó;
   // el precio anterior (tachado en la ficha) se reconstruye a partir de esos dos.
@@ -106,7 +109,7 @@ export default function Publish() {
     entrega: 'tipo de entrega',
   };
   const missing = keys.filter((k) => !checks[k]).map((k) => missingLabels[k]);
-  const canPublish = missing.length === 0 && !publishing;
+  const canPublish = missing.length === 0 && !prohibitedMatch && !publishing;
 
   async function handlePublish() {
     if (!canPublish) return;
@@ -183,6 +186,14 @@ export default function Publish() {
             de subirse. Si sale borrosa o pesa demasiado, te pedimos que la reemplaces. Al publicar, una IA analiza
             todas las fotos aprobadas y elige automáticamente la mejor como foto de portada.
           </div>
+        </div>
+
+        <div className={styles.policyNotice}>
+          <b>No se pueden publicar:</b> alimentos o bebidas, medicamentos y productos de farmacia, suplementos y
+          superalimentos, cremas/cosméticos/skin care (maquillaje, esmalte de uñas, bronceadores, etc.), artículos de
+          laboratorio con vencimiento o que requieran habilitación del MSP u otros organismos, ni productos
+          inflamables, químicos, alcoholes o perfumes. El título y la descripción se revisan automáticamente antes de
+          publicar.
         </div>
 
         <div className={styles.cardBlock}>
@@ -354,8 +365,12 @@ export default function Publish() {
       </div>
 
       <div className={styles.publishbar}>
-        <div className={`${styles.missingNote} ${missing.length === 0 ? styles.ok : ''}`}>
-          {missing.length === 0 ? 'Todo listo para publicar ✓' : `Falta completar: ${missing.join(', ')}`}
+        <div className={`${styles.missingNote} ${missing.length === 0 && !prohibitedMatch ? styles.ok : ''}`}>
+          {prohibitedMatch
+            ? `No se puede publicar: el título o la descripción menciona ${prohibitedMatch.label} ("${prohibitedMatch.keyword}"). Quitalo del texto para poder publicar.`
+            : missing.length === 0
+            ? 'Todo listo para publicar ✓'
+            : `Falta completar: ${missing.join(', ')}`}
         </div>
         <button className={`${styles.btnPublish} ${canPublish ? styles.active : ''}`} onClick={handlePublish}>
           {publishing ? 'Publicando…' : 'Publicar producto'}

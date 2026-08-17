@@ -208,6 +208,21 @@
   color: var(--forest-dark);
 }
 
+.policyNotice {
+  font-size: 11px;
+  color: #7a4a2b;
+  background: #fbeee0;
+  border: 1px dashed #c9773f;
+  border-radius: 12px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  margin: -6px 0 16px;
+}
+
+.policyNotice b {
+  color: #5c3419;
+}
+
 textarea {
   width: 100%;
   border: 1.5px solid var(--line);

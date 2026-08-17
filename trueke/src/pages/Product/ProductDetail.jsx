@@ -41,11 +41,16 @@ export default function ProductDetail() {
     return <div className="centered-loader">Cargando publicación…</div>;
   }
 
+  const isOwner = !!user && product.sellerId === user.uid;
+
+  if (product.status !== 'active' && !isOwner) {
+    return <div className="centered-loader">Esta publicación ya no está disponible.</div>;
+  }
+
   const photos = product.photos?.length ? product.photos : [];
   const discount = product.oldPrice
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : null;
-  const isOwner = !!user && product.sellerId === user.uid;
 
   function openChat() {
     if (!user) {
@@ -61,6 +66,16 @@ export default function ProductDetail() {
 
       <div className={styles.bodyScroll}>
         <div className={styles.panel}>
+          {isOwner && product.status === 'blocked_policy' && (
+            <div className={styles.aiNote}>
+              <span>🚫</span>
+              <span>
+                Esta publicación fue retirada del catálogo por nuestra revisión automática
+                {product.moderationCategory ? ` (${product.moderationCategory})` : ''}
+                {product.moderationReason ? `: ${product.moderationReason}` : '.'} No es visible para compradores.
+              </span>
+            </div>
+          )}
           <div className={styles.titleLg}>{product.title}</div>
           <div className={styles.priceRow}>
             <span className={styles.priceBig}>{formatPrice(product.price, product.currency)}</span>

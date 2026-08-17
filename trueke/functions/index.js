@@ -85,6 +85,78 @@ Texto del vendedor:
   }
 );
 
+const PROHIBITED_POLICY = `- Alimentos o bebidas (comestibles de cualquier tipo).
+- Medicamentos y productos de farmacia.
+- Suplementos y superalimentos.
+- Cremas, cosméticos y productos de skin care (maquillaje, esmalte de uñas, bronceadores, etc.).
+- Artículos de laboratorio, con fecha de vencimiento, o que requieran habilitación del MSP u otro organismo regulador.
+- Productos inflamables, químicos, alcoholes o perfumes.`;
+
+/**
+ * Server-side backstop for the category ban Publish.jsx already enforces
+ * client-side (see src/utils/prohibitedItems.js) with a keyword list. A
+ * keyword list is easy to bypass (typos, synonyms, a different language) —
+ * this is a second, independent check that reads the listing the same way
+ * a human moderator would, and it runs regardless of what the client sent.
+ * If it finds a real violation, the listing is pulled from the public
+ * catalog (status moves off 'active', which Feed's query already filters
+ * on) instead of relying on the client to have blocked it in the first
+ * place.
+ */
+exports.moderateListing = onDocumentCreated(
+  { document: 'products/{productId}', secrets: [anthropicApiKey] },
+  async (event) => {
+    const snap = event.data;
+    const product = snap.data();
+    if (!product || product.status !== 'active') return;
+
+    const apiKey = anthropicApiKey.value();
+    if (!apiKey) {
+      logger.warn('ANTHROPIC_API_KEY not configured — skipping moderateListing.');
+      return;
+    }
+
+    const { default: Anthropic } = await import('@anthropic-ai/sdk');
+    const anthropic = new Anthropic({ apiKey });
+
+    const prompt = `Sos un moderador de contenido para Trueke, un marketplace de segunda mano. Estas categorías
+NO están permitidas en la plataforma:
+${PROHIBITED_POLICY}
+
+Evaluá esta publicación y decidí si viola alguna de esas categorías. Devolvé ÚNICAMENTE un JSON (sin texto
+adicional, sin markdown) con esta forma exacta: {"violates": true|false, "category": "...", "reason": "..."}
+- "violates": true solo si el producto en sí pertenece a una de las categorías prohibidas de arriba, no si
+  simplemente las menciona de pasada (ej. "cambio de aceite" en un auto no es un producto químico).
+- "category": cuál de las categorías de la lista viola, vacío "" si violates es false.
+- "reason": una oración corta explicando por qué, vacío "" si violates es false.
+
+Título: "${product.title || ''}"
+Categorías: ${(product.categories || []).join(', ') || 'sin categoría'}
+Descripción: """${product.description || ''}"""`;
+
+    try {
+      const response = await anthropic.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      const text = response.content?.[0]?.text?.trim() || '{}';
+      const parsed = JSON.parse(text);
+
+      if (parsed.violates) {
+        await snap.ref.update({
+          status: 'blocked_policy',
+          moderationCategory: parsed.category || '',
+          moderationReason: parsed.reason || '',
+        });
+        logger.info(`Blocked product ${event.params.productId} — ${parsed.category}: ${parsed.reason}`);
+      }
+    } catch (err) {
+      logger.error('moderateListing failed', err);
+    }
+  }
+);
+
 /**
  * Looks at every photo a seller uploaded for a listing and uses Claude's
  * vision capability to pick the one that best represents the product (in
